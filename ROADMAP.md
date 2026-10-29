@@ -53,8 +53,9 @@ reverse proxy.
 
 ## Before publishing (cleanup and review)
 
-Multitap is to be published as its own project after a cleanup and a thorough
-review. This is that checklist.
+Multitap went public as its own project on 2026-10-29, with 0.2.0, after a
+cleanup and a thorough review. This was that checklist; its open items are
+still wanted.
 
 ### Review passes
 
@@ -207,11 +208,12 @@ review. This is that checklist.
   with its OpenAPI document, and `@multitap/addon-protocol`, under the
   `@multitap` npm org. They pack for outside consumers since 0.2.0, checked by
   `pnpm run pack:check`; left: drop `private` and add a publish step. _Source: owner notes._
-- [~] **Publish the Docker image** · S · `multitap` — to
-  `ghcr.io/multitap-media/multitap` (GitHub Container Registry, chosen
-  2026-10-25). `.github/workflows/release.yml` builds it for amd64 and arm64
-  on every `v*` tag and pushes `X.Y.Z`, `X.Y` and `latest`; it hasn't run
-  yet. _Source: owner notes; okf:decision/core-public-name-multitap._
+- [x] **Publish the Docker image** · S · `multitap` — done 2026-10-29 with
+  0.2.0: `ghcr.io/multitap-media/multitap` (GitHub Container Registry, chosen
+  2026-10-25), public. `.github/workflows/release.yml` builds it for amd64 and
+  arm64 on every `v*` tag and pushes `X.Y.Z`, `X.Y` and `latest` with
+  provenance and an SBOM. _Source: owner notes;
+  okf:decision/core-public-name-multitap._
 
 ## Next
 

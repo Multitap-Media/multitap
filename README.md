@@ -445,14 +445,17 @@ in [SECURITY.md](SECURITY.md).
 
 ### Docker
 
-The image is to be published as `ghcr.io/multitap-media/multitap`; until then,
-build it from the repository root:
+The image is `ghcr.io/multitap-media/multitap`, for amd64 and arm64, tagged
+`X.Y.Z`, `X.Y` and `latest` on every release. For a deployment you keep, pin
+`X.Y.Z` (or `X.Y` to follow its patch releases) rather than `latest`:
 
 ```bash
-docker build -t multitap .
-docker run -d --name multitap -v multitap-data:/data -p 127.0.0.1:8080:8080 -p 8081:8081 multitap
+docker run -d --name multitap -v multitap-data:/data -p 127.0.0.1:8080:8080 -p 8081:8081 ghcr.io/multitap-media/multitap:latest
 docker exec multitap multitap api-key create --scope admin --label me
 ```
+
+To build it yourself instead, run `docker build -t multitap .` from the
+repository root and use `multitap` as the image name.
 
 Then add an engine, as in [1. An engine](#1-an-engine) (`docker exec` reaches
 the API on loopback). The image's health check calls
