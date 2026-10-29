@@ -1,0 +1,3 @@
+# Fact
+* [Core release history and the breaking-change record](core-release-history.md) - Core's tagged versions (0.1.0, 0.1.1, 0.1.2, 0.1.3, 0.1.4) with dates and what changed, plus the response-enum changes that oasdiff flagged and the maintainer accepted, so future API checks know the baseline.
+* [Engine baseline the design is written against (v0.18.1, 9475695)](engine-baseline.md) - The stremio-server-go commits and versions the design refers to: first review at 9475695, behaviour current as of v0.18.1 (7c637ad), Go 1.27.1 to build, the upstream PRs merged on 2026-09-29/30 and which release carries each; the reference engine runs the build after #36.

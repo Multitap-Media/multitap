@@ -1,0 +1,35 @@
+# Build context filter for the Dockerfile (built from the repository root). An
+# allowlist: the context gets the workspace manifests and the sources the
+# image needs, nothing else (no .git, knowledge/, data or secrets).
+
+*
+
+!package.json
+!pnpm-lock.yaml
+!pnpm-workspace.yaml
+!tsconfig.base.json
+
+!packages/core/package.json
+!packages/core/LICENSE
+!packages/core/tsconfig.json
+!packages/core/src/
+!packages/core/migrations/
+!packages/core/dev/
+
+!packages/addon-protocol/package.json
+!packages/addon-protocol/LICENSE
+!packages/addon-protocol/tsconfig.json
+!packages/addon-protocol/src/
+
+!packages/api/package.json
+!packages/api/LICENSE
+!packages/api/tsconfig.json
+!packages/api/src/
+
+# Never, even inside the directories above.
+**/node_modules
+**/dist
+**/test
+**/data
+**/.env
+**/*.log

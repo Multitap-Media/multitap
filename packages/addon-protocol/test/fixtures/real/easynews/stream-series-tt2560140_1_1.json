@@ -1,0 +1,31 @@
+{
+  "streams": [
+    {
+      "name": "Easynews++\n4K",
+      "description": "Attack.on.Titan.S01E01.2160p.x265.AI.Upscale.NSFLamp.mkv\n🕛 25m:41s\n📦 4.1 GB 📅 45d\n🌐 eng, jpn ⭐",
+      "url": "https://example.invalid/redacted/1696",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Attack.on.Titan.S01E01.2160p.x265.AI.Upscale.NSFLamp.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "Attack on Titan (2013) - S04E30 The Final Chapters Special 2 [Bluray-1080p][10bit][x265][Opus 2.0][JA+EN]-ZeroBuild.mkv\n🕛 1h:25m:0s\n📦 9.0 GB 📅 558d\n🌐 jpn, eng ⭐",
+      "url": "https://example.invalid/redacted/1697",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Attack on Titan (2013) - S04E30 The Final Chapters Special 2 [Bluray-1080p][10bit][x265][Opus 2.0][JA+EN]-ZeroBuild.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "Attack.on.Titan.S01E01.German.ML.DTS.1080p.BluRay.AVC.REMUX-AranoX.mkv\n🕛 25m:40s\n📦 7.6 GB 📅 266d\n🌐 ger, eng, jpn ⭐",
+      "url": "https://example.invalid/redacted/1698",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Attack.on.Titan.S01E01.German.ML.DTS.1080p.BluRay.AVC.REMUX-AranoX.mkv"
+      }
+    }
+  ]
+}

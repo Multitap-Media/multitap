@@ -1,0 +1,52 @@
+{
+  "streams": [
+    {
+      "name": "[RD+] Torrentio\n1080p HDR",
+      "title": "[Salieri] Attack on Titan - Shingeki No Kyojin S1 BD (1080p) (HDR) [Dual Audio]\n[Salieri] Attack On Titan S1 - 01 (1080p) (HDR) [Dual Audio].mkv\n👤 150 💾 1.44 GB ⚙️ NyaaSi\nDubbed / Dual Audio",
+      "url": "https://example.invalid/redacted/1590",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|7e29d8d2db9364202c1318b5eafc48729100ef8c",
+        "filename": "[Salieri] Attack On Titan S1 - 01 (1080p) (HDR) [Dual Audio].mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n1080p",
+      "title": "[Anime Time] Attack On Titan (Complete Collection) (S01-S04+OVA+Movies+Junior High) [BD] [Dual Audio][1080p][HEVC 10bit x265][AAC][Eng Sub] [Batch] (Shingeki no Kyojin)\nAttack on Titan Season 1/[Anime Time] Attack on Titan - 01.mkv\n👤 836 💾 544.54 MB ⚙️ NyaaSi\nDubbed / Dual Audio / 🇬🇧",
+      "url": "https://example.invalid/redacted/1591",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|bf173e6d9c99744084888579d8751bd301c03a5d",
+        "filename": "[Anime Time] Attack on Titan - 01.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n720p",
+      "title": "[NoobSubs] Attack on Titan~Shingeki no Kyojin Series (720p Blu-ray Dual Audio 8bit AAC)\n1. Attack on Titan (2013)/[NoobSubs] Shingeki no Kyojin 01 (720p Blu-ray Dual Audio 8bit AAC)[F0E9BDFF].mkv\n👤 19 💾 654.55 MB ⚙️ NyaaSi\nDubbed / Dual Audio",
+      "url": "https://example.invalid/redacted/1592",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|b6c73a3afd200c94f689de02af5b2cf90b9f444d",
+        "filename": "[NoobSubs] Shingeki no Kyojin 01 (720p Blu-ray Dual Audio 8bit AAC)[F0E9BDFF].mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n480p",
+      "title": "[F-D] Attack on Titan Season 1 Complete [480P][Dual-Audio]\n[F-D] Attack on Titan - S01E01 To You, Two Thousand Years Later [480P][Dual-Audio].mkv\n👤 3 💾 86.66 MB ⚙️ ThePirateBay\nDubbed / Dual Audio",
+      "url": "https://example.invalid/redacted/1593",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|32f8681c3a90dd5cd002569bc9d98457fef60967",
+        "filename": "[F-D] Attack on Titan - S01E01 To You, Two Thousand Years Later [480P][Dual-Audio].mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio",
+      "title": "[Furretar] 台粤配 - 进击的巨人 (Attack on Titan) (Season 1-4 + Kanketsu-hen + OVA + Junior High) (Taiwanese Mandarin + Cantonese Chinese Dub) (Matching Soft Subs) [國語][粵語][国语][中配版] (進擊的巨人) (Shingeki no Kyojin) (The Last Attack) (Final Chapters)\nShingeki no Kyojin S1 [台粤]/Shingeki no Kyojin S1 - 01.mkv\n👤 27 💾 429.73 MB ⚙️ NyaaSi\nDubbed / 🇨🇳",
+      "url": "https://example.invalid/redacted/1594",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|3bd03e7b3dc48224611fe6f34f194f25b4cffdc5",
+        "filename": "Shingeki no Kyojin S1 - 01.mkv"
+      }
+    }
+  ],
+  "cacheMaxAge": 3600,
+  "staleRevalidate": 14400,
+  "staleError": 604800
+}

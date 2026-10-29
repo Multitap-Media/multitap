@@ -1,0 +1,34 @@
+{
+  "streams": [
+    {
+      "name": "[RD+] Torrentio\n4k",
+      "title": "Dune.2021.2160p.BluRay.REMUX.HEVC.DTS-HD.MA.TrueHD.7.1.Atmos-FGT\n👤 197 💾 86.11 GB ⚙️ TorrentGalaxy",
+      "url": "https://example.invalid/redacted/1564",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay REMUX|hevc",
+        "filename": "Dune.2021.2160p.BluRay.REMUX.HEVC.DTS-HD.MA.TrueHD.7.1.Atmos-FGT.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n1080p",
+      "title": "Dune.2021.1080p.BluRay.REMUX.AVC.DTS-HD.MA.TrueHD.7.1.Atmos-FGT\n👤 222 💾 37.22 GB ⚙️ RARBG",
+      "url": "https://example.invalid/redacted/1565",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|1080p|BluRay REMUX|avc",
+        "filename": "Dune.2021.1080p.BluRay.REMUX.AVC.DTS-HD.MA.TrueHD.7.1.Atmos-FGT.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n576p",
+      "title": "Dune 2021 576p BRRip x265 AAC-SSN\n👤 0 💾 1.82 GB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1566",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|576p|BRRip|x265",
+        "filename": "Dune 2021 576p BRRip x265 AAC-SSN.mkv"
+      }
+    }
+  ],
+  "cacheMaxAge": 3600,
+  "staleRevalidate": 14400,
+  "staleError": 604800
+}

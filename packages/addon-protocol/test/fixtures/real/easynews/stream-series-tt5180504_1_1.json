@@ -1,0 +1,58 @@
+{
+  "streams": [
+    {
+      "name": "Easynews++\n4K",
+      "description": "The.Witcher.S01E04.Of.Banquets.Bastards.And.Burials.2160p.NF.WEBRip.DDP5.1.x264-NTb.mkv\n🕛 1h:2m:10s\n📦 19.7 GB 📅 1353d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1707",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The.Witcher.S01E04.Of.Banquets.Bastards.And.Burials.2160p.NF.WEBRip.DDP5.1.x264-NTb.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n4K",
+      "description": "The.Witcher.S01E03.Betrayer.Moon.2160p.NF.WEBRip.DDP5.1.x264-NTb.mkv\n🕛 1h:7m:2s\n📦 18.7 GB 📅 1353d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1708",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The.Witcher.S01E03.Betrayer.Moon.2160p.NF.WEBRip.DDP5.1.x264-NTb.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n3840 x 2160",
+      "description": "The Witcher_S03E01_Shaerrawedd.mkv\n🕛 1h:3m:0s\n📦 9.9 GB 📅 861d\n🌐 eng, fre, hin, ukr ⭐",
+      "url": "https://example.invalid/redacted/1709",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The Witcher_S03E01_Shaerrawedd.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n3840 x 2160",
+      "description": "The Witcher_S02E01_A Grain of Truth.mkv\n🕛 1h:3m:33s\n📦 9.3 GB 📅 861d\n🌐 eng, fre, hin, ukr ⭐",
+      "url": "https://example.invalid/redacted/1710",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The Witcher_S02E01_A Grain of Truth.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "The.Witcher.S01E04.1080p.NF.WEBRip.DDP5.1.x264-NTb.mkv\n🕛 1h:2m:10s\n📦 7.9 GB 📅 330d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1711",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The.Witcher.S01E04.1080p.NF.WEBRip.DDP5.1.x264-NTb.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "The.Witcher.S01E03.1080p.NF.WEBRip.DDP5.1.x264-NTb.mkv\n🕛 1h:7m:2s\n📦 7.6 GB 📅 330d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1712",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The.Witcher.S01E03.1080p.NF.WEBRip.DDP5.1.x264-NTb.mkv"
+      }
+    }
+  ]
+}

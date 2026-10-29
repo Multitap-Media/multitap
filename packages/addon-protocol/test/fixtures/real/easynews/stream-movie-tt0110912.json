@@ -1,0 +1,76 @@
+{
+  "streams": [
+    {
+      "name": "Easynews++\n4K",
+      "description": "Pulp.Fiction.1994.2160p.UHD.Bluray.Remux.HEVC.DV.HDR.DTS-HD.MA.5.1-UPiNSMOKE.mkv\n🕛 2h:34m:30s\n📦 85.6 GB 📅 1418d\n🌐 eng, ger, fre, ita, jpn ⭐",
+      "url": "https://example.invalid/redacted/1681",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Pulp.Fiction.1994.2160p.UHD.Bluray.Remux.HEVC.DV.HDR.DTS-HD.MA.5.1-UPiNSMOKE.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n4K",
+      "description": "Pulp.Fiction.1994.Hybrid.2160p.UHD.Blu-ray.Remux.DV.HDR10P.HEVC.DTS-HD.MA.5.1-CiNEPHiLES.mkv\n🕛 2h:34m:31s\n📦 83.5 GB 📅 128d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1682",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Pulp.Fiction.1994.Hybrid.2160p.UHD.Blu-ray.Remux.DV.HDR10P.HEVC.DTS-HD.MA.5.1-CiNEPHiLES.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "Pulp.Fiction.1994.BluRay.1080p.DTS-HD.MA.5.1.AVC.HYBRID.REMUX-FraMeSToR.mkv\n🕛 2h:34m:24s\n📦 40.1 GB 📅 65d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1683",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Pulp.Fiction.1994.BluRay.1080p.DTS-HD.MA.5.1.AVC.HYBRID.REMUX-FraMeSToR.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "Pulp.Fiction.1994.1080p.Bluray.REMUX.AVC.DTS-HD.MA.5.1-4K4U.mkv\n🕛 2h:34m:24s\n📦 37.8 GB 📅 2001d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1684",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Pulp.Fiction.1994.1080p.Bluray.REMUX.AVC.DTS-HD.MA.5.1-4K4U.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1920 x 1080",
+      "description": "Pulp Fiction (1994) [Micro-HD][Dual][AVC][Dolby 5.1][tt0110912].mkv\n🕛 2h:34m:57s\n📦 5.7 GB 📅 185d\n🌐 spa, eng ⭐",
+      "url": "https://example.invalid/redacted/1685",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Pulp Fiction (1994) [Micro-HD][Dual][AVC][Dolby 5.1][tt0110912].mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n720p",
+      "description": "Pulp.Fiction.1994.POL.Blu-ray.720p.DTS.x264-HDS.mkv\n🕛 2h:34m:24s\n📦 10.4 GB 📅 1184d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1686",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Pulp.Fiction.1994.POL.Blu-ray.720p.DTS.x264-HDS.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n720p",
+      "description": "Pulp.Fiction.1994.720p.BluRay.x264-CtrlHD.mkv\n🕛 2h:34m:24s\n📦 8.8 GB 📅 1192d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1687",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Pulp.Fiction.1994.720p.BluRay.x264-CtrlHD.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n720 x 576",
+      "description": "Pulp Fiction (1994) DVDrip DTS &amp;5.1-EAGLE.mkv\n🕛 2h:28m:3s\n📦 7.2 GB 📅 2807d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1688",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Pulp Fiction (1994) DVDrip DTS &amp;5.1-EAGLE.mkv"
+      }
+    }
+  ]
+}

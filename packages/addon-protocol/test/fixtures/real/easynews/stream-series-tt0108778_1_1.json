@@ -1,0 +1,13 @@
+{
+  "streams": [
+    {
+      "name": "Easynews++\n4K",
+      "description": "friends.s09e23.2160p.uhd.bluray.h265-pristine.mkv\n🕛 50m:3s\n📦 18.5 GB 📅 724d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1699",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "friends.s09e23.2160p.uhd.bluray.h265-pristine.mkv"
+      }
+    }
+  ]
+}

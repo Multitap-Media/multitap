@@ -1,0 +1,61 @@
+{
+  "streams": [
+    {
+      "name": "[RD+] Torrentio\n4320p HDR",
+      "title": "House of the Dragon - S01 Complete - 8K HDR Ai Upscale 7.1 Atmos MultiSub -Mesc\nHouse of the Dragon - S01E01 - The Heirs of the Dragon - 4320p HDR Ai Upscale -Mesc.mkv\n👤 1 💾 14.73 GB ⚙️ ThePirateBay\nMulti Subs",
+      "url": "https://example.invalid/redacted/1609",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|f80a0867bca38b799656a6a0955c513fcdd872f9",
+        "filename": "House of the Dragon - S01E01 - The Heirs of the Dragon - 4320p HDR Ai Upscale -Mesc.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n4k",
+      "title": "House.of.the.Dragon.S01.2160p.BluRay.REMUX.HEVC.DTS-HD.MA.TrueHD.7.1.Atmos-FGT\nHouse.of.the.Dragon.S01E01.2160p.BluRay.REMUX.HEVC.DTS-HD.MA.TrueHD.7.1.Atmos-FGT.mkv\n👤 14 💾 27.9 GB ⚙️ RARBG",
+      "url": "https://example.invalid/redacted/1610",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4ecafd722fa63a3fade6aa3ffce21f8a0f7220e4",
+        "filename": "House.of.the.Dragon.S01E01.2160p.BluRay.REMUX.HEVC.DTS-HD.MA.TrueHD.7.1.Atmos-FGT.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n1080p DV | HDR",
+      "title": "House of the Dragon s01-s02 1080p DV/HDR10 web-dl\nSeason 01/House of the Dragon - S01E01 - The Heirs of the Dragon.mkv\n👤 6 💾 2.93 GB ⚙️ 1337x",
+      "url": "https://example.invalid/redacted/1611",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|06c8fa0207ea81d607f0f5c1aea1622caa4f47b0",
+        "filename": "House of the Dragon - S01E01 - The Heirs of the Dragon.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n1080p",
+      "title": "House of the Dragon S01 1080p BluRay x265\nHouse.of.the.Dragon.S01E01.1080p.BluRay.x265-RARBG[eztv.re].mp4\n👤 966 💾 1.02 GB ⚙️ EZTV",
+      "url": "https://example.invalid/redacted/1612",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|12f3c9bc841933ae49dea906645952369e62b539",
+        "filename": "House.of.the.Dragon.S01E01.1080p.BluRay.x265-RARBG[eztv.re].mp4"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n480p",
+      "title": "House.of.the.Dragon.S01.480p.x264-ZMNT\nHouse.of.the.Dragon.S01E01.480p.x264-ZMNT.mkv\n👤 0 💾 299.14 MB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1613",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|8146b8993296338ccefaf9424b58a323c63b2849",
+        "filename": "House.of.the.Dragon.S01E01.480p.x264-ZMNT.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio",
+      "title": "House of the Dragon S01 DVDRemux x264 AC3 Soup\nE01 The Heirs of the Dragon.mkv\n👤 1 💾 3.05 GB ⚙️ TorrentGalaxy",
+      "url": "https://example.invalid/redacted/1614",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|3818131e6967eebecbcdbf0b12086398a3cfd80e",
+        "filename": "E01 The Heirs of the Dragon.mkv"
+      }
+    }
+  ],
+  "cacheMaxAge": 3600,
+  "staleRevalidate": 14400,
+  "staleError": 604800
+}

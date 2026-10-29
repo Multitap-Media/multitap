@@ -1,0 +1,144 @@
+# Schemathesis settings for the contract run (phase 1 step 9). Used by run.ts,
+# which passes the URL, seed, example count and the operations of each pass on
+# the command line. See run.ts for the harness design.
+
+# One worker: with a fixed seed, the run is reproducible.
+workers = 1
+
+[generation]
+# NUL bytes can't appear in URLs or JSON strings that Multitap would ever get
+# from a real client; Node's HTTP parser rejects them before Multitap sees them.
+allow-x00 = false
+
+[auth.openapi.bearerAuth]
+bearer = "${MULTITAP_CONTRACT_API_KEY}"
+
+# Checks: run.ts passes `--checks all --exclude-checks ignored_auth,missing_required_header`
+# (the command line overrides `enabled` here). Both excluded checks insist
+# that a request without a key gets 401/403, but Multitap answers 404, exactly
+# like an unknown route (okf:architecture/core-api-keys-security), so the API doesn't reveal
+# itself. Vitest covers that (app.test.ts, "auth"). Multitap declares no header
+# parameters, so missing_required_header has nothing else to check yet.
+
+[phases.stateful]
+max-steps = 20
+
+# ---- Documented 400s that valid-looking data can hit -------------------------
+#
+# Schemathesis's positive_data_acceptance treats a 400 for schema-valid input
+# as a bug. These operations document 400s that depend on state the schema
+# can't express, so 400 is accepted for them (404 and 409 already are):
+
+# `engine` is any well-formed engine id; engines are data, so which ids exist
+# is only known at run time. An unknown one is a documented 400.
+[[operations]]
+include-operation-id = "listSources"
+checks.positive_data_acceptance.expected-statuses = ["2xx", 400, 404, 409]
+
+# Extras are checked against the addon's manifest (`extra`, `options`,
+# `optionsLimit`, `isRequired`), which is data, not schema. A mismatch is a
+# documented 400.
+# The addon id is pinned to the seeded Cinemeta: ids are UUIDs made at run
+# time, and no OpenAPI link leads to getCatalog.
+# With the declared examples (`movie`, `top`) this reaches real catalog
+# pages; unknown addon ids (404) are covered by Vitest.
+[[operations]]
+include-operation-id = "getCatalog"
+checks.positive_data_acceptance.expected-statuses = ["2xx", 400, 404, 409]
+parameters = { "path.addonId" = "${MULTITAP_CONTRACT_CATALOG_ADDON}" }
+
+# Adding an addon fetches its manifest; any URL that isn't a reachable addon
+# is a documented 400.
+[[operations]]
+include-operation-id = "addAddon"
+checks.positive_data_acceptance.expected-statuses = ["2xx", 400, 404, 409]
+
+# A listed file whose addon server fails, or serves something unconvertible,
+# is a documented 502.
+# The file is pinned to one the harness listed (an SRT converted to WebVTT),
+# so the text/vtt response is checked; unknown files (404) are covered by
+# Vitest.
+[[operations]]
+include-operation-id = "getSubtitleFile"
+checks.not_a_server_error.expected-statuses = ["2xx", "3xx", "4xx", 502]
+parameters = { "path.file" = "${MULTITAP_CONTRACT_SUBTITLE_FILE}" }
+
+# Previewing fetches the manifest at the given URL; anything that isn't a
+# valid http(s) URL, or isn't a reachable addon, is a documented 400.
+[[operations]]
+include-operation-id = "previewAddon"
+checks.positive_data_acceptance.expected-statuses = ["2xx", 400, 404, 409]
+
+# The engine is any well-formed engine id (an unknown one is a documented
+# 400). A picked `source.key` that schemathesis makes up is unknown (409) or,
+# from a link, belongs to another item (422); `mode: 'full'`, `readyBy`,
+# `direct` and `remux` are documented 501s.
+[[operations]]
+include-operation-id = "createSession"
+checks.positive_data_acceptance.expected-statuses = ["2xx", 400, 404, 409, 422, 501]
+checks.not_a_server_error.expected-statuses = ["2xx", "3xx", "4xx", 501]
+
+# `readyBy` is a documented 501 until phase 4; a released session is a 410.
+[[operations]]
+include-operation-id = "updateSession"
+checks.positive_data_acceptance.expected-statuses = ["2xx", 400, 404, 409, 410, 501]
+checks.not_a_server_error.expected-statuses = ["2xx", "3xx", "4xx", 501]
+
+# A released session answers 410 on the routes that act on it, and Schemathesis
+# treats 410 for schema-valid input as a bug unless it is listed.
+[[operations]]
+include-operation-id = "mintMediaToken"
+checks.positive_data_acceptance.expected-statuses = ["2xx", 404, 409, 410]
+
+[[operations]]
+include-operation-id = "listSessionSubtitles"
+checks.positive_data_acceptance.expected-statuses = ["2xx", 404, 410]
+
+[[operations]]
+include-operation-id = "listSessionViewers"
+checks.positive_data_acceptance.expected-statuses = ["2xx", 404, 410]
+
+# The file id of the subtitle offset routes comes from a link in the stateful phase, which
+# can feed it another response's id; a malformed one is a documented 400.
+[[operations]]
+include-operation-id = "setSessionSubtitleOffset"
+checks.positive_data_acceptance.expected-statuses = ["2xx", 400, 404, 410]
+
+[[operations]]
+include-operation-id = "clearSessionSubtitleOffset"
+checks.positive_data_acceptance.expected-statuses = ["2xx", 400, 404, 410]
+
+# A released session stays readable as `status: released` for
+# MULTITAP_SESSION_RELEASED_KEEP_MS (by design, okf:concept/media-tokens), so `use_after_free`
+# (which expects 404 after DELETE) is a false positive for getSession.
+[[operations]]
+include-operation-id = "getSession"
+checks.use_after_free.enabled = false
+
+# The same check is also evaluated against the DELETE that freed the resource
+# (and so its settings), which is the same false positive.
+[[operations]]
+include-operation-id = "releaseSession"
+checks.use_after_free.enabled = false
+
+# ---- The event stream ----------------------------------------------------------
+#
+# `GET /v1/events` is server-sent events: the response never ends, so every
+# request would hang until a timeout. It is left out; Vitest covers it
+# (events.test.ts: filters, replay, heartbeats, admin-only types).
+[[operations]]
+include-operation-id = "streamEvents"
+enabled = false
+
+# ---- Protecting the harness's own key ----------------------------------------
+#
+# With response-derived data, Schemathesis would feed ids from
+# `GET /v1/admin/api-keys` into this operation and revoke the key it is
+# testing with, turning every later request into a 404. Revocation is tested
+# with generated ids only (which never match a real key), and it takes no part
+# in stateful sequences. Vitest covers revoking real keys.
+[[operations]]
+include-operation-id = "revokeApiKey"
+phases.coverage.extra-data-sources.responses = false
+phases.fuzzing.extra-data-sources.responses = false
+phases.stateful.enabled = false

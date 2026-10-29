@@ -1,0 +1,40 @@
+{
+  "streams": [
+    {
+      "name": "Easynews++\n4K",
+      "description": "the.office.2024.s01e08.german.dl.hdr.2160p.web.h265-w4k.mkv\n🕛 25m:40s\n📦 3.5 GB 📅 710d\n🌐 ger, eng ⭐",
+      "url": "https://example.invalid/redacted/1703",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "the.office.2024.s01e08.german.dl.hdr.2160p.web.h265-w4k.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n4K",
+      "description": "The.Office.2024.S01E08.FINAL.MULTI.HDR.2160p.WEB.H265-HiggsBoson.mkv\n🕛 25m:40s\n📦 3.5 GB 📅 710d\n🌐 fre, eng ⭐",
+      "url": "https://example.invalid/redacted/1704",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The.Office.2024.S01E08.FINAL.MULTI.HDR.2160p.WEB.H265-HiggsBoson.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "The.Office.S05E01.1080p.BluRay.REMUX.VC-1.DTS-HD.MA.5.1-NOGRP.mkv\n🕛 42m:1s\n📦 9.3 GB 📅 1418d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1705",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The.Office.S05E01.1080p.BluRay.REMUX.VC-1.DTS-HD.MA.5.1-NOGRP.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "The.Office.S06E08.Koi.Pond.1080p.BluRay.REMUX.VC-1.DTS-HD.MA.5.1-NOGRP.mkv\n🕛 22m:4s\n📦 4.7 GB 📅 1418d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1706",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The.Office.S06E08.Koi.Pond.1080p.BluRay.REMUX.VC-1.DTS-HD.MA.5.1-NOGRP.mkv"
+      }
+    }
+  ]
+}

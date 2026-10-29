@@ -1,0 +1,3 @@
+# Fingerprints of findings that were checked and are not secrets, one per line.
+# Passed with --ignore-file by scripts/secrets-scan.js. Add a line only after
+# checking the finding is benign.

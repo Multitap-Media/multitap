@@ -1,0 +1,31 @@
+{
+  "streams": [
+    {
+      "name": "Easynews++\n1080p",
+      "description": "Rick.and.Morty.S08E01.GERMAN.DL.1080p.WEB.H264-FWB.mkv\n🕛 22m:28s\n📦 1.3 GB 📅 417d\n🌐 ger, eng ⭐",
+      "url": "https://example.invalid/redacted/1700",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Rick.and.Morty.S08E01.GERMAN.DL.1080p.WEB.H264-FWB.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n720p",
+      "description": "Rick.and.Morty.S08E01.GERMAN.DL.720p.WEB.H264-FWB.mkv\n🕛 22m:28s\n📦 816.6 MB 📅 417d\n🌐 ger, eng ⭐",
+      "url": "https://example.invalid/redacted/1701",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Rick.and.Morty.S08E01.GERMAN.DL.720p.WEB.H264-FWB.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n720p",
+      "description": "Rick And Morty S09E01 720p HDTV H 264-JFF.mkv\n🕛 22m:12s\n📦 507.3 MB 📅 84d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1702",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Rick And Morty S09E01 720p HDTV H 264-JFF.mkv"
+      }
+    }
+  ]
+}

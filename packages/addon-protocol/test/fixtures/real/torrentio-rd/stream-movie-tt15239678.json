@@ -1,0 +1,34 @@
+{
+  "streams": [
+    {
+      "name": "[RD+] Torrentio\n4k",
+      "title": "Dune: Part Two 2024 2160p WEBRip\n👤 100 💾 7.4 GB ⚙️ YTS",
+      "url": "https://example.invalid/redacted/1535",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|WEBRip|x265|10bit",
+        "filename": "Dune.Part.Two.2024.2160p.4K.WEB.x265.10bit.AAC5.1-[YTS.MX].mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n1080p DV | HDR",
+      "title": "Dune - Part Two 2024 1080p BluRay DoVi HDR10 TrueHD Atmos 7 1 x265-GeneMige\n👤 90 💾 5.93 GB ⚙️ ThePirateBay\n🇬🇧 / 🇪🇸 / 🇫🇷 / 🇩🇰 / 🇸🇪 / 🇳🇴",
+      "url": "https://example.invalid/redacted/1536",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|1080p|BluRay|x265|10bit|DV|HDR",
+        "filename": "Dune - Part Two 2024 1080p BluRay DoVi HDR10 TrueHD Atmos 7 1 x265-GeneMige.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n1080p",
+      "title": "Dune: Part Two 2024 1080p WEBRip\n👤 1090 💾 2.76 GB ⚙️ YTS",
+      "url": "https://example.invalid/redacted/1537",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|1080p|WEBRip|x264",
+        "filename": "Dune.Part.Two.2024.1080p.WEBRip.x264.AAC-[YTS.MX].mp4"
+      }
+    }
+  ],
+  "cacheMaxAge": 3600,
+  "staleRevalidate": 14400,
+  "staleError": 604800
+}

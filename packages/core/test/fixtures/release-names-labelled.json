@@ -1,0 +1,1722 @@
+[
+ {
+  "category": "remux",
+  "name": "Pulp.Fiction.1994.1080p.Bluray.REMUX.AVC.DTS-HD.MA.5.1-4K4U.mkv",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "audio": "dts-hd",
+   "container": "mkv",
+   "source": "remux"
+  }
+ },
+ {
+  "category": "remux",
+  "name": "The.Office.S05E01.1080p.BluRay.REMUX.VC-1.DTS-HD.MA.5.1-NOGRP.mkv",
+  "expected": {
+   "height": 1080,
+   "codec": "vc1",
+   "audio": "dts-hd",
+   "container": "mkv",
+   "source": "remux"
+  }
+ },
+ {
+  "category": "remux",
+  "name": "The Matrix 1999 3Li HDDVD ReMux VC-1 DTS 1080p.mkv",
+  "expected": {
+   "height": 1080,
+   "codec": "vc1",
+   "audio": "dts",
+   "container": "mkv",
+   "source": "remux"
+  }
+ },
+ {
+  "category": "remux",
+  "name": "Batman.The.Dark.Knight.2008.1080p.REMUX.ENG.And.ESP.LATINO.DTS-HD.Master.DDP5.1.MKV-BEN.THE.MEN.mkv",
+  "expected": {
+   "height": 1080,
+   "audio": "dts-hd",
+   "container": "mkv",
+   "source": "remux",
+   "languages": [
+    "eng",
+    "spa"
+   ]
+  }
+ },
+ {
+  "category": "remux",
+  "name": "Interstellar.2014.MULTI.VFF.1080p.BluRay.REMUX.DTS.HD.MA.5.1.AVC-Asgardia.mkv",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "audio": "dts-hd",
+   "container": "mkv",
+   "source": "remux",
+   "languages": [
+    "fre",
+    "mul"
+   ]
+  }
+ },
+ {
+  "category": "remux",
+  "name": "Dune 4Kremux2160.atomixhq.one.mkv",
+  "expected": {
+   "container": "mkv",
+   "height": 2160,
+   "source": "remux"
+  }
+ },
+ {
+  "category": "remux",
+  "name": "Inception.2010.PROPER.2160p.BluRay.REMUX.HEVC.DTS-HD.MA.5.1-FGT",
+  "expected": {
+   "height": 2160,
+   "codec": "hevc",
+   "audio": "dts-hd",
+   "source": "remux"
+  }
+ },
+ {
+  "category": "remux",
+  "name": "Avengers.Endgame.2019.BD3D.1080p.BluRay.REMUX.AVC.DTS-HD.MA.7.1-Asmo",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "audio": "dts-hd",
+   "source": "remux"
+  }
+ },
+ {
+  "category": "remux",
+  "name": "Friends.S01E01.The.One.Where.Monica.Gets.A.Roommate.1080p.BluRay.REMUX.AVC.DD.5.1-NOGRP.mkv",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "audio": "ac3",
+   "container": "mkv",
+   "source": "remux"
+  }
+ },
+ {
+  "category": "remux",
+  "name": "Breaking.Bad.S01E01.Pilot.1080p.DTS-HD.MA.5.1.AVC.REMUX.mkv",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "audio": "dts-hd",
+   "container": "mkv",
+   "source": "remux"
+  }
+ },
+ {
+  "category": "dv",
+  "name": "Pulp.Fiction.1994.2160p.UHD.Bluray.Remux.HEVC.DV.HDR.DTS-HD.MA.5.1-UPiNSMOKE.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "dts-hd",
+   "container": "mkv",
+   "source": "remux"
+  }
+ },
+ {
+  "category": "dv",
+  "name": "Pulp Fiction 1994 2160p UHD Bluray Remux DV HDR HEVC DTS-HD MA 5 1-CiNEPHiLES",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "dts-hd",
+   "source": "remux"
+  }
+ },
+ {
+  "category": "dv",
+  "name": "Matrix.1999.REPACK.4K.HDR.DV.2160p.BDRemux Ita Eng x265-NAHOM.",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "source": "remux",
+   "languages": [
+    "eng",
+    "ita"
+   ]
+  }
+ },
+ {
+  "category": "dv",
+  "name": "The.Matrix.1999.REPACK.4K.HDR.DV.2160p.BDRemux Ita Eng x265-NAHOM.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "container": "mkv",
+   "source": "remux",
+   "languages": [
+    "eng",
+    "ita"
+   ]
+  }
+ },
+ {
+  "category": "dv",
+  "name": "Темный рыцарь / The Dark Knight (2008) UHD BDRip 2160p | 4K | HDR | Dolby Vision Profile 8 | IMAX | D P A L1",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "dvProfile": 8,
+   "bitDepth": 10,
+   "source": "bluray",
+   "languages": [
+    "rus"
+   ]
+  }
+ },
+ {
+  "category": "dv",
+  "name": "Interstellar.2014.iMAX.UHD.2160p.REMUX.HDR10.DV.MULTi.DTS-HD.7.1.ATMOS.H265-KC",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "dts-hd",
+   "source": "remux",
+   "languages": [
+    "mul"
+   ]
+  }
+ },
+ {
+  "category": "dv",
+  "name": "Dune - Part One (2021) AC3 5.1 ITA.ENG 2160p H265 HDR10 Dolby Vision sub NUita.eng Sp33dy94 MIRCrew",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "ac3",
+   "languages": [
+    "eng",
+    "ita"
+   ]
+  }
+ },
+ {
+  "category": "dv",
+  "name": "Inception 2010 Hybrid 1080p UHD BluRay DD 5 1 DV HDR x265-HiDt",
+  "expected": {
+   "height": 1080,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "ac3",
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "dv",
+  "name": "Dune - Part Two (2024) AC3 5.1 ITA.ENG 2160p H265 HDR10 Dolby Vision sub ita.eng Sp33dy94 MIRCrew",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "ac3",
+   "languages": [
+    "eng",
+    "ita"
+   ]
+  }
+ },
+ {
+  "category": "dv",
+  "name": "Dune.Part.Two.2024.2160p.UHD.BDREMUX.HDR.DV.HEVC-Нечипорук.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "container": "mkv",
+   "source": "remux"
+  }
+ },
+ {
+  "category": "dv",
+  "name": "Dune.Part.Two.2024.MULTi.FRENCH.HDR.DV.2160p.WEB-DL.H265-Slay3R.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "container": "mkv",
+   "source": "web",
+   "languages": [
+    "fre",
+    "mul"
+   ]
+  }
+ },
+ {
+  "category": "dv",
+  "name": "Avengers.Endgame.2019.UHD.BluRay.2160p.TrueHD.Atmos.7.1.DV.HEVC.HYBRiD.REMUX-FraMeSToR.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "truehd",
+   "container": "mkv",
+   "source": "remux"
+  }
+ },
+ {
+  "category": "dv",
+  "name": "Joker.2019.2160p.REMUX.IMAX.Dolby.Vision.And.HDR10.ENG.RUS.ITA.LATINO.TrueHD.7.1.Atmos.DV.x265.MKV-BEN.THE.MEN.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "truehd",
+   "container": "mkv",
+   "source": "remux",
+   "languages": [
+    "eng",
+    "spa",
+    "ita",
+    "rus"
+   ]
+  }
+ },
+ {
+  "category": "dv",
+  "name": "Game of Thrones S01E01 Winter Is Coming REPACK 2160p MAX WEB-DL TrueHD 7 1 Atmos DV HDR H 265-Kitsune.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "truehd",
+   "container": "mkv",
+   "source": "web"
+  }
+ },
+ {
+  "category": "hdr10+",
+  "name": "Pulp.Fiction.1994.Hybrid.2160p.UHD.Blu-ray.Remux.DV.HDR10P.HEVC.DTS-HD.MA.5.1-CiNEPHiLES.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "dts-hd",
+   "container": "mkv",
+   "source": "remux"
+  }
+ },
+ {
+  "category": "hdr10+",
+  "name": "Pulp.Fiction.1994.2160p.DV.HDR10+Ai-Enhanced.HEVC.DTS-HD.MA.5.1-RIFE.4.18v2-60fps-DirtyHippie.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "dts-hd",
+   "container": "mkv"
+  }
+ },
+ {
+  "category": "hdr10+",
+  "name": "Interstellar.2014.2160p.PROPER.IMAX.REMUX.DV.HDR10+.TrueHD.7.1.Atmos-jennaortegaUHD.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "bitDepth": 10,
+   "audio": "truehd",
+   "container": "mkv",
+   "source": "remux"
+  }
+ },
+ {
+  "category": "hdr10+",
+  "name": "Inception 2010 SPECIAL HYBRID 2160p REMUX DV HDR10+ DTS-HD MA 5.1-jennaortegaUHD",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "bitDepth": 10,
+   "audio": "dts-hd",
+   "source": "remux"
+  }
+ },
+ {
+  "category": "hdr10+",
+  "name": "Dune.Part.Two.2024.2160p.HDR10Plus.DV.WEBRip.6CH.x265.HEVC-PSA.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "container": "mkv",
+   "source": "web"
+  }
+ },
+ {
+  "category": "hdr10+",
+  "name": "Avengers - Endgame (2019) 2160p H265 10 bit DV HDR10+ ita eng AC3 5.1 sub ita eng NUeng-Licdom.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "ac3",
+   "container": "mkv",
+   "languages": [
+    "eng",
+    "ita"
+   ]
+  }
+ },
+ {
+  "category": "hdr",
+  "name": "Interstellar.2014.Hybrid.2160p.Remux.HEVC.DoVi.HDR10.DTS-HD.MA.5.1-3L.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "dts-hd",
+   "container": "mkv",
+   "source": "remux"
+  }
+ },
+ {
+  "category": "hdr",
+  "name": "Il cavaliere oscuro - The Dark Knight (2008) ITA.ENG IMAX 2160p H265 HDR10 sub NUita.eng Sp33dy94-MIRCrew.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "hdr10",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "container": "mkv",
+   "languages": [
+    "eng",
+    "ita"
+   ]
+  }
+ },
+ {
+  "category": "hdr",
+  "name": "Spider-Man - No Way Home (2021) (2160p BluRay x265 10bit HDR Tigole).mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "hdr10",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "container": "mkv",
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "hdr",
+  "name": "Dune.Part.One.2021.Bluray.2160p.AV1.HDR10.TrueHD.7.1-UH.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "hdr10",
+   "codec": "av1",
+   "bitDepth": 10,
+   "audio": "truehd",
+   "container": "mkv",
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "hdr",
+  "name": "Dune: Part Two.2024.2160p.HDR10.BDRip.DDP5.1.x265.BluBit",
+  "expected": {
+   "height": 2160,
+   "hdr": "hdr10",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "eac3",
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "hdr",
+  "name": "Joker.2019.2160p.UHD.Bluray.HDR.TrueHD.Atmos.7.1.HEVC-DDR.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "hdr10",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "truehd",
+   "container": "mkv",
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "ts-ext",
+  "name": "Druhá světová válka s Tomem Hanksem - Guadalcanal (E06).ts",
+  "expected": {
+   "container": "ts",
+   "languages": [
+    "cze"
+   ]
+  }
+ },
+ {
+  "category": "ts-ext",
+  "name": "One Piece English Dub 1029.ts",
+  "expected": {
+   "container": "ts",
+   "languages": [
+    "eng"
+   ]
+  }
+ },
+ {
+  "category": "ts-ext",
+  "name": "One Piece English Dub 1061.ts",
+  "expected": {
+   "container": "ts",
+   "languages": [
+    "eng"
+   ]
+  }
+ },
+ {
+  "category": "ts-ext",
+  "name": "One Piece English Dub 506.ts",
+  "expected": {
+   "container": "ts",
+   "languages": [
+    "eng"
+   ]
+  }
+ },
+ {
+  "category": "ts-ext",
+  "name": "One Piece English Dub 776.ts",
+  "expected": {
+   "container": "ts",
+   "languages": [
+    "eng"
+   ]
+  }
+ },
+ {
+  "category": "ts-ext",
+  "name": "One Piece English Dub 965.ts",
+  "expected": {
+   "container": "ts",
+   "languages": [
+    "eng"
+   ]
+  }
+ },
+ {
+  "category": "junk",
+  "name": "Spider-Man.No.Way.Home.2021.720p.HDTS.x264.B4ND1T69",
+  "expected": {
+   "height": 720,
+   "codec": "h264",
+   "source": "telesync"
+  }
+ },
+ {
+  "category": "junk",
+  "name": "Spider-Man.No.Way.Home.2021.720p.HDTS.x264.B4ND1T69.mkv",
+  "expected": {
+   "height": 720,
+   "codec": "h264",
+   "container": "mkv",
+   "source": "telesync"
+  }
+ },
+ {
+  "category": "junk",
+  "name": "Spider-Man.No.Way.Home.2021.HDTC.1080p.V3.NEW.SOURCE.LINE.AUDIO.H264.AC3.Will1869",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "audio": "ac3",
+   "source": "telecine"
+  }
+ },
+ {
+  "category": "junk",
+  "name": "Spider-Man.No.Way.Home.2021.HDTC.1080p.V3.NEW.SOURCE.LINE.AUDIO.H264.AC3.Will1869.mp4",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "audio": "ac3",
+   "container": "mp4",
+   "source": "telecine"
+  }
+ },
+ {
+  "category": "junk",
+  "name": "Spider.Man.No.Way.Home.2021.TC.FM.WEB-DL.1080p-SOFCJ.mkv",
+  "expected": {
+   "height": 1080,
+   "container": "mkv",
+   "source": "telecine"
+  }
+ },
+ {
+  "category": "junk",
+  "name": "Spider.Man.No.Way.Home.2021.V2.1080p.HDCAM-C1NEM4.mkv",
+  "expected": {
+   "height": 1080,
+   "container": "mkv",
+   "source": "cam"
+  }
+ },
+ {
+  "category": "junk",
+  "name": "SpiderMan No Way Home 2021 1080p HD-TS V3 Line Audio x264 AAC",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "audio": "aac",
+   "source": "telesync"
+  }
+ },
+ {
+  "category": "junk",
+  "name": "SpiderMan No Way Home 2021 1080p HD-TS V3 Line Audio x264 AAC.mkv",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "audio": "aac",
+   "container": "mkv",
+   "source": "telesync"
+  }
+ },
+ {
+  "category": "junk",
+  "name": "SpiderMan.No.Way.Home.2021.V2.1080p.HDCAM-C1NEM4",
+  "expected": {
+   "height": 1080,
+   "source": "cam"
+  }
+ },
+ {
+  "category": "junk",
+  "name": "Dune Part Two 2024 1080p CLEAN ENGLISH HDTS H264-CxN-Will1869",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "source": "telesync",
+   "languages": [
+    "eng"
+   ]
+  }
+ },
+ {
+  "category": "junk",
+  "name": "Dune Part Two 2024 V2 1080p CLEAN ENGLISH HDTS H264",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "source": "telesync",
+   "languages": [
+    "eng"
+   ]
+  }
+ },
+ {
+  "category": "junk",
+  "name": "Dune Part Two 2024 V2 1080p CLEAN ENGLISH HDTS H264.mkv",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "container": "mkv",
+   "source": "telesync",
+   "languages": [
+    "eng"
+   ]
+  }
+ },
+ {
+  "category": "anime",
+  "name": "ONE.PIECE.2023.S01E01.German.ML.EAC3.2160p.DV.HDR.NF.WEB.H265-ZeroTwo.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "eac3",
+   "container": "mkv",
+   "source": "web",
+   "languages": [
+    "ger",
+    "mul"
+   ]
+  }
+ },
+ {
+  "category": "anime",
+  "name": "One Piece English Dub 497.mp4",
+  "expected": {
+   "container": "mp4",
+   "languages": [
+    "eng"
+   ]
+  }
+ },
+ {
+  "category": "anime",
+  "name": "One Piece English Dub 554.mp4",
+  "expected": {
+   "container": "mp4",
+   "languages": [
+    "eng"
+   ]
+  }
+ },
+ {
+  "category": "anime",
+  "name": "One Piece English Dub 639.mp4",
+  "expected": {
+   "container": "mp4",
+   "languages": [
+    "eng"
+   ]
+  }
+ },
+ {
+  "category": "anime",
+  "name": "One Piece English Dub 678.mp4",
+  "expected": {
+   "container": "mp4",
+   "languages": [
+    "eng"
+   ]
+  }
+ },
+ {
+  "category": "anime",
+  "name": "One Piece English Dub 717.mp4",
+  "expected": {
+   "container": "mp4",
+   "languages": [
+    "eng"
+   ]
+  }
+ },
+ {
+  "category": "anime",
+  "name": "One Piece English Dub 756.mp4",
+  "expected": {
+   "container": "mp4",
+   "languages": [
+    "eng"
+   ]
+  }
+ },
+ {
+  "category": "anime",
+  "name": "One Piece English Dub 935.mp4",
+  "expected": {
+   "container": "mp4",
+   "languages": [
+    "eng"
+   ]
+  }
+ },
+ {
+  "category": "anime",
+  "name": "One.Piece.S01E01.1080p.NF.WEB-DL.MULTi.AAC2.0.H.264.MSubs-ToonsHub.mkv",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "audio": "aac",
+   "container": "mkv",
+   "source": "web",
+   "languages": [
+    "mul"
+   ]
+  }
+ },
+ {
+  "category": "anime",
+  "name": "01.mkv",
+  "expected": {
+   "container": "mkv"
+  }
+ },
+ {
+  "category": "anime",
+  "name": "Attack.on.Titan.S01E01.1080p.BluRay.x265.Dual.Audio-KONTRAST.mp4",
+  "expected": {
+   "height": 1080,
+   "codec": "hevc",
+   "container": "mp4",
+   "source": "bluray",
+   "languages": [
+    "mul"
+   ]
+  }
+ },
+ {
+  "category": "anime",
+  "name": "[DiabloTripleA] Attack on Titan - S01E01.mkv",
+  "expected": {
+   "container": "mkv"
+  }
+ },
+ {
+  "category": "series",
+  "name": "friends.s09e23.2160p.uhd.bluray.h265-pristine.mkv",
+  "expected": {
+   "height": 2160,
+   "codec": "hevc",
+   "container": "mkv",
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "series",
+  "name": "Seinfeld Complete Series-720p WEBrip EN-SUB x264-[MULVAcoded]",
+  "expected": {
+   "height": 720,
+   "codec": "h264",
+   "source": "web"
+  }
+ },
+ {
+  "category": "series",
+  "name": "1994-1080P-BLURAY-LEGENDA-52.43-GB.MKV.Friends S01 1994 1080p BluRay x264-HDMAN - Dual Audio",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "source": "bluray",
+   "languages": [
+    "por",
+    "mul"
+   ]
+  }
+ },
+ {
+  "category": "series",
+  "name": "Friends S01E01 The One Where Monica Gets a Roommate Pilot 2160p NF WEB-DL DDP5 1 H 265-XEBEC.mkv",
+  "expected": {
+   "height": 2160,
+   "codec": "hevc",
+   "audio": "eac3",
+   "container": "mkv",
+   "source": "web"
+  }
+ },
+ {
+  "category": "series",
+  "name": "Friends.S01E01.The.One.Where.Monica.Gets.a.Roommate.UHD.BluRay.2160p.DTS-HD.MA.5.1.DV.HEVC.REMUX-FraMeSToR.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "dts-hd",
+   "container": "mkv",
+   "source": "remux"
+  }
+ },
+ {
+  "category": "series",
+  "name": "The Office Extended Cut S01-S06 720p.10bit.WEBRip.x265-budgetbits",
+  "expected": {
+   "height": 720,
+   "codec": "hevc",
+   "bitDepth": 10,
+   "source": "web"
+  }
+ },
+ {
+  "category": "series",
+  "name": "The.Office.US.S01E01 [1080p.NF.WEB-DL.x264-FT] [ENG-Lektor PL][Alusia].mkv",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "container": "mkv",
+   "source": "web",
+   "languages": [
+    "eng",
+    "pol"
+   ]
+  }
+ },
+ {
+  "category": "series",
+  "name": "Breaking Bad (Integrale) FRENCH HDTV",
+  "expected": {
+   "source": "tv",
+   "languages": [
+    "fre"
+   ]
+  }
+ },
+ {
+  "category": "series",
+  "name": "Breaking.Bad.S01.1080p.BluRay.REMUX.AVC.DTS-HD.MA.5.1-NOGRP[rartv]",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "audio": "dts-hd",
+   "source": "remux"
+  }
+ },
+ {
+  "category": "series",
+  "name": "S01E01 - Pilot.mkv",
+  "expected": {
+   "container": "mkv"
+  }
+ },
+ {
+  "category": "series",
+  "name": "Game of Thrones 2011 S01-S08 1080p HMAX WEB-DL EAC3 Atmos 10-BIT H265",
+  "expected": {
+   "height": 1080,
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "eac3",
+   "source": "web"
+  }
+ },
+ {
+  "category": "series",
+  "name": "Game.of.Thrones.Complete.Series.Season.1.2.3.4.5.6.7.8.x264.720p",
+  "expected": {
+   "height": 720,
+   "codec": "h264"
+  }
+ },
+ {
+  "category": "series",
+  "name": "Juego de Tronos 01x01 BD1080.www.newpct1.com.mkv",
+  "expected": {
+   "height": 1080,
+   "container": "mkv",
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "series",
+  "name": "House of the Dragon (2022) S01 (2160p x265 10bit HDR UHD BD Atmos) [Prof]",
+  "expected": {
+   "height": 2160,
+   "hdr": "hdr10",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "truehd"
+  }
+ },
+ {
+  "category": "series",
+  "name": "House.Of.The.Dragon.S01E01.2160p.BluRay.COMPLETE.REMUX.DV.P7.HDR.ENG.LATINO.ITA.VFF.GERMAN.HINDI.RUS.TrueHD.Atmos.7.1.H265-BEN.THE.MEN.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "dvProfile": 7,
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "truehd",
+   "container": "mkv",
+   "source": "remux",
+   "languages": [
+    "eng",
+    "fre",
+    "spa",
+    "ita",
+    "ger",
+    "rus",
+    "hin"
+   ]
+  }
+ },
+ {
+  "category": "series",
+  "name": "House.of.the.Dragon.S01e01.Ita.Eng.Spa.1080p.h265.10bit.SubS-Me7alh.mkv",
+  "expected": {
+   "height": 1080,
+   "codec": "hevc",
+   "bitDepth": 10,
+   "container": "mkv",
+   "languages": [
+    "eng",
+    "spa",
+    "ita"
+   ]
+  }
+ },
+ {
+  "category": "series",
+  "name": "Rick and Morty Extras & Specials FULL COLLECTION",
+  "expected": {}
+ },
+ {
+  "category": "series",
+  "name": "Rick.and.Morty.S01.1080p.HEVC.10bit.AAC.LATiNO.Eng.Sub.Spa-HeCviCu",
+  "expected": {
+   "height": 1080,
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "aac",
+   "languages": [
+    "eng",
+    "spa"
+   ]
+  }
+ },
+ {
+  "category": "series",
+  "name": "The Witcher 2019 S01E01 1080p NF WEB-DL DDP5 1 AV1-Vialle",
+  "expected": {
+   "height": 1080,
+   "codec": "av1",
+   "audio": "eac3",
+   "source": "web"
+  }
+ },
+ {
+  "category": "series",
+  "name": "The.Witcher.S01.2160p.NF.WEB-DL.x265.10bit.HDR.DDP5.1.Atmos-NOGRP[rartv]",
+  "expected": {
+   "height": 2160,
+   "hdr": "hdr10",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "eac3",
+   "source": "web"
+  }
+ },
+ {
+  "category": "av1",
+  "name": "Pulp Fiction (1994) 2160p HDR Bluray AV1 Opus Multi5 [Kleinmike]",
+  "expected": {
+   "height": 2160,
+   "hdr": "hdr10",
+   "codec": "av1",
+   "bitDepth": 10,
+   "audio": "opus",
+   "source": "bluray",
+   "languages": [
+    "mul"
+   ]
+  }
+ },
+ {
+  "category": "av1",
+  "name": "The.Matrix.1999.2160p.HDR.UHD.BluRay.AV1.DDP5.1.Atmos.Multi4-dAV1nci",
+  "expected": {
+   "height": 2160,
+   "hdr": "hdr10",
+   "codec": "av1",
+   "bitDepth": 10,
+   "audio": "eac3",
+   "source": "bluray",
+   "languages": [
+    "mul"
+   ]
+  }
+ },
+ {
+  "category": "av1",
+  "name": "Interstellar 2014 1080p NF WEB-DL DDP5 1 SDR AV1-OnlyWeb.mkv",
+  "expected": {
+   "height": 1080,
+   "codec": "av1",
+   "audio": "eac3",
+   "container": "mkv",
+   "source": "web"
+  }
+ },
+ {
+  "category": "av1",
+  "name": "Inception 2010 1080p AV1 10Bit DKong.mkv",
+  "expected": {
+   "height": 1080,
+   "codec": "av1",
+   "bitDepth": 10,
+   "container": "mkv"
+  }
+ },
+ {
+  "category": "av1",
+  "name": "[46620] One Piece 0001-1000 [1080p AV1]",
+  "expected": {
+   "height": 1080,
+   "codec": "av1"
+  }
+ },
+ {
+  "category": "avi",
+  "name": "House.of.the.Dragon.S03E03.XviD-AFG.avi",
+  "expected": {
+   "codec": "xvid",
+   "container": "avi"
+  }
+ },
+ {
+  "category": "avi",
+  "name": "Spider-Man.No.Way.Home.2021.BRRip.XviD.B4ND1T69.avi",
+  "expected": {
+   "codec": "xvid",
+   "container": "avi",
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "avi",
+  "name": "Inception.2010.TRUEFRENCH.BDRiP.XViD-SLiM",
+  "expected": {
+   "codec": "xvid",
+   "source": "bluray",
+   "languages": [
+    "fre"
+   ]
+  }
+ },
+ {
+  "category": "avi",
+  "name": "[ OxTorrent.com ] Avengers.Endgame.2019.TRUEFRENCH.BDRip.XviD-EXTREME.avi",
+  "expected": {
+   "codec": "xvid",
+   "container": "avi",
+   "source": "bluray",
+   "languages": [
+    "fre"
+   ]
+  }
+ },
+ {
+  "category": "avi",
+  "name": "Friends.S01E01.DVDrip.XviD-SAiNTS.avi",
+  "expected": {
+   "codec": "xvid",
+   "container": "avi",
+   "source": "dvd"
+  }
+ },
+ {
+  "category": "avi",
+  "name": "Breaking.Bad.s01e01.XviD.BDrip.DD5.1.LostFilm.[qqss44].avi",
+  "expected": {
+   "codec": "xvid",
+   "audio": "ac3",
+   "container": "avi",
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "mp4",
+  "name": "Pulp Fiction (1994) 1080p Surround.mp4",
+  "expected": {
+   "height": 1080,
+   "container": "mp4"
+  }
+ },
+ {
+  "category": "mp4",
+  "name": "Dune.part.two.2024.1080p-dual-lat-cinecalidad.re.mp4",
+  "expected": {
+   "height": 1080,
+   "container": "mp4",
+   "languages": [
+    "spa",
+    "mul"
+   ]
+  }
+ },
+ {
+  "category": "mp4",
+  "name": "One Piece English Dub 548.mp4",
+  "expected": {
+   "container": "mp4",
+   "languages": [
+    "eng"
+   ]
+  }
+ },
+ {
+  "category": "mp4",
+  "name": "One Piece English Dub 685.mp4",
+  "expected": {
+   "container": "mp4",
+   "languages": [
+    "eng"
+   ]
+  }
+ },
+ {
+  "category": "mp4",
+  "name": "One Piece English Dub 823.mp4",
+  "expected": {
+   "container": "mp4",
+   "languages": [
+    "eng"
+   ]
+  }
+ },
+ {
+  "category": "easynews",
+  "name": "Pulp Fiction (1994) DVDrip DTS &amp;5.1-EAGLE.mkv",
+  "expected": {
+   "audio": "dts",
+   "container": "mkv",
+   "source": "dvd"
+  }
+ },
+ {
+  "category": "easynews",
+  "name": "The.Shawshank.Redemption.1994.2160p.BluRay.REMUX.HEVC.DTS-HD.MA.5.1-FGT.mkv",
+  "expected": {
+   "height": 2160,
+   "codec": "hevc",
+   "audio": "dts-hd",
+   "container": "mkv",
+   "source": "remux"
+  }
+ },
+ {
+  "category": "easynews",
+  "name": "The.Dark.Knight.2008.720p.NF.WEB-DL.DDP5.1.H.264-ViSTA.mkv",
+  "expected": {
+   "height": 720,
+   "codec": "h264",
+   "audio": "eac3",
+   "container": "mkv",
+   "source": "web"
+  }
+ },
+ {
+  "category": "easynews",
+  "name": "Interstellar.2014.720p.NF.WEB-DL.DDP5.1.H.264-ViSTA.mkv",
+  "expected": {
+   "height": 720,
+   "codec": "h264",
+   "audio": "eac3",
+   "container": "mkv",
+   "source": "web"
+  }
+ },
+ {
+  "category": "easynews",
+  "name": "Spider-Man.No.Way.Home.2021.PLDUB.DUAL.720p.BluRay.x264-PLHD.mkv",
+  "expected": {
+   "height": 720,
+   "codec": "h264",
+   "container": "mkv",
+   "source": "bluray",
+   "languages": [
+    "pol",
+    "mul"
+   ]
+  }
+ },
+ {
+  "category": "easynews",
+  "name": "Inception.2010.UHD.BluRay.2160p.DTS-HD.MA.5.1.HEVC.REMUX-FraMeSToR.mkv",
+  "expected": {
+   "height": 2160,
+   "codec": "hevc",
+   "audio": "dts-hd",
+   "container": "mkv",
+   "source": "remux"
+  }
+ },
+ {
+  "category": "easynews",
+  "name": "Avengers_ Endgame (2019) [3D Full-SBS 3840x1080 x265 7.1] - B3holDer.mkv",
+  "expected": {
+   "height": 1080,
+   "codec": "hevc",
+   "container": "mkv"
+  }
+ },
+ {
+  "category": "easynews",
+  "name": "Parasite.2019.Criterion.Black.and.White.1080p.BluRay.HEVC-HQ.x265.Opus.7.1.incl.Commentary-MrTentsaw.mkv",
+  "expected": {
+   "height": 1080,
+   "codec": "hevc",
+   "audio": "opus",
+   "container": "mkv",
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "easynews",
+  "name": "Breaking.Bad.S01E06.1080p.BluRay.REMUX.Multi-Multi.AVC-PiR8.mkv",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "container": "mkv",
+   "source": "remux",
+   "languages": [
+    "mul"
+   ]
+  }
+ },
+ {
+  "category": "easynews",
+  "name": "House.Of.The.Dragon.S01E06.2160p.OSN.WEB-DL.HEVC.10bit.DDP.5.1.Atmos.HDR10.MultiSubs-POWER.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "hdr10",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "eac3",
+   "container": "mkv",
+   "source": "web"
+  }
+ },
+ {
+  "category": "rd",
+  "name": "Official IMDb Top 250 Movies Collection 6/17/2011",
+  "expected": {}
+ },
+ {
+  "category": "rd",
+  "name": "Batman The Dark Knight [2008] dvd rip nlx.avi",
+  "expected": {
+   "container": "avi",
+   "source": "dvd"
+  }
+ },
+ {
+  "category": "rd",
+  "name": "Dune 2021 576p BRRip x265 AAC-SSN.mkv",
+  "expected": {
+   "height": 576,
+   "codec": "hevc",
+   "audio": "aac",
+   "container": "mkv",
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "rd",
+  "name": "Parasitos (Parasite) [2019] - Espanol (Spanish) audio",
+  "expected": {
+   "languages": [
+    "spa"
+   ]
+  }
+ },
+ {
+  "category": "rd",
+  "name": "House of the Dragon - S01 Complete - 8K HDR Ai Upscale 7.1 Atmos MultiSub -Mesc",
+  "expected": {
+   "hdr": "hdr10",
+   "bitDepth": 10,
+   "height": 4320
+  }
+ },
+ {
+  "category": "movie",
+  "name": "Pulp Fiction (1994) [Micro-HD][Dual][AVC][Dolby 5.1][tt0110912].mkv",
+  "expected": {
+   "codec": "h264",
+   "container": "mkv",
+   "source": "bluray",
+   "languages": [
+    "mul"
+   ],
+   "audio": "ac3"
+  }
+ },
+ {
+  "category": "movie",
+  "name": "Pulp Fiction 1994 1080p PCOK WEB-DL DDP 5 1 H 264-PiRaTeS.mkv",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "audio": "eac3",
+   "container": "mkv",
+   "source": "web"
+  }
+ },
+ {
+  "category": "movie",
+  "name": "The Shawshank Redemption 1994 Bluray 1080p AV1 EN/FR/ES/DE/ITA OPUS 5.1-UH [UserHEVC]",
+  "expected": {
+   "height": 1080,
+   "codec": "av1",
+   "audio": "opus",
+   "source": "bluray",
+   "languages": [
+    "eng",
+    "fre",
+    "spa",
+    "ita",
+    "ger"
+   ]
+  }
+ },
+ {
+  "category": "movie",
+  "name": "The Matrix 1999 1080p AV1 10bit-DKong",
+  "expected": {
+   "height": 1080,
+   "codec": "av1",
+   "bitDepth": 10
+  }
+ },
+ {
+  "category": "movie",
+  "name": "Матрица / The Matrix [1999 HDDVDRip] Dub",
+  "expected": {
+   "source": "dvd",
+   "languages": [
+    "rus"
+   ]
+  }
+ },
+ {
+  "category": "movie",
+  "name": "The.Dark.Knight.2008.2160p.MAX.WEB-DL.DDP.5.1.DV.HDR.H.265-PiRaTeS[TGx]",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "eac3",
+   "source": "web"
+  }
+ },
+ {
+  "category": "movie",
+  "name": "Interstellar 2014 1080p BluRay x265-YAWNTiC.mkv",
+  "expected": {
+   "height": 1080,
+   "codec": "hevc",
+   "container": "mkv",
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "movie",
+  "name": "Interstellar.2014.IMAX.UHD.Blu-Ray.2160p.DV.HEVC.TrueHD.7.1.Atmos.x265-E",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "truehd",
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "movie",
+  "name": "Spider-Man No Way Home [BDremux 1080p][AC3 5.1-DTS 5.1 Castellano-AC3 5.1 Ingles+Subs][ES-EN]",
+  "expected": {
+   "height": 1080,
+   "audio": "dts",
+   "source": "remux",
+   "languages": [
+    "eng",
+    "spa"
+   ]
+  }
+ },
+ {
+  "category": "movie",
+  "name": "www.1TamilMV.cool - Spider-Man No Way Home (2021) UHD Blu-Ray - 4K HQ HDR10 - HEVC - (AAC 5.1 - 256Kbps) [Tam + Tel + Hin + Eng (ATMOS)] - ESub.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "hdr10",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "aac",
+   "container": "mkv",
+   "source": "bluray",
+   "languages": [
+    "eng",
+    "hin",
+    "tel",
+    "tam"
+   ]
+  }
+ },
+ {
+  "category": "movie",
+  "name": "Dune.2021.2160p.10bit.HDR.DV.BluRay.8CH.x265.HEVC-PSA.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "container": "mkv",
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "movie",
+  "name": "Inception (2010) 1080p BluRay x264 DTS-HD MA Soup",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "audio": "dts-hd",
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "movie",
+  "name": "Inception.2010.UHD.BluRay.2160p.DTS-HD.MA.5.1.DV.HEVC.HYBRID.REMUX-FraMeSToR.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "dts-hd",
+   "container": "mkv",
+   "source": "remux"
+  }
+ },
+ {
+  "category": "movie",
+  "name": "Dune Part Two 2024 V2 1080p X264 HDTS English Hindi AAC 2.5GB Cukister-BonsaiHD",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "audio": "aac",
+   "source": "telesync",
+   "languages": [
+    "eng",
+    "hin"
+   ]
+  }
+ },
+ {
+  "category": "movie",
+  "name": "Dune.Part.Two.2024.MULTi.HDR.2160p.WEB.H265-FW (Dune : Deuxième Partie)",
+  "expected": {
+   "height": 2160,
+   "hdr": "hdr10",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "source": "web",
+   "languages": [
+    "mul"
+   ]
+  }
+ },
+ {
+  "category": "movie",
+  "name": "Avengers- Endgame 2019 UHD BluRay 2160p DV HEVC TrueHD Atmos 7.1 x265-E",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "truehd",
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "movie",
+  "name": "Parasite 2019 1080p BluRay",
+  "expected": {
+   "height": 1080,
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "movie",
+  "name": "Joker 2019 1080p BluRay DD+ 7.1 x265-edge2020",
+  "expected": {
+   "height": 1080,
+   "codec": "hevc",
+   "audio": "eac3",
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "dv-profile",
+  "synthetic": true,
+  "name": "Oppenheimer.2023.2160p.UHD.BluRay.REMUX.DV.P7.FEL.HDR10.HEVC.TrueHD.7.1.Atmos-GRP.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "dvProfile": 7,
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "truehd",
+   "container": "mkv",
+   "source": "remux"
+  }
+ },
+ {
+  "category": "dv-profile",
+  "synthetic": true,
+  "name": "The.Last.of.Us.S01E01.2160p.WEB-DL.DDP5.1.Atmos.DV.P5.H.265-GRP.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "dvProfile": 5,
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "eac3",
+   "container": "mkv",
+   "source": "web"
+  }
+ },
+ {
+  "category": "dv-profile",
+  "synthetic": true,
+  "name": "Movie.2022.2160p.WEB-DL.DoVi.P8.HDR10.HEVC-GRP.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "dvProfile": 8,
+   "codec": "hevc",
+   "bitDepth": 10,
+   "container": "mkv",
+   "source": "web"
+  }
+ },
+ {
+  "category": "dv-profile",
+  "synthetic": true,
+  "name": "Movie.2021.2160p.MA.WEB-DL.DV.Profile.5.DDP5.1.H.265-GRP",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "dvProfile": 5,
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "eac3",
+   "source": "web"
+  }
+ },
+ {
+  "category": "dv-profile",
+  "synthetic": true,
+  "name": "Film.2020.2160p.UHD.BluRay.x265.10bit.DV5.HDR.TrueHD.7.1-GRP.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "dv",
+   "dvProfile": 5,
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "truehd",
+   "container": "mkv",
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "hlg",
+  "synthetic": true,
+  "name": "Some.Show.S02E03.2160p.BBC.WEB-DL.HLG.HEVC.AAC2.0-GRP.mkv",
+  "expected": {
+   "height": 2160,
+   "hdr": "hlg",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "aac",
+   "container": "mkv",
+   "source": "web"
+  }
+ },
+ {
+  "category": "m2ts",
+  "synthetic": true,
+  "name": "Movie.2019.1080p.BluRay.AVC.DTS-HD.MA.5.1-GRP.m2ts",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "audio": "dts-hd",
+   "container": "m2ts",
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "m2ts",
+  "synthetic": true,
+  "name": "00001.m2ts",
+  "expected": {
+   "container": "m2ts"
+  }
+ },
+ {
+  "category": "m2ts",
+  "synthetic": true,
+  "name": "BDMV.STREAM.00800.m2ts",
+  "expected": {
+   "container": "m2ts"
+  }
+ },
+ {
+  "category": "m2ts",
+  "synthetic": true,
+  "name": "Movie.2017.2160p.UHD.BluRay.HEVC.HDR10.TrueHD.7.1-GRP.m2ts",
+  "expected": {
+   "height": 2160,
+   "hdr": "hdr10",
+   "codec": "hevc",
+   "bitDepth": 10,
+   "audio": "truehd",
+   "container": "m2ts",
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "m2ts",
+  "synthetic": true,
+  "name": "Concert.2018.1080i.BluRay.AVC.LPCM.2.0-GRP.MTS",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "container": "m2ts",
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "anime",
+  "synthetic": true,
+  "name": "Anime.Show.S01E01.1080p.BluRay.Hi10P.FLAC-GRP.mkv",
+  "expected": {
+   "height": 1080,
+   "codec": "h264",
+   "bitDepth": 10,
+   "audio": "flac",
+   "container": "mkv",
+   "source": "bluray"
+  }
+ },
+ {
+  "category": "anime",
+  "synthetic": true,
+  "name": "[SubsPlease] Frieren - 01 (1080p) [ABCD1234].mkv",
+  "expected": {
+   "height": 1080,
+   "container": "mkv"
+  }
+ },
+ {
+  "category": "ts-ext",
+  "synthetic": true,
+  "name": "Channel.News.2026.1080i.HDTV.MPEG2.AC3-GRP.ts",
+  "expected": {
+   "height": 1080,
+   "codec": "mpeg2",
+   "audio": "ac3",
+   "container": "ts",
+   "source": "tv"
+  }
+ }
+]

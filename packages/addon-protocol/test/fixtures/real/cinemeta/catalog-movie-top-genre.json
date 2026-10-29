@@ -1,0 +1,6104 @@
+{
+  "metas": [
+    {
+      "imdb_id": "tt35298123",
+      "name": "Teenage Sex and Death at Camp Miasma",
+      "type": "movie",
+      "cast": [
+        "Jack Haven",
+        "Hannah Einbinder",
+        "Jasmin Savoy Brown"
+      ],
+      "country": "Canada, United Kingdom, United States",
+      "description": "A director making a slasher sequel becomes obsessed with casting the original film's 'final girl,' leading both women into psychological and sexual chaos.",
+      "director": [
+        "Jane Schoenbrun"
+      ],
+      "genre": [
+        "Comedy",
+        "Horror",
+        "Romance"
+      ],
+      "imdbRating": "7.1",
+      "released": "2026-08-07T00:00:00.000Z",
+      "slug": "movie/teenage-sex-and-death-at-camp-miasma-35298123",
+      "year": "2026",
+      "moviedb_id": 1240889,
+      "popularities": {
+        "moviedb": 132.0024,
+        "stremio": 4.40008,
+        "stremio_lib": 0,
+        "trakt": 498
+      },
+      "poster": "https://images.metahub.space/poster/small/tt35298123/img",
+      "runtime": "112 min",
+      "trailers": [
+        {
+          "source": "j9TsiTgYZGw",
+          "type": "Trailer"
+        },
+        {
+          "source": "dimCiC_hdoA",
+          "type": "Trailer"
+        }
+      ],
+      "writer": [
+        "Jane Schoenbrun"
+      ],
+      "awards": "2 wins & 5 nominations total",
+      "background": "https://images.metahub.space/background/medium/tt35298123/img",
+      "logo": "https://images.metahub.space/logo/medium/tt35298123/img",
+      "popularity": 4.40008,
+      "id": "tt35298123",
+      "genres": [
+        "Comedy",
+        "Horror",
+        "Romance"
+      ],
+      "releaseInfo": "2026",
+      "trailerStreams": [
+        {
+          "title": "Teenage Sex and Death at Camp Miasma",
+          "ytId": "j9TsiTgYZGw"
+        },
+        {
+          "title": "Teenage Sex and Death at Camp Miasma",
+          "ytId": "dimCiC_hdoA"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.1",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1011"
+        },
+        {
+          "name": "Teenage Sex and Death at Camp Miasma",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1012"
+        },
+        {
+          "name": "Comedy",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1013"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1014"
+        },
+        {
+          "name": "Romance",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1015"
+        },
+        {
+          "name": "Jack Haven",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1016"
+        },
+        {
+          "name": "Hannah Einbinder",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1017"
+        },
+        {
+          "name": "Jasmin Savoy Brown",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1018"
+        },
+        {
+          "name": "Jane Schoenbrun",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1019"
+        },
+        {
+          "name": "Jane Schoenbrun",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1020"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt35298123",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt37287335",
+      "name": "Obsession",
+      "type": "movie",
+      "awards": "7 wins & 15 nominations total",
+      "cast": [
+        "Michael Johnston",
+        "Inde Navarrette",
+        "Cooper Tomlinson"
+      ],
+      "country": "United States",
+      "description": "Baron \"Bear\" Bailey breaks a novelty charm to force his co-worker Nikki Freeman to love him, but the supernatural compulsion warps her mind into violent obsession, trapping him in a nightmare he cannot wish away.",
+      "director": [
+        "Curry Barker"
+      ],
+      "genre": [
+        "Horror",
+        "Romance",
+        "Thriller"
+      ],
+      "imdbRating": "7.9",
+      "released": "2026-05-15T00:00:00.000Z",
+      "slug": "movie/obsession-37287335",
+      "writer": [
+        "Curry Barker"
+      ],
+      "year": "2026",
+      "moviedb_id": 1339713,
+      "popularities": {
+        "moviedb": 151.2085,
+        "stremio": 5.040283333333333,
+        "stremio_lib": 0,
+        "trakt": 521
+      },
+      "poster": "https://images.metahub.space/poster/small/tt37287335/img",
+      "runtime": "109 min",
+      "trailers": [
+        {
+          "source": "gMC8kkwbIQQ",
+          "type": "Trailer"
+        }
+      ],
+      "background": "https://images.metahub.space/background/medium/tt37287335/img",
+      "logo": "https://images.metahub.space/logo/medium/tt37287335/img",
+      "popularity": 5.040283333333333,
+      "id": "tt37287335",
+      "genres": [
+        "Horror",
+        "Romance",
+        "Thriller"
+      ],
+      "releaseInfo": "2026",
+      "trailerStreams": [
+        {
+          "title": "Obsession",
+          "ytId": "gMC8kkwbIQQ"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.9",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1021"
+        },
+        {
+          "name": "Obsession",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1022"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1023"
+        },
+        {
+          "name": "Romance",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1024"
+        },
+        {
+          "name": "Thriller",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1025"
+        },
+        {
+          "name": "Michael Johnston",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1026"
+        },
+        {
+          "name": "Inde Navarrette",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1027"
+        },
+        {
+          "name": "Cooper Tomlinson",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1028"
+        },
+        {
+          "name": "Curry Barker",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1029"
+        },
+        {
+          "name": "Curry Barker",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1030"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt37287335",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt26657236",
+      "name": "Backrooms",
+      "popularities": {
+        "trakt": 798,
+        "moviedb": 89.9788,
+        "stremio": 2.9992933333333336,
+        "stremio_lib": 0
+      },
+      "type": "movie",
+      "cast": [
+        "Chiwetel Ejiofor",
+        "Renate Reinsve",
+        "Mark Duplass"
+      ],
+      "country": "United States, Canada",
+      "description": "After a therapist's patient disappears into a dimension beyond reality, she must venture into the unknown to save him.",
+      "director": [
+        "Kane Parsons"
+      ],
+      "genre": [
+        "Horror",
+        "Sci-Fi",
+        "Thriller"
+      ],
+      "imdbRating": "6.8",
+      "released": "2026-05-29T00:00:00.000Z",
+      "slug": "movie/backrooms-26657236",
+      "writer": [
+        "Will Soodik",
+        "Kane Parsons"
+      ],
+      "year": "2026",
+      "moviedb_id": 1083381,
+      "poster": "https://images.metahub.space/poster/small/tt26657236/img",
+      "runtime": "111 min",
+      "trailers": [
+        {
+          "source": "0HjdiohVOik",
+          "type": "Trailer"
+        }
+      ],
+      "background": "https://images.metahub.space/background/medium/tt26657236/img",
+      "logo": "https://images.metahub.space/logo/medium/tt26657236/img",
+      "awards": "14 nominations total",
+      "popularity": 2.9992933333333336,
+      "id": "tt26657236",
+      "genres": [
+        "Horror",
+        "Sci-Fi",
+        "Thriller"
+      ],
+      "releaseInfo": "2026",
+      "trailerStreams": [
+        {
+          "title": "Backrooms",
+          "ytId": "0HjdiohVOik"
+        }
+      ],
+      "links": [
+        {
+          "name": "6.8",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1031"
+        },
+        {
+          "name": "Backrooms",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1032"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1033"
+        },
+        {
+          "name": "Sci-Fi",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1034"
+        },
+        {
+          "name": "Thriller",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1035"
+        },
+        {
+          "name": "Chiwetel Ejiofor",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1036"
+        },
+        {
+          "name": "Renate Reinsve",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1037"
+        },
+        {
+          "name": "Mark Duplass",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1038"
+        },
+        {
+          "name": "Will Soodik",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1039"
+        },
+        {
+          "name": "Kane Parsons",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1040"
+        },
+        {
+          "name": "Kane Parsons",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1041"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt26657236",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt26581740",
+      "name": "Weapons",
+      "type": "movie",
+      "cast": [
+        "Julia Garner",
+        "Josh Brolin",
+        "Alden Ehrenreich"
+      ],
+      "country": "United States",
+      "description": "When all but one child from the same class mysteriously vanish on the same night at exactly the same time, a community is left questioning who or what is behind their disappearance.",
+      "director": [
+        "Zach Cregger"
+      ],
+      "genre": [
+        "Horror",
+        "Mystery"
+      ],
+      "imdbRating": "7.4",
+      "released": "2025-08-08T00:00:00.000Z",
+      "slug": "movie/weapons-26581740",
+      "writer": [
+        "Zach Cregger"
+      ],
+      "year": "2025",
+      "moviedb_id": 1078605,
+      "popularities": {
+        "moviedb": 38.3472,
+        "stremio": 1.27824,
+        "stremio_lib": 0,
+        "trakt": 165
+      },
+      "poster": "https://images.metahub.space/poster/small/tt26581740/img",
+      "trailers": [
+        {
+          "source": "QKHySfXqN0I",
+          "type": "Trailer"
+        },
+        {
+          "source": "OpThntO9ixc",
+          "type": "Trailer"
+        }
+      ],
+      "runtime": "129 min",
+      "background": "https://images.metahub.space/background/medium/tt26581740/img",
+      "logo": "https://images.metahub.space/logo/medium/tt26581740/img",
+      "awards": "Won 1 Oscar. 62 wins & 118 nominations total",
+      "popularity": 1.27824,
+      "id": "tt26581740",
+      "genres": [
+        "Horror",
+        "Mystery"
+      ],
+      "releaseInfo": "2025",
+      "trailerStreams": [
+        {
+          "title": "Weapons",
+          "ytId": "QKHySfXqN0I"
+        },
+        {
+          "title": "Weapons",
+          "ytId": "OpThntO9ixc"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.4",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1042"
+        },
+        {
+          "name": "Weapons",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1043"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1044"
+        },
+        {
+          "name": "Mystery",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1045"
+        },
+        {
+          "name": "Julia Garner",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1046"
+        },
+        {
+          "name": "Josh Brolin",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1047"
+        },
+        {
+          "name": "Alden Ehrenreich",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1048"
+        },
+        {
+          "name": "Zach Cregger",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1049"
+        },
+        {
+          "name": "Zach Cregger",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1050"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt26581740",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "awards": "7 nominations total",
+      "cast": [
+        "Milla Jovovich",
+        "Michelle Rodriguez",
+        "Ryan McCluskey"
+      ],
+      "country": "Germany, United Kingdom, France, Japan, United States",
+      "description": "A special military unit fights a powerful, out-of-control supercomputer and hundreds of scientists who have mutated into flesh-eating creatures after a laboratory accident.",
+      "director": [
+        "Paul W.S. Anderson"
+      ],
+      "dvdRelease": "2012-04-16T00:00:00.000Z",
+      "genre": [
+        "Action",
+        "Horror",
+        "Sci-Fi"
+      ],
+      "imdbRating": "6.6",
+      "imdb_id": "tt0120804",
+      "moviedb_id": 1576,
+      "name": "Resident Evil",
+      "popularity": 0.7885566666666667,
+      "poster": "https://images.metahub.space/poster/small/tt0120804/img",
+      "released": "2002-03-15T00:00:00.000Z",
+      "runtime": "100 min",
+      "trailers": [
+        {
+          "source": "HhBAIDHvRTc",
+          "type": "Trailer"
+        },
+        {
+          "source": "TkaMlPFl4u4",
+          "type": "Trailer"
+        }
+      ],
+      "type": "movie",
+      "writer": [
+        "Paul W.S. Anderson"
+      ],
+      "year": "2002",
+      "background": "https://images.metahub.space/background/medium/tt0120804/img",
+      "logo": "https://images.metahub.space/logo/medium/tt0120804/img",
+      "popularities": {
+        "moviedb": 23.6567,
+        "stremio": 0.7885566666666667,
+        "trakt": 118,
+        "stremio_lib": 0
+      },
+      "slug": "movie/resident-evil-0120804",
+      "id": "tt0120804",
+      "genres": [
+        "Action",
+        "Horror",
+        "Sci-Fi"
+      ],
+      "releaseInfo": "2002",
+      "trailerStreams": [
+        {
+          "title": "Resident Evil",
+          "ytId": "HhBAIDHvRTc"
+        },
+        {
+          "title": "Resident Evil",
+          "ytId": "TkaMlPFl4u4"
+        }
+      ],
+      "links": [
+        {
+          "name": "6.6",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1051"
+        },
+        {
+          "name": "Resident Evil",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1052"
+        },
+        {
+          "name": "Action",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1053"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1054"
+        },
+        {
+          "name": "Sci-Fi",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1055"
+        },
+        {
+          "name": "Milla Jovovich",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1056"
+        },
+        {
+          "name": "Michelle Rodriguez",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1057"
+        },
+        {
+          "name": "Ryan McCluskey",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1058"
+        },
+        {
+          "name": "Paul W.S. Anderson",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1059"
+        },
+        {
+          "name": "Paul W.S. Anderson",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1060"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt0120804",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt15791034",
+      "name": "Barbarian",
+      "cast": [
+        "Georgina Campbell",
+        "Bill Skarsgård",
+        "Justin Long"
+      ],
+      "country": "United States, Bulgaria",
+      "description": "A woman staying at an Airbnb discovers that the house she has rented is not what it seems.",
+      "director": [
+        "Zach Cregger"
+      ],
+      "genre": [
+        "Horror",
+        "Mystery",
+        "Thriller"
+      ],
+      "imdbRating": "7.0",
+      "released": "2022-09-09T00:00:00.000Z",
+      "slug": "movie/barbarian-15791034",
+      "type": "movie",
+      "writer": [
+        "Zach Cregger"
+      ],
+      "year": "2022",
+      "moviedb_id": 913290,
+      "popularities": {
+        "moviedb": 27.3812,
+        "stremio": 0.9127066666666667,
+        "stremio_lib": 0,
+        "trakt": 120
+      },
+      "poster": "https://images.metahub.space/poster/small/tt15791034/img",
+      "trailers": [
+        {
+          "source": "Dr89pmKrqkI",
+          "type": "Trailer"
+        }
+      ],
+      "runtime": "103 min",
+      "background": "https://images.metahub.space/background/medium/tt15791034/img",
+      "logo": "https://images.metahub.space/logo/medium/tt15791034/img",
+      "dvdRelease": "2022-10-25T00:00:00.000Z",
+      "awards": "5 wins & 40 nominations total",
+      "popularity": 0.9127066666666667,
+      "id": "tt15791034",
+      "genres": [
+        "Horror",
+        "Mystery",
+        "Thriller"
+      ],
+      "releaseInfo": "2022",
+      "trailerStreams": [
+        {
+          "title": "Barbarian",
+          "ytId": "Dr89pmKrqkI"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.0",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1061"
+        },
+        {
+          "name": "Barbarian",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1062"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1063"
+        },
+        {
+          "name": "Mystery",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1064"
+        },
+        {
+          "name": "Thriller",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1065"
+        },
+        {
+          "name": "Georgina Campbell",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1066"
+        },
+        {
+          "name": "Bill Skarsgård",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1067"
+        },
+        {
+          "name": "Justin Long",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1068"
+        },
+        {
+          "name": "Zach Cregger",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1069"
+        },
+        {
+          "name": "Zach Cregger",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1070"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt15791034",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt31170389",
+      "name": "Evil Dead Burn",
+      "popularities": {
+        "trakt": 184,
+        "moviedb": 64.3667,
+        "stremio": 2.1455566666666663,
+        "stremio_lib": 0
+      },
+      "type": "movie",
+      "cast": [
+        "Souheila Yacoub",
+        "Tandi Wright",
+        "Hunter Doohan"
+      ],
+      "country": "New Zealand, United States",
+      "description": "After the loss of her husband, a woman seeks solace with her in-laws. As one by one they transform into deadites, she comes to discover that the vows she took in life - survive even in death.",
+      "director": [
+        "Sébastien Vanicek"
+      ],
+      "genre": [
+        "Horror"
+      ],
+      "imdbRating": "6.3",
+      "released": "2026-07-10T00:00:00.000Z",
+      "slug": "movie/evil-dead-burn-31170389",
+      "writer": [
+        "Sébastien Vanicek",
+        "Florent Bernard"
+      ],
+      "year": "2026",
+      "moviedb_id": 1212763,
+      "poster": "https://images.metahub.space/poster/small/tt31170389/img",
+      "runtime": "110 min",
+      "trailers": [
+        {
+          "source": "RddZObTlmA8",
+          "type": "Trailer"
+        },
+        {
+          "source": "TnHby2cxJzs",
+          "type": "Trailer"
+        },
+        {
+          "source": "nMzhf6qYJ4I",
+          "type": "Trailer"
+        }
+      ],
+      "background": "https://images.metahub.space/background/medium/tt31170389/img",
+      "logo": "https://images.metahub.space/logo/medium/tt31170389/img",
+      "popularity": 2.1455566666666663,
+      "id": "tt31170389",
+      "genres": [
+        "Horror"
+      ],
+      "releaseInfo": "2026",
+      "trailerStreams": [
+        {
+          "title": "Evil Dead Burn",
+          "ytId": "RddZObTlmA8"
+        },
+        {
+          "title": "Evil Dead Burn",
+          "ytId": "TnHby2cxJzs"
+        },
+        {
+          "title": "Evil Dead Burn",
+          "ytId": "nMzhf6qYJ4I"
+        }
+      ],
+      "links": [
+        {
+          "name": "6.3",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1071"
+        },
+        {
+          "name": "Evil Dead Burn",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1072"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1073"
+        },
+        {
+          "name": "Souheila Yacoub",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1074"
+        },
+        {
+          "name": "Tandi Wright",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1075"
+        },
+        {
+          "name": "Hunter Doohan",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1076"
+        },
+        {
+          "name": "Sébastien Vanicek",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1077"
+        },
+        {
+          "name": "Florent Bernard",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1078"
+        },
+        {
+          "name": "Sébastien Vanicek",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1079"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt31170389",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt34385135",
+      "name": "Colony",
+      "type": "movie",
+      "cast": [
+        "Jun Ji-hyun",
+        "Koo Kyo-hwan",
+        "Ji Chang-wook"
+      ],
+      "country": "South Korea",
+      "description": "Professor Se Jeong attends a biotech conference, only to witness it spiral into catastrophe when a rapidly mutating virus is unleashed. As the outbreak spreads and the infected begin to transform, authorities seal off the entire f...",
+      "director": [
+        "Yeon Sang-ho"
+      ],
+      "genre": [
+        "Action",
+        "Adventure",
+        "Crime"
+      ],
+      "imdbRating": "6.5",
+      "released": "2026-05-21T00:00:00.000Z",
+      "slug": "movie/colony-34385135",
+      "writer": [
+        "Choi Kyu-seok",
+        "Yeon Sang-ho"
+      ],
+      "year": "2026",
+      "moviedb_id": 1375646,
+      "popularities": {
+        "moviedb": 290.1781,
+        "stremio": 9.672603333333333,
+        "stremio_lib": 0,
+        "trakt": 190
+      },
+      "poster": "https://images.metahub.space/poster/small/tt34385135/img",
+      "runtime": "123 min",
+      "trailers": [
+        {
+          "source": "LW6dpj1uCK8",
+          "type": "Trailer"
+        }
+      ],
+      "background": "https://images.metahub.space/background/medium/tt34385135/img",
+      "logo": "https://images.metahub.space/logo/medium/tt34385135/img",
+      "popularity": 9.672603333333333,
+      "id": "tt34385135",
+      "genres": [
+        "Action",
+        "Adventure",
+        "Crime"
+      ],
+      "releaseInfo": "2026",
+      "trailerStreams": [
+        {
+          "title": "Colony",
+          "ytId": "LW6dpj1uCK8"
+        }
+      ],
+      "links": [
+        {
+          "name": "6.5",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1080"
+        },
+        {
+          "name": "Colony",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1081"
+        },
+        {
+          "name": "Action",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1082"
+        },
+        {
+          "name": "Adventure",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1083"
+        },
+        {
+          "name": "Crime",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1084"
+        },
+        {
+          "name": "Jun Ji-hyun",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1085"
+        },
+        {
+          "name": "Koo Kyo-hwan",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1086"
+        },
+        {
+          "name": "Ji Chang-wook",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1087"
+        },
+        {
+          "name": "Choi Kyu-seok",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1088"
+        },
+        {
+          "name": "Yeon Sang-ho",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1089"
+        },
+        {
+          "name": "Yeon Sang-ho",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1090"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt34385135",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt31193180",
+      "name": "Sinners",
+      "type": "movie",
+      "cast": [
+        "Michael B. Jordan",
+        "Jack O&apos;Connell",
+        "Hailee Steinfeld"
+      ],
+      "country": "United States, Australia, Canada",
+      "description": "Trying to leave their troubled lives behind, twin brothers return to their hometown to start again, only to discover that an even greater evil is waiting to welcome them back.",
+      "director": [
+        "Ryan Coogler"
+      ],
+      "genre": [
+        "Action",
+        "Drama",
+        "Horror"
+      ],
+      "imdbRating": "7.5",
+      "released": "2025-04-18T00:00:00.000Z",
+      "slug": "movie/sinners-31193180",
+      "writer": [
+        "Ryan Coogler"
+      ],
+      "year": "2025",
+      "moviedb_id": 1233413,
+      "popularities": {
+        "moviedb": 39.2841,
+        "stremio": 1.3094700000000001,
+        "stremio_lib": 0,
+        "trakt": 87
+      },
+      "poster": "https://images.metahub.space/poster/small/tt31193180/img",
+      "trailers": [
+        {
+          "source": "l2h2lC0vlX4",
+          "type": "Trailer"
+        },
+        {
+          "source": "O98jSd24lmA",
+          "type": "Trailer"
+        },
+        {
+          "source": "h-zFEZkoALI",
+          "type": "Trailer"
+        },
+        {
+          "source": "7joulECTx_U",
+          "type": "Trailer"
+        },
+        {
+          "source": "bKGxHflevuk",
+          "type": "Trailer"
+        }
+      ],
+      "background": "https://images.metahub.space/background/medium/tt31193180/img",
+      "logo": "https://images.metahub.space/logo/medium/tt31193180/img",
+      "runtime": "138 min",
+      "awards": "Won 4 Oscars. 327 wins & 489 nominations total",
+      "popularity": 1.3094700000000001,
+      "id": "tt31193180",
+      "genres": [
+        "Action",
+        "Drama",
+        "Horror"
+      ],
+      "releaseInfo": "2025",
+      "trailerStreams": [
+        {
+          "title": "Sinners",
+          "ytId": "l2h2lC0vlX4"
+        },
+        {
+          "title": "Sinners",
+          "ytId": "O98jSd24lmA"
+        },
+        {
+          "title": "Sinners",
+          "ytId": "h-zFEZkoALI"
+        },
+        {
+          "title": "Sinners",
+          "ytId": "7joulECTx_U"
+        },
+        {
+          "title": "Sinners",
+          "ytId": "bKGxHflevuk"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.5",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1091"
+        },
+        {
+          "name": "Sinners",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1092"
+        },
+        {
+          "name": "Action",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1093"
+        },
+        {
+          "name": "Drama",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1094"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1095"
+        },
+        {
+          "name": "Michael B. Jordan",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1096"
+        },
+        {
+          "name": "Jack O&apos;Connell",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1097"
+        },
+        {
+          "name": "Hailee Steinfeld",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1098"
+        },
+        {
+          "name": "Ryan Coogler",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1099"
+        },
+        {
+          "name": "Ryan Coogler",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1100"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt31193180",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt35672862",
+      "name": "Hokum",
+      "type": "movie",
+      "cast": [
+        "Adam Scott",
+        "Peter Coonan",
+        "David Wilmot"
+      ],
+      "country": "Ireland, United Arab Emirates",
+      "description": "A horror writer visits an Irish inn to scatter his parents' ashes, unaware the property is said to be haunted by a witch.",
+      "director": [
+        "Damian McCarthy"
+      ],
+      "genre": [
+        "Horror",
+        "Thriller"
+      ],
+      "imdbRating": "7.3",
+      "released": "2026-05-01T00:00:00.000Z",
+      "slug": "movie/hokum-35672862",
+      "writer": [
+        "Damian McCarthy"
+      ],
+      "year": "2026",
+      "moviedb_id": 1430077,
+      "popularities": {
+        "moviedb": 28.8418,
+        "stremio": 0.9613933333333333,
+        "stremio_lib": 0,
+        "trakt": 148
+      },
+      "poster": "https://images.metahub.space/poster/small/tt35672862/img",
+      "runtime": "108 min",
+      "trailers": [
+        {
+          "source": "qU_i5e48KzQ",
+          "type": "Trailer"
+        },
+        {
+          "source": "x94TNKhMN94",
+          "type": "Trailer"
+        },
+        {
+          "source": "jP2nDyQWBOU",
+          "type": "Trailer"
+        }
+      ],
+      "background": "https://images.metahub.space/background/medium/tt35672862/img",
+      "logo": "https://images.metahub.space/logo/medium/tt35672862/img",
+      "popularity": 0.9613933333333333,
+      "id": "tt35672862",
+      "genres": [
+        "Horror",
+        "Thriller"
+      ],
+      "releaseInfo": "2026",
+      "trailerStreams": [
+        {
+          "title": "Hokum",
+          "ytId": "qU_i5e48KzQ"
+        },
+        {
+          "title": "Hokum",
+          "ytId": "x94TNKhMN94"
+        },
+        {
+          "title": "Hokum",
+          "ytId": "jP2nDyQWBOU"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.3",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1101"
+        },
+        {
+          "name": "Hokum",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1102"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1103"
+        },
+        {
+          "name": "Thriller",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1104"
+        },
+        {
+          "name": "Adam Scott",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1105"
+        },
+        {
+          "name": "Peter Coonan",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1106"
+        },
+        {
+          "name": "David Wilmot",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1107"
+        },
+        {
+          "name": "Damian McCarthy",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1108"
+        },
+        {
+          "name": "Damian McCarthy",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1109"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt35672862",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt8036976",
+      "cast": [
+        "Rachel McAdams",
+        "Dylan O'Brien",
+        "Edyll Ismail"
+      ],
+      "country": "United States, Canada, United Kingdom, Australia, Thailand",
+      "description": "When an employee and her insufferable boss become stranded on a deserted island, the only survivors of a plane crash, they must overcome past grievances and work together to make it out alive.",
+      "director": [
+        "Sam Raimi"
+      ],
+      "genre": [
+        "Adventure",
+        "Horror",
+        "Thriller"
+      ],
+      "imdbRating": "6.9",
+      "name": "Send Help",
+      "released": "2026-01-30T00:00:00.000Z",
+      "slug": "movie/send-help-8036976",
+      "type": "movie",
+      "writer": [
+        "Damian Shannon",
+        "Mark Swift"
+      ],
+      "year": "2026",
+      "moviedb_id": 1198994,
+      "popularities": {
+        "moviedb": 30.8714,
+        "stremio": 1.0290466666666667,
+        "stremio_lib": 0,
+        "trakt": 100
+      },
+      "poster": "https://images.metahub.space/poster/small/tt8036976/img",
+      "trailers": [
+        {
+          "source": "cOmnmFz_Uzs",
+          "type": "Trailer"
+        },
+        {
+          "source": "R4wiXj9NmEE",
+          "type": "Trailer"
+        }
+      ],
+      "background": "https://images.metahub.space/background/medium/tt8036976/img",
+      "logo": "https://images.metahub.space/logo/medium/tt8036976/img",
+      "runtime": "113 min",
+      "popularity": 1.0290466666666667,
+      "id": "tt8036976",
+      "genres": [
+        "Adventure",
+        "Horror",
+        "Thriller"
+      ],
+      "releaseInfo": "2026",
+      "trailerStreams": [
+        {
+          "title": "Send Help",
+          "ytId": "cOmnmFz_Uzs"
+        },
+        {
+          "title": "Send Help",
+          "ytId": "R4wiXj9NmEE"
+        }
+      ],
+      "links": [
+        {
+          "name": "6.9",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1110"
+        },
+        {
+          "name": "Send Help",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1111"
+        },
+        {
+          "name": "Adventure",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1112"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1113"
+        },
+        {
+          "name": "Thriller",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1114"
+        },
+        {
+          "name": "Rachel McAdams",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1115"
+        },
+        {
+          "name": "Dylan O'Brien",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1116"
+        },
+        {
+          "name": "Edyll Ismail",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1117"
+        },
+        {
+          "name": "Damian Shannon",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1118"
+        },
+        {
+          "name": "Mark Swift",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1119"
+        },
+        {
+          "name": "Sam Raimi",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1120"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt8036976",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "awards": "Won 5 Oscars. 71 wins & 50 nominations total",
+      "cast": [
+        "Jodie Foster",
+        "Anthony Hopkins",
+        "Scott Glenn"
+      ],
+      "country": "United States",
+      "description": "A young F.B.I. cadet must receive the help of an incarcerated and manipulative cannibal killer to help catch another serial killer, a madman who skins his victims.",
+      "director": [
+        "Jonathan Demme"
+      ],
+      "dvdRelease": "2015-08-27T00:00:00.000Z",
+      "genre": [
+        "Crime",
+        "Drama",
+        "Horror"
+      ],
+      "imdbRating": "8.6",
+      "imdb_id": "tt0102926",
+      "moviedb_id": 274,
+      "name": "The Silence of the Lambs",
+      "popularity": 0.30065000000000003,
+      "poster": "https://images.metahub.space/poster/small/tt0102926/img",
+      "released": "1991-02-14T00:00:00.000Z",
+      "runtime": "119 min",
+      "trailers": [
+        {
+          "source": "6iB21hsprAQ",
+          "type": "Trailer"
+        },
+        {
+          "source": "Msigx2eqO6s",
+          "type": "Trailer"
+        },
+        {
+          "source": "gSQciiKhqXc",
+          "type": "Trailer"
+        },
+        {
+          "source": "W6Mm8Sbe__o",
+          "type": "Trailer"
+        }
+      ],
+      "type": "movie",
+      "writer": [
+        "Thomas Harris",
+        "Ted Tally"
+      ],
+      "year": "1991",
+      "background": "https://images.metahub.space/background/medium/tt0102926/img",
+      "logo": "https://images.metahub.space/logo/medium/tt0102926/img",
+      "popularities": {
+        "moviedb": 9.0195,
+        "stremio": 0.30065000000000003,
+        "trakt": 51,
+        "stremio_lib": 0
+      },
+      "slug": "movie/the-silence-of-the-lambs-0102926",
+      "id": "tt0102926",
+      "genres": [
+        "Crime",
+        "Drama",
+        "Horror"
+      ],
+      "releaseInfo": "1991",
+      "trailerStreams": [
+        {
+          "title": "The Silence of the Lambs",
+          "ytId": "6iB21hsprAQ"
+        },
+        {
+          "title": "The Silence of the Lambs",
+          "ytId": "Msigx2eqO6s"
+        },
+        {
+          "title": "The Silence of the Lambs",
+          "ytId": "gSQciiKhqXc"
+        },
+        {
+          "title": "The Silence of the Lambs",
+          "ytId": "W6Mm8Sbe__o"
+        }
+      ],
+      "links": [
+        {
+          "name": "8.6",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1121"
+        },
+        {
+          "name": "The Silence of the Lambs",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1122"
+        },
+        {
+          "name": "Crime",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1123"
+        },
+        {
+          "name": "Drama",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1124"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1125"
+        },
+        {
+          "name": "Jodie Foster",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1126"
+        },
+        {
+          "name": "Anthony Hopkins",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1127"
+        },
+        {
+          "name": "Scott Glenn",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1128"
+        },
+        {
+          "name": "Thomas Harris",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1129"
+        },
+        {
+          "name": "Ted Tally",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1130"
+        },
+        {
+          "name": "Jonathan Demme",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1131"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt0102926",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "awards": "6 wins & 9 nominations total",
+      "cast": [
+        "Jack Nicholson",
+        "Shelley Duvall",
+        "Danny Lloyd"
+      ],
+      "country": "United Kingdom, United States",
+      "description": "A family heads to an isolated hotel for the winter, where a sinister presence influences the father into violence. At the same time, his psychic son sees horrifying forebodings from both the past and the future.",
+      "director": [
+        "Stanley Kubrick"
+      ],
+      "dvdRelease": "2008-08-15T00:00:00.000Z",
+      "genre": [
+        "Drama",
+        "Horror"
+      ],
+      "imdbRating": "8.4",
+      "imdb_id": "tt0081505",
+      "moviedb_id": 694,
+      "name": "The Shining",
+      "popularity": 0.9473066666666666,
+      "poster": "https://images.metahub.space/poster/small/tt0081505/img",
+      "released": "1980-06-13T00:00:00.000Z",
+      "runtime": "144 min",
+      "trailers": [
+        {
+          "source": "jAE7dNurHR4",
+          "type": "Trailer"
+        },
+        {
+          "source": "FZQvIJxG9Xs",
+          "type": "Trailer"
+        },
+        {
+          "source": "ANKdpe4J2h0",
+          "type": "Trailer"
+        },
+        {
+          "source": "S014oGZiSdI",
+          "type": "Trailer"
+        }
+      ],
+      "type": "movie",
+      "writer": [
+        "Stephen King",
+        "Stanley Kubrick",
+        "Diane Johnson"
+      ],
+      "year": "1980",
+      "background": "https://images.metahub.space/background/medium/tt0081505/img",
+      "logo": "https://images.metahub.space/logo/medium/tt0081505/img",
+      "popularities": {
+        "moviedb": 28.4192,
+        "stremio": 0.9473066666666666,
+        "trakt": 351,
+        "stremio_lib": 0
+      },
+      "slug": "movie/the-shining-0081505",
+      "id": "tt0081505",
+      "genres": [
+        "Drama",
+        "Horror"
+      ],
+      "releaseInfo": "1980",
+      "videos": [],
+      "trailerStreams": [
+        {
+          "title": "The Shining",
+          "ytId": "jAE7dNurHR4"
+        },
+        {
+          "title": "The Shining",
+          "ytId": "FZQvIJxG9Xs"
+        },
+        {
+          "title": "The Shining",
+          "ytId": "ANKdpe4J2h0"
+        },
+        {
+          "title": "The Shining",
+          "ytId": "S014oGZiSdI"
+        }
+      ],
+      "links": [
+        {
+          "name": "8.4",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1132"
+        },
+        {
+          "name": "The Shining",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1133"
+        },
+        {
+          "name": "Drama",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1134"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1135"
+        },
+        {
+          "name": "Jack Nicholson",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1136"
+        },
+        {
+          "name": "Shelley Duvall",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1137"
+        },
+        {
+          "name": "Danny Lloyd",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1138"
+        },
+        {
+          "name": "Stephen King",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1139"
+        },
+        {
+          "name": "Stanley Kubrick",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1140"
+        },
+        {
+          "name": "Diane Johnson",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1141"
+        },
+        {
+          "name": "Stanley Kubrick",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1142"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt0081505",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt10374610",
+      "name": "The Long Walk",
+      "type": "movie",
+      "awards": "5 wins & 17 nominations total",
+      "cast": [
+        "Cooper Hoffman",
+        "David Jonsson",
+        "Garrett Wareing"
+      ],
+      "country": "United States, Canada",
+      "description": "A group of teenage boys compete in an annual contest known as \"The Long Walk,\" in which they must maintain a certain walking speed or get shot.",
+      "director": [
+        "Francis Lawrence"
+      ],
+      "genre": [
+        "Horror",
+        "Thriller"
+      ],
+      "imdbRating": "6.7",
+      "released": "2025-09-12T00:00:00.000Z",
+      "slug": "movie/the-long-walk-10374610",
+      "writer": [
+        "JT Mollner",
+        "Stephen King"
+      ],
+      "year": "2025",
+      "moviedb_id": 604079,
+      "popularities": {
+        "moviedb": 19.1899,
+        "stremio": 0.6396633333333334,
+        "stremio_lib": 0,
+        "trakt": 67
+      },
+      "poster": "https://images.metahub.space/poster/small/tt10374610/img",
+      "trailers": [
+        {
+          "source": "Toj3Zxun7aQ",
+          "type": "Trailer"
+        },
+        {
+          "source": "vAtUHeMQ1F8",
+          "type": "Trailer"
+        }
+      ],
+      "runtime": "108 min",
+      "background": "https://images.metahub.space/background/medium/tt10374610/img",
+      "logo": "https://images.metahub.space/logo/medium/tt10374610/img",
+      "popularity": 0.6396633333333334,
+      "id": "tt10374610",
+      "genres": [
+        "Horror",
+        "Thriller"
+      ],
+      "releaseInfo": "2025",
+      "trailerStreams": [
+        {
+          "title": "The Long Walk",
+          "ytId": "Toj3Zxun7aQ"
+        },
+        {
+          "title": "The Long Walk",
+          "ytId": "vAtUHeMQ1F8"
+        }
+      ],
+      "links": [
+        {
+          "name": "6.7",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1143"
+        },
+        {
+          "name": "The Long Walk",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1144"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1145"
+        },
+        {
+          "name": "Thriller",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1146"
+        },
+        {
+          "name": "Cooper Hoffman",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1147"
+        },
+        {
+          "name": "David Jonsson",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1148"
+        },
+        {
+          "name": "Garrett Wareing",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1149"
+        },
+        {
+          "name": "JT Mollner",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1150"
+        },
+        {
+          "name": "Stephen King",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1151"
+        },
+        {
+          "name": "Francis Lawrence",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1152"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt10374610",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt39143902",
+      "name": "Leviticus",
+      "type": "movie",
+      "awards": "2 wins & 5 nominations total",
+      "cast": [
+        "Tyallah Bullock",
+        "Stacy Clausen",
+        "Joe Bird"
+      ],
+      "country": "Australia",
+      "description": "Two teenage boys must escape a violent entity that takes the form of the person they desire most - each other.",
+      "director": [
+        "Adrian Chiarella"
+      ],
+      "genre": [
+        "Horror",
+        "Romance",
+        "Sci-Fi"
+      ],
+      "imdbRating": "6.4",
+      "released": "2026-06-19T00:00:00.000Z",
+      "slug": "movie/leviticus-39143902",
+      "writer": [
+        "Adrian Chiarella"
+      ],
+      "year": "2026",
+      "moviedb_id": 1564614,
+      "popularities": {
+        "moviedb": 31.4078,
+        "stremio": 1.0469266666666668,
+        "stremio_lib": 0,
+        "trakt": 58
+      },
+      "poster": "https://images.metahub.space/poster/small/tt39143902/img",
+      "runtime": "88 min",
+      "trailers": [
+        {
+          "source": "WXuK0vlFxII",
+          "type": "Trailer"
+        }
+      ],
+      "background": "https://images.metahub.space/background/medium/tt39143902/img",
+      "logo": "https://images.metahub.space/logo/medium/tt39143902/img",
+      "popularity": 1.0469266666666668,
+      "id": "tt39143902",
+      "genres": [
+        "Horror",
+        "Romance",
+        "Sci-Fi"
+      ],
+      "releaseInfo": "2026",
+      "trailerStreams": [
+        {
+          "title": "Leviticus",
+          "ytId": "WXuK0vlFxII"
+        }
+      ],
+      "links": [
+        {
+          "name": "6.4",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1153"
+        },
+        {
+          "name": "Leviticus",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1154"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1155"
+        },
+        {
+          "name": "Romance",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1156"
+        },
+        {
+          "name": "Sci-Fi",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1157"
+        },
+        {
+          "name": "Tyallah Bullock",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1158"
+        },
+        {
+          "name": "Stacy Clausen",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1159"
+        },
+        {
+          "name": "Joe Bird",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1160"
+        },
+        {
+          "name": "Adrian Chiarella",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1161"
+        },
+        {
+          "name": "Adrian Chiarella",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1162"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt39143902",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt31434030",
+      "name": "Dracula",
+      "type": "movie",
+      "cast": [
+        "Caleb Landry Jones",
+        "Christoph Waltz",
+        "Zoë Bleu"
+      ],
+      "country": "France",
+      "description": "When a 15th-century prince denounces God after the loss of his wife he inherits an eternal curse: he becomes Dracula. Condemned to wander the centuries, he defies fate and death, guided by a single hope - to be reunited with his l...",
+      "director": [
+        "Luc Besson"
+      ],
+      "genre": [
+        "Fantasy",
+        "Horror",
+        "Romance"
+      ],
+      "imdbRating": "6.2",
+      "released": "2026-02-06T00:00:00.000Z",
+      "slug": "movie/dracula-31434030",
+      "writer": [
+        "Luc Besson",
+        "Bram Stoker"
+      ],
+      "year": "2026",
+      "moviedb_id": 1246049,
+      "popularities": {
+        "moviedb": 22.7854,
+        "stremio": 0.7595133333333333,
+        "stremio_lib": 0,
+        "trakt": 50
+      },
+      "poster": "https://images.metahub.space/poster/small/tt31434030/img",
+      "runtime": "130 min",
+      "trailers": [
+        {
+          "source": "hverb7siYJ8",
+          "type": "Trailer"
+        },
+        {
+          "source": "3OBLPpuOM10",
+          "type": "Trailer"
+        },
+        {
+          "source": "iBKJCME9yvk",
+          "type": "Trailer"
+        }
+      ],
+      "background": "https://images.metahub.space/background/medium/tt31434030/img",
+      "logo": "https://images.metahub.space/logo/medium/tt31434030/img",
+      "awards": "4 nominations total",
+      "popularity": 0.7595133333333333,
+      "id": "tt31434030",
+      "genres": [
+        "Fantasy",
+        "Horror",
+        "Romance"
+      ],
+      "releaseInfo": "2026",
+      "trailerStreams": [
+        {
+          "title": "Dracula",
+          "ytId": "hverb7siYJ8"
+        },
+        {
+          "title": "Dracula",
+          "ytId": "3OBLPpuOM10"
+        },
+        {
+          "title": "Dracula",
+          "ytId": "iBKJCME9yvk"
+        }
+      ],
+      "links": [
+        {
+          "name": "6.2",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1163"
+        },
+        {
+          "name": "Dracula",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1164"
+        },
+        {
+          "name": "Fantasy",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1165"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1166"
+        },
+        {
+          "name": "Romance",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1167"
+        },
+        {
+          "name": "Caleb Landry Jones",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1168"
+        },
+        {
+          "name": "Christoph Waltz",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1169"
+        },
+        {
+          "name": "Zoë Bleu",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1170"
+        },
+        {
+          "name": "Luc Besson",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1171"
+        },
+        {
+          "name": "Bram Stoker",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1172"
+        },
+        {
+          "name": "Luc Besson",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1173"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt31434030",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt33978029",
+      "name": "Ready or Not 2: Here I Come",
+      "type": "movie",
+      "cast": [
+        "Samara Weaving",
+        "Kathryn Newton",
+        "Elijah Wood"
+      ],
+      "country": "United States, Canada",
+      "genre": [
+        "Comedy",
+        "Horror",
+        "Thriller"
+      ],
+      "imdbRating": "6.5",
+      "released": "2026-03-20T00:00:00.000Z",
+      "slug": "movie/ready-or-not-2-here-i-come-33978029",
+      "writer": [
+        "Guy Busick",
+        "R. Christopher Murphy"
+      ],
+      "year": "2026",
+      "moviedb_id": 1266127,
+      "popularities": {
+        "moviedb": 26.903,
+        "stremio": 0.8967666666666666,
+        "stremio_lib": 0,
+        "trakt": 79
+      },
+      "poster": "https://images.metahub.space/poster/small/tt33978029/img",
+      "trailers": [
+        {
+          "source": "jczr0KCloXk",
+          "type": "Trailer"
+        },
+        {
+          "source": "7K3sNRm8J0w",
+          "type": "Trailer"
+        }
+      ],
+      "director": [
+        "Matt Bettinelli-Olpin",
+        "Tyler Gillett"
+      ],
+      "background": "https://images.metahub.space/background/medium/tt33978029/img",
+      "logo": "https://images.metahub.space/logo/medium/tt33978029/img",
+      "runtime": "108 min",
+      "description": "Grace MacCaullay battles old wounds with her estranged sister Faith MacCaullay while rival occult dynasties hunt them through a deadly contest that promises power, survival, and betrayal before dawn.",
+      "awards": "2 nominations total",
+      "popularity": 0.8967666666666666,
+      "id": "tt33978029",
+      "genres": [
+        "Comedy",
+        "Horror",
+        "Thriller"
+      ],
+      "releaseInfo": "2026",
+      "trailerStreams": [
+        {
+          "title": "Ready or Not 2: Here I Come",
+          "ytId": "jczr0KCloXk"
+        },
+        {
+          "title": "Ready or Not 2: Here I Come",
+          "ytId": "7K3sNRm8J0w"
+        }
+      ],
+      "links": [
+        {
+          "name": "6.5",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1174"
+        },
+        {
+          "name": "Ready or Not 2: Here I Come",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1175"
+        },
+        {
+          "name": "Comedy",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1176"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1177"
+        },
+        {
+          "name": "Thriller",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1178"
+        },
+        {
+          "name": "Samara Weaving",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1179"
+        },
+        {
+          "name": "Kathryn Newton",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1180"
+        },
+        {
+          "name": "Elijah Wood",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1181"
+        },
+        {
+          "name": "Guy Busick",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1182"
+        },
+        {
+          "name": "R. Christopher Murphy",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1183"
+        },
+        {
+          "name": "Matt Bettinelli-Olpin",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1184"
+        },
+        {
+          "name": "Tyler Gillett",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1185"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt33978029",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt32141377",
+      "name": "28 Years Later: The Bone Temple",
+      "type": "movie",
+      "description": "As Spike is inducted into Jimmy Crystal's gang on the mainland, Dr. Kelson makes a discovery that could alter the world.",
+      "genre": [
+        "Horror",
+        "Sci-Fi",
+        "Thriller"
+      ],
+      "imdbRating": "7.3",
+      "released": "2026-01-16T00:00:00.000Z",
+      "slug": "movie/28-years-later-the-bone-temple-32141377",
+      "year": "2026",
+      "moviedb_id": 1272837,
+      "popularities": {
+        "moviedb": 26.1635,
+        "stremio": 0.8721166666666667,
+        "stremio_lib": 0,
+        "trakt": 63
+      },
+      "poster": "https://images.metahub.space/poster/small/tt32141377/img",
+      "cast": [
+        "Jack O'Connell",
+        "Alfie Williams",
+        "Connor Newall"
+      ],
+      "director": [
+        "Nia DaCosta"
+      ],
+      "writer": [
+        "Alex Garland"
+      ],
+      "trailers": [
+        {
+          "source": "rl_DJZCyEH4",
+          "type": "Trailer"
+        },
+        {
+          "source": "QlF68NIz8dg",
+          "type": "Trailer"
+        },
+        {
+          "source": "EOwTdTZA8D8",
+          "type": "Trailer"
+        }
+      ],
+      "background": "https://images.metahub.space/background/medium/tt32141377/img",
+      "logo": "https://images.metahub.space/logo/medium/tt32141377/img",
+      "runtime": "109 min",
+      "country": "United Kingdom, United States, Canada",
+      "awards": "3 nominations total",
+      "popularity": 0.8721166666666667,
+      "id": "tt32141377",
+      "genres": [
+        "Horror",
+        "Sci-Fi",
+        "Thriller"
+      ],
+      "releaseInfo": "2026",
+      "trailerStreams": [
+        {
+          "title": "28 Years Later: The Bone Temple",
+          "ytId": "rl_DJZCyEH4"
+        },
+        {
+          "title": "28 Years Later: The Bone Temple",
+          "ytId": "QlF68NIz8dg"
+        },
+        {
+          "title": "28 Years Later: The Bone Temple",
+          "ytId": "EOwTdTZA8D8"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.3",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1186"
+        },
+        {
+          "name": "28 Years Later: The Bone Temple",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1187"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1188"
+        },
+        {
+          "name": "Sci-Fi",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1189"
+        },
+        {
+          "name": "Thriller",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1190"
+        },
+        {
+          "name": "Jack O'Connell",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1191"
+        },
+        {
+          "name": "Alfie Williams",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1192"
+        },
+        {
+          "name": "Connor Newall",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1193"
+        },
+        {
+          "name": "Alex Garland",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1194"
+        },
+        {
+          "name": "Nia DaCosta",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1195"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt32141377",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt1312221",
+      "cast": [
+        "Oscar Isaac",
+        "Jacob Elordi",
+        "Christoph Waltz"
+      ],
+      "country": "Mexico, United States, Canada",
+      "description": "Dr. Victor Frankenstein, a brilliant but egotistical scientist, brings a creature to life in a monstrous experiment that ultimately leads to the undoing of both the creator and his tragic creation.",
+      "director": [
+        "Guillermo del Toro"
+      ],
+      "genre": [
+        "Drama",
+        "Fantasy",
+        "Horror"
+      ],
+      "imdbRating": "7.4",
+      "name": "Frankenstein",
+      "released": "2025-11-07T00:00:00.000Z",
+      "slug": "movie/frankenstein-1312221",
+      "type": "movie",
+      "writer": [
+        "Guillermo del Toro",
+        "Mary Shelley"
+      ],
+      "year": "2025",
+      "moviedb_id": 1062722,
+      "popularities": {
+        "moviedb": 27.7805,
+        "stremio": 0.9260166666666667,
+        "stremio_lib": 0,
+        "trakt": 53
+      },
+      "poster": "https://images.metahub.space/poster/small/tt1312221/img",
+      "runtime": "150 min",
+      "trailers": [
+        {
+          "source": "9WZllcEgWrM",
+          "type": "Trailer"
+        },
+        {
+          "source": "8aulMPhE12g",
+          "type": "Trailer"
+        }
+      ],
+      "background": "https://images.metahub.space/background/medium/tt1312221/img",
+      "logo": "https://images.metahub.space/logo/medium/tt1312221/img",
+      "awards": "Won 3 Oscars. 89 wins & 260 nominations total",
+      "popularity": 0.9260166666666667,
+      "id": "tt1312221",
+      "genres": [
+        "Drama",
+        "Fantasy",
+        "Horror"
+      ],
+      "releaseInfo": "2025",
+      "trailerStreams": [
+        {
+          "title": "Frankenstein",
+          "ytId": "9WZllcEgWrM"
+        },
+        {
+          "title": "Frankenstein",
+          "ytId": "8aulMPhE12g"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.4",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1196"
+        },
+        {
+          "name": "Frankenstein",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1197"
+        },
+        {
+          "name": "Drama",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1198"
+        },
+        {
+          "name": "Fantasy",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1199"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1200"
+        },
+        {
+          "name": "Oscar Isaac",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1201"
+        },
+        {
+          "name": "Jacob Elordi",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1202"
+        },
+        {
+          "name": "Christoph Waltz",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1203"
+        },
+        {
+          "name": "Guillermo del Toro",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1204"
+        },
+        {
+          "name": "Mary Shelley",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1205"
+        },
+        {
+          "name": "Guillermo del Toro",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1206"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt1312221",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt7798634",
+      "name": "Ready or Not",
+      "cast": [
+        "Samara Weaving",
+        "Adam Brody",
+        "Mark O'Brien"
+      ],
+      "country": "United States, Canada",
+      "description": "A bride's wedding night takes a sinister turn when her eccentric new in-laws force her to take part in a terrifying game.",
+      "director": [
+        "Matt Bettinelli-Olpin",
+        "Tyler Gillett"
+      ],
+      "imdbRating": "6.9",
+      "released": "2019-08-21T00:00:00.000Z",
+      "slug": "movie/ready-or-not-7798634",
+      "type": "movie",
+      "writer": [
+        "Guy Busick",
+        "R. Christopher Murphy"
+      ],
+      "year": "2019",
+      "moviedb_id": 567609,
+      "popularities": {
+        "moviedb": 23.655,
+        "stremio": 0.7885000000000001,
+        "stremio_lib": 0,
+        "trakt": 55
+      },
+      "trailers": [
+        {
+          "source": "LBwfO9Hj6oQ",
+          "type": "Trailer"
+        },
+        {
+          "source": "ZtYTwUxhAoI",
+          "type": "Trailer"
+        }
+      ],
+      "genre": [
+        "Action",
+        "Comedy",
+        "Horror"
+      ],
+      "background": "https://images.metahub.space/background/medium/tt7798634/img",
+      "logo": "https://images.metahub.space/logo/medium/tt7798634/img",
+      "poster": "https://images.metahub.space/poster/small/tt7798634/img",
+      "runtime": "96 min",
+      "affiliates": {
+        "fandango_embed": "<p><a href=\"http://www.qksrv.net/click-7949808-10576761?url=http%3a%2f%2fwww.fandango.com%2freadyornot_219278%2fmovieoverview%3fwssaffid%3d11839%26wssac%3d123\"><img src=\"https://images.fandango.com/r1.0.721/ImageRenderer/111/168/images/no_image_111x168.jpg/219278/images/masterrepository/fandango/219278/ready_or_not_final_one-sheet.jpg\" alt=\"Ready or Not\" title=\"Ready or Not\" border=\"0\" /></a> Opens Wednesday, Aug 21, 2019</p><p></p><p><a href=\"http://www.qksrv.net/click-7949808-10576761?url=http%3a%2f%2fwww.fandango.com%2freadyornot_219278%2fmovieoverview%3fwssaffid%3d11839%26wssac%3d123\">Movie Details</a> <a href=\"http://www.qksrv.net/click-7949808-10576761?url=http%3a%2f%2fwww.fandango.com%2fmovie-trailer%2freadyornot-trailer%2f219278%3fwssaffid%3d11839%26wssac%3d123\">Play Trailers</a></p><p><a href=\"http://www.qksrv.net/click-7949808-10576761?url=http%3a%2f%2fwww.fandango.com%2freadyornot_219278%2fmovietimes%3fwssaffid%3d11839%26wssac%3d123\"><img src=\"https://images.fandango.com/r1.0.721//images/global/buy_tickets.gif\" alt=\"Buy Tickets\" title=\"Click here to see showtimes and buy tickets!\" border=\"0\" /></a></p>",
+        "fandango_link": "http://www.qksrv.net/click-7949808-10576761?url=http%3a%2f%2fwww.fandango.com%2freadyornot_219278%2fmovieoverview%3fwssaffid%3d11839%26wssac%3d123"
+      },
+      "dvdRelease": "2019-08-27T00:00:00.000Z",
+      "awards": "4 wins & 24 nominations total",
+      "popularity": 0.7885000000000001,
+      "id": "tt7798634",
+      "genres": [
+        "Action",
+        "Comedy",
+        "Horror"
+      ],
+      "releaseInfo": "2019",
+      "trailerStreams": [
+        {
+          "title": "Ready or Not",
+          "ytId": "LBwfO9Hj6oQ"
+        },
+        {
+          "title": "Ready or Not",
+          "ytId": "ZtYTwUxhAoI"
+        }
+      ],
+      "links": [
+        {
+          "name": "6.9",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1207"
+        },
+        {
+          "name": "Ready or Not",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1208"
+        },
+        {
+          "name": "Action",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1209"
+        },
+        {
+          "name": "Comedy",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1210"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1211"
+        },
+        {
+          "name": "Samara Weaving",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1212"
+        },
+        {
+          "name": "Adam Brody",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1213"
+        },
+        {
+          "name": "Mark O'Brien",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1214"
+        },
+        {
+          "name": "Guy Busick",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1215"
+        },
+        {
+          "name": "R. Christopher Murphy",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1216"
+        },
+        {
+          "name": "Matt Bettinelli-Olpin",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1217"
+        },
+        {
+          "name": "Tyler Gillett",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1218"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt7798634",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt7784604",
+      "name": "Hereditary",
+      "year": "2018",
+      "runtime": "128 min",
+      "genre": [
+        "Drama",
+        "Horror",
+        "Mystery"
+      ],
+      "released": "2018-06-08T00:00:00.000Z",
+      "director": [
+        "Ari Aster"
+      ],
+      "writer": [
+        "Ari Aster"
+      ],
+      "cast": [
+        "Toni Collette",
+        "Milly Shapiro",
+        "Gabriel Byrne"
+      ],
+      "imdbRating": "7.3",
+      "poster": "https://images.metahub.space/poster/small/tt7784604/img",
+      "description": "A grieving family is haunted by tragic and disturbing occurrences.",
+      "country": "United States",
+      "type": "movie",
+      "trailers": [
+        {
+          "source": "MJNR58zaStE",
+          "type": "Trailer"
+        },
+        {
+          "source": "V6wWKNij_1M",
+          "type": "Trailer"
+        }
+      ],
+      "moviedb_id": 493922,
+      "popularities": {
+        "moviedb": 24.3555,
+        "stremio": 0.81185,
+        "trakt": 56,
+        "stremio_lib": 0
+      },
+      "slug": "movie/hereditary-7784604",
+      "dvdRelease": "2018-08-21T00:00:00.000Z",
+      "awards": "52 wins & 112 nominations total",
+      "background": "https://images.metahub.space/background/medium/tt7784604/img",
+      "logo": "https://images.metahub.space/logo/medium/tt7784604/img",
+      "popularity": 0.81185,
+      "id": "tt7784604",
+      "genres": [
+        "Drama",
+        "Horror",
+        "Mystery"
+      ],
+      "releaseInfo": "2018",
+      "trailerStreams": [
+        {
+          "title": "Hereditary",
+          "ytId": "MJNR58zaStE"
+        },
+        {
+          "title": "Hereditary",
+          "ytId": "V6wWKNij_1M"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.3",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1219"
+        },
+        {
+          "name": "Hereditary",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1220"
+        },
+        {
+          "name": "Drama",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1221"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1222"
+        },
+        {
+          "name": "Mystery",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1223"
+        },
+        {
+          "name": "Toni Collette",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1224"
+        },
+        {
+          "name": "Milly Shapiro",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1225"
+        },
+        {
+          "name": "Gabriel Byrne",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1226"
+        },
+        {
+          "name": "Ari Aster",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1227"
+        },
+        {
+          "name": "Ari Aster",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1228"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt7784604",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "awards": "4 wins & 4 nominations total",
+      "cast": [
+        "Tim Curry",
+        "Susan Sarandon",
+        "Barry Bostwick"
+      ],
+      "country": "United Kingdom, United States",
+      "description": "A rain-soaked couple take refuge in the castle of a transvestite mad scientist from outer space who is about to unveil his greatest creation.",
+      "director": [
+        "Jim Sharman"
+      ],
+      "dvdRelease": "2015-11-25T00:00:00.000Z",
+      "genre": [
+        "Comedy",
+        "Horror",
+        "Musical"
+      ],
+      "imdbRating": "7.4",
+      "imdb_id": "tt0073629",
+      "moviedb_id": 36685,
+      "name": "The Rocky Horror Picture Show",
+      "popularity": 0.36688,
+      "poster": "https://images.metahub.space/poster/small/tt0073629/img",
+      "released": "1975-09-29T00:00:00.000Z",
+      "runtime": "100 min",
+      "trailers": [
+        {
+          "source": "LnYBwampG8U",
+          "type": "Trailer"
+        },
+        {
+          "source": "ldo_spDyLKc",
+          "type": "Trailer"
+        },
+        {
+          "source": "4plqh6obZW4",
+          "type": "Trailer"
+        }
+      ],
+      "type": "movie",
+      "writer": [
+        "Richard O'Brien",
+        "Jim Sharman"
+      ],
+      "year": "1975",
+      "background": "https://images.metahub.space/background/medium/tt0073629/img",
+      "logo": "https://images.metahub.space/logo/medium/tt0073629/img",
+      "popularities": {
+        "moviedb": 11.0064,
+        "stremio": 0.36688,
+        "trakt": 50,
+        "stremio_lib": 0
+      },
+      "slug": "movie/the-rocky-horror-picture-show-0073629",
+      "id": "tt0073629",
+      "genres": [
+        "Comedy",
+        "Horror",
+        "Musical"
+      ],
+      "releaseInfo": "1975",
+      "videos": [],
+      "trailerStreams": [
+        {
+          "title": "The Rocky Horror Picture Show",
+          "ytId": "LnYBwampG8U"
+        },
+        {
+          "title": "The Rocky Horror Picture Show",
+          "ytId": "ldo_spDyLKc"
+        },
+        {
+          "title": "The Rocky Horror Picture Show",
+          "ytId": "4plqh6obZW4"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.4",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1229"
+        },
+        {
+          "name": "The Rocky Horror Picture Show",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1230"
+        },
+        {
+          "name": "Comedy",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1231"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1232"
+        },
+        {
+          "name": "Musical",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1233"
+        },
+        {
+          "name": "Tim Curry",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1234"
+        },
+        {
+          "name": "Susan Sarandon",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1235"
+        },
+        {
+          "name": "Barry Bostwick",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1236"
+        },
+        {
+          "name": "Richard O'Brien",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1237"
+        },
+        {
+          "name": "Jim Sharman",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1238"
+        },
+        {
+          "name": "Jim Sharman",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1239"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt0073629",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "awards": "Won 1 Oscar. 19 wins & 22 nominations total",
+      "cast": [
+        "Sigourney Weaver",
+        "Tom Skerritt",
+        "John Hurt"
+      ],
+      "country": "United Kingdom, United States",
+      "description": "After investigating a mysterious transmission of unknown origin, the crew of a commercial spacecraft encounters a deadly lifeform.",
+      "director": [
+        "Ridley Scott"
+      ],
+      "dvdRelease": "2014-11-02T00:00:00.000Z",
+      "genre": [
+        "Horror",
+        "Sci-Fi"
+      ],
+      "imdbRating": "8.5",
+      "imdb_id": "tt0078748",
+      "moviedb_id": 348,
+      "name": "Alien",
+      "popularity": 1.1278533333333334,
+      "poster": "https://images.metahub.space/poster/small/tt0078748/img",
+      "released": "1979-06-22T00:00:00.000Z",
+      "runtime": "117 min",
+      "trailers": [
+        {
+          "source": "sVwH0hIvV5k",
+          "type": "Trailer"
+        },
+        {
+          "source": "MNZPs5AKibU",
+          "type": "Trailer"
+        },
+        {
+          "source": "L2VWfWC-wI4",
+          "type": "Trailer"
+        }
+      ],
+      "type": "movie",
+      "writer": [
+        "Dan O'Bannon",
+        "Ronald Shusett"
+      ],
+      "year": "1979",
+      "background": "https://images.metahub.space/background/medium/tt0078748/img",
+      "logo": "https://images.metahub.space/logo/medium/tt0078748/img",
+      "popularities": {
+        "moviedb": 33.8356,
+        "stremio": 1.1278533333333334,
+        "trakt": 53,
+        "stremio_lib": 0
+      },
+      "slug": "movie/alien-0078748",
+      "id": "tt0078748",
+      "genres": [
+        "Horror",
+        "Sci-Fi"
+      ],
+      "releaseInfo": "1979",
+      "videos": [],
+      "trailerStreams": [
+        {
+          "title": "Alien",
+          "ytId": "sVwH0hIvV5k"
+        },
+        {
+          "title": "Alien",
+          "ytId": "MNZPs5AKibU"
+        },
+        {
+          "title": "Alien",
+          "ytId": "L2VWfWC-wI4"
+        }
+      ],
+      "links": [
+        {
+          "name": "8.5",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1240"
+        },
+        {
+          "name": "Alien",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1241"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1242"
+        },
+        {
+          "name": "Sci-Fi",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1243"
+        },
+        {
+          "name": "Sigourney Weaver",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1244"
+        },
+        {
+          "name": "Tom Skerritt",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1245"
+        },
+        {
+          "name": "John Hurt",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1246"
+        },
+        {
+          "name": "Dan O'Bannon",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1247"
+        },
+        {
+          "name": "Ronald Shusett",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1248"
+        },
+        {
+          "name": "Ridley Scott",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1249"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt0078748",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "awards": "8 wins & 16 nominations total",
+      "cast": [
+        "Patrick Wilson",
+        "Rose Byrne",
+        "Ty Simpkins"
+      ],
+      "country": "United States, Canada",
+      "description": "A family looks to prevent evil spirits from trapping their comatose child in a realm called The Further.",
+      "director": [
+        "James Wan"
+      ],
+      "dvdRelease": "2015-06-03T00:00:00.000Z",
+      "genre": [
+        "Horror",
+        "Mystery",
+        "Thriller"
+      ],
+      "imdbRating": "6.8",
+      "imdb_id": "tt1591095",
+      "moviedb_id": 49018,
+      "name": "Insidious",
+      "popularity": 0.8135399999999999,
+      "poster": "https://images.metahub.space/poster/small/tt1591095/img",
+      "released": "2011-04-01T00:00:00.000Z",
+      "runtime": "102 min",
+      "trailers": [
+        {
+          "source": "62rpZcMYa0A",
+          "type": "Trailer"
+        }
+      ],
+      "type": "movie",
+      "writer": [
+        "Leigh Whannell"
+      ],
+      "year": "2011",
+      "background": "https://images.metahub.space/background/medium/tt1591095/img",
+      "logo": "https://images.metahub.space/logo/medium/tt1591095/img",
+      "popularities": {
+        "moviedb": 24.4062,
+        "stremio": 0.8135399999999999,
+        "trakt": 57,
+        "stremio_lib": 0
+      },
+      "slug": "movie/insidious-1591095",
+      "id": "tt1591095",
+      "genres": [
+        "Horror",
+        "Mystery",
+        "Thriller"
+      ],
+      "releaseInfo": "2011",
+      "trailerStreams": [
+        {
+          "title": "Insidious",
+          "ytId": "62rpZcMYa0A"
+        }
+      ],
+      "links": [
+        {
+          "name": "6.8",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1250"
+        },
+        {
+          "name": "Insidious",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1251"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1252"
+        },
+        {
+          "name": "Mystery",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1253"
+        },
+        {
+          "name": "Thriller",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1254"
+        },
+        {
+          "name": "Patrick Wilson",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1255"
+        },
+        {
+          "name": "Rose Byrne",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1256"
+        },
+        {
+          "name": "Ty Simpkins",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1257"
+        },
+        {
+          "name": "Leigh Whannell",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1258"
+        },
+        {
+          "name": "James Wan",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1259"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt1591095",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt1396484",
+      "popularity": 0.80021,
+      "name": "It",
+      "year": "2017",
+      "runtime": "135 min",
+      "genre": [
+        "Horror"
+      ],
+      "released": "2017-09-08T00:00:00.000Z",
+      "director": [
+        "Andy Muschietti"
+      ],
+      "writer": [
+        "Chase Palmer",
+        "Cary Joji Fukunaga",
+        "Gary Dauberman"
+      ],
+      "cast": [
+        "Bill Skarsgård",
+        "Jaeden Martell",
+        "Finn Wolfhard"
+      ],
+      "imdbRating": "7.3",
+      "poster": "https://images.metahub.space/poster/small/tt1396484/img",
+      "description": "In the summer of 1989, a group of bullied kids band together to destroy a shape-shifting monster, which disguises itself as a clown and preys on the children of Derry, their small Maine town.",
+      "country": "United States",
+      "awards": "12 wins & 49 nominations total",
+      "dvdRelease": "2017-12-19T00:00:00.000Z",
+      "type": "movie",
+      "trailers": [
+        {
+          "source": "xKJmEC5ieOk",
+          "type": "Trailer"
+        },
+        {
+          "source": "q-0PnsATSbc",
+          "type": "Trailer"
+        },
+        {
+          "source": "FnCdOQsX5kc",
+          "type": "Trailer"
+        }
+      ],
+      "moviedb_id": 346364,
+      "popularities": {
+        "moviedb": 24.0063,
+        "stremio": 0.80021,
+        "trakt": 93,
+        "stremio_lib": 0
+      },
+      "affiliates": {
+        "fandango_link": "http://www.qksrv.net/click-7949808-10558776?url=http%3a%2f%2fwww.fandango.com%2fit2017_199151%2fmovieoverview%3fwssaffid%3d11830%26wssac%3d123",
+        "fandango_embed": "<p><a href=\"http://www.qksrv.net/click-7949808-10558776?url=http%3a%2f%2fwww.fandango.com%2fit2017_199151%2fmovieoverview%3fwssaffid%3d11830%26wssac%3d123\"><img src=\"https://images.fandango.com/r1.0.155/ImageRenderer/111/168/images/no_image_111x168.jpg/199151/images/masterrepository/fandango/199151/it2017.jpg\" alt=\"It (2017)\" title=\"It (2017)\" border=\"0\" /></a></p><p><a href=\"http://www.qksrv.net/click-7949808-10558776?url=http%3a%2f%2fwww.fandango.com%2fit2017_199151%2fmovietimes%3fwssaffid%3d11830%26wssac%3d123\"><img src=\"https://images.fandango.com/r1.0.155//images/global/buy_tickets.gif\" alt=\"Buy Tickets\" title=\"Click here to see showtimes and buy tickets!\" border=\"0\" /></a></p><p><a href=\"http://www.qksrv.net/click-7949808-10558776?url=http%3a%2f%2fwww.fandango.com%2fmovie-trailer%2fit2017-trailer%2f199151%3fwssaffid%3d11830%26wssac%3d123\">Play Trailers</a></p>"
+      },
+      "background": "https://images.metahub.space/background/medium/tt1396484/img",
+      "logo": "https://images.metahub.space/logo/medium/tt1396484/img",
+      "slug": "movie/it-1396484",
+      "id": "tt1396484",
+      "genres": [
+        "Horror"
+      ],
+      "releaseInfo": "2017",
+      "trailerStreams": [
+        {
+          "title": "It",
+          "ytId": "xKJmEC5ieOk"
+        },
+        {
+          "title": "It",
+          "ytId": "q-0PnsATSbc"
+        },
+        {
+          "title": "It",
+          "ytId": "FnCdOQsX5kc"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.3",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1260"
+        },
+        {
+          "name": "It",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1261"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1262"
+        },
+        {
+          "name": "Bill Skarsgård",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1263"
+        },
+        {
+          "name": "Jaeden Martell",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1264"
+        },
+        {
+          "name": "Finn Wolfhard",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1265"
+        },
+        {
+          "name": "Chase Palmer",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1266"
+        },
+        {
+          "name": "Cary Joji Fukunaga",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1267"
+        },
+        {
+          "name": "Gary Dauberman",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1268"
+        },
+        {
+          "name": "Andy Muschietti",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1269"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt1396484",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt26584495",
+      "name": "Companion",
+      "type": "movie",
+      "popularities": {
+        "trakt": 73,
+        "moviedb": 24.5818,
+        "stremio": 0.8193933333333334,
+        "stremio_lib": 0
+      },
+      "awards": "3 wins & 20 nominations total",
+      "cast": [
+        "Sophie Thatcher",
+        "Jack Quaid",
+        "Lukas Gage"
+      ],
+      "country": "United States",
+      "description": "A weekend getaway with friends at a remote cabin turns into chaos after it's revealed that one of the guests is not what they seem.",
+      "director": [
+        "Drew Hancock"
+      ],
+      "genre": [
+        "Sci-Fi",
+        "Thriller"
+      ],
+      "imdbRating": "6.9",
+      "released": "2025-01-31T00:00:00.000Z",
+      "slug": "movie/companion-26584495",
+      "writer": [
+        "Drew Hancock"
+      ],
+      "year": "2025",
+      "moviedb_id": 1084199,
+      "poster": "https://images.metahub.space/poster/small/tt26584495/img",
+      "runtime": "97 min",
+      "trailers": [
+        {
+          "source": "Qr_kX0D3DNA",
+          "type": "Trailer"
+        },
+        {
+          "source": "PhcLjiVtgco",
+          "type": "Trailer"
+        }
+      ],
+      "background": "https://images.metahub.space/background/medium/tt26584495/img",
+      "logo": "https://images.metahub.space/logo/medium/tt26584495/img",
+      "popularity": 0.8193933333333334,
+      "id": "tt26584495",
+      "genres": [
+        "Sci-Fi",
+        "Thriller"
+      ],
+      "releaseInfo": "2025",
+      "trailerStreams": [
+        {
+          "title": "Companion",
+          "ytId": "Qr_kX0D3DNA"
+        },
+        {
+          "title": "Companion",
+          "ytId": "PhcLjiVtgco"
+        }
+      ],
+      "links": [
+        {
+          "name": "6.9",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1270"
+        },
+        {
+          "name": "Companion",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1271"
+        },
+        {
+          "name": "Sci-Fi",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1272"
+        },
+        {
+          "name": "Thriller",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1273"
+        },
+        {
+          "name": "Sophie Thatcher",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1274"
+        },
+        {
+          "name": "Jack Quaid",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1275"
+        },
+        {
+          "name": "Lukas Gage",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1276"
+        },
+        {
+          "name": "Drew Hancock",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1277"
+        },
+        {
+          "name": "Drew Hancock",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1278"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt26584495",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "awards": "3 wins & 25 nominations total",
+      "cast": [
+        "Brad Pitt",
+        "Mireille Enos",
+        "Daniella Kertesz"
+      ],
+      "country": "United States, United Kingdom",
+      "description": "Former United Nations employee Gerry Lane traverses the world in a race against time to stop a zombie pandemic that is toppling armies and governments and threatens to destroy humanity itself.",
+      "director": [
+        "Marc Forster"
+      ],
+      "dvdRelease": "2015-06-07T00:00:00.000Z",
+      "genre": [
+        "Action",
+        "Adventure",
+        "Horror"
+      ],
+      "imdbRating": "7.0",
+      "imdb_id": "tt0816711",
+      "moviedb_id": 72190,
+      "name": "World War Z",
+      "popularity": 1.0196966666666667,
+      "poster": "https://images.metahub.space/poster/small/tt0816711/img",
+      "released": "2013-06-21T00:00:00.000Z",
+      "runtime": "116 min",
+      "trailers": [
+        {
+          "source": "TvRCQM2HrXs",
+          "type": "Trailer"
+        },
+        {
+          "source": "slfrrjPndV4",
+          "type": "Trailer"
+        }
+      ],
+      "type": "movie",
+      "writer": [
+        "Matthew Michael Carnahan",
+        "Drew Goddard",
+        "Damon Lindelof"
+      ],
+      "year": "2013",
+      "background": "https://images.metahub.space/background/medium/tt0816711/img",
+      "logo": "https://images.metahub.space/logo/medium/tt0816711/img",
+      "popularities": {
+        "moviedb": 30.5909,
+        "stremio": 1.0196966666666667,
+        "trakt": 56,
+        "stremio_lib": 0
+      },
+      "slug": "movie/world-war-z-0816711",
+      "id": "tt0816711",
+      "genres": [
+        "Action",
+        "Adventure",
+        "Horror"
+      ],
+      "releaseInfo": "2013",
+      "trailerStreams": [
+        {
+          "title": "World War Z",
+          "ytId": "TvRCQM2HrXs"
+        },
+        {
+          "title": "World War Z",
+          "ytId": "slfrrjPndV4"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.0",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1279"
+        },
+        {
+          "name": "World War Z",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1280"
+        },
+        {
+          "name": "Action",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1281"
+        },
+        {
+          "name": "Adventure",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1282"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1283"
+        },
+        {
+          "name": "Brad Pitt",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1284"
+        },
+        {
+          "name": "Mireille Enos",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1285"
+        },
+        {
+          "name": "Daniella Kertesz",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1286"
+        },
+        {
+          "name": "Matthew Michael Carnahan",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1287"
+        },
+        {
+          "name": "Drew Goddard",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1288"
+        },
+        {
+          "name": "Damon Lindelof",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1289"
+        },
+        {
+          "name": "Marc Forster",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1290"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt0816711",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt32246771",
+      "name": "Bring Her Back",
+      "type": "movie",
+      "cast": [
+        "Billy Barratt",
+        "Sally Hawkins",
+        "Mischa Heywood"
+      ],
+      "country": "Australia",
+      "description": "A brother and sister uncover a terrifying ritual at the secluded home of their new foster mother.",
+      "director": [
+        "Danny Philippou",
+        "Michael Philippou"
+      ],
+      "genre": [
+        "Horror",
+        "Mystery"
+      ],
+      "imdbRating": "7.1",
+      "released": "2025-05-30T00:00:00.000Z",
+      "slug": "movie/bring-her-back-32246771",
+      "writer": [
+        "Danny Philippou",
+        "Bill Hinzman"
+      ],
+      "year": "2025",
+      "moviedb_id": 1151031,
+      "popularities": {
+        "moviedb": 20.9563,
+        "stremio": 0.6985433333333333,
+        "stremio_lib": 0,
+        "trakt": 51
+      },
+      "poster": "https://images.metahub.space/poster/small/tt32246771/img",
+      "runtime": "104 min",
+      "trailers": [
+        {
+          "source": "1I15ttCedfY",
+          "type": "Trailer"
+        },
+        {
+          "source": "qVc0Aywn4qI",
+          "type": "Trailer"
+        },
+        {
+          "source": "z_oOm4pavy0",
+          "type": "Trailer"
+        },
+        {
+          "source": "KpQWNIOrDD8",
+          "type": "Trailer"
+        },
+        {
+          "source": "kBskrYZfhw8",
+          "type": "Trailer"
+        }
+      ],
+      "awards": "17 wins & 37 nominations total",
+      "background": "https://images.metahub.space/background/medium/tt32246771/img",
+      "logo": "https://images.metahub.space/logo/medium/tt32246771/img",
+      "popularity": 0.6985433333333333,
+      "id": "tt32246771",
+      "genres": [
+        "Horror",
+        "Mystery"
+      ],
+      "releaseInfo": "2025",
+      "trailerStreams": [
+        {
+          "title": "Bring Her Back",
+          "ytId": "1I15ttCedfY"
+        },
+        {
+          "title": "Bring Her Back",
+          "ytId": "qVc0Aywn4qI"
+        },
+        {
+          "title": "Bring Her Back",
+          "ytId": "z_oOm4pavy0"
+        },
+        {
+          "title": "Bring Her Back",
+          "ytId": "KpQWNIOrDD8"
+        },
+        {
+          "title": "Bring Her Back",
+          "ytId": "kBskrYZfhw8"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.1",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1291"
+        },
+        {
+          "name": "Bring Her Back",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1292"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1293"
+        },
+        {
+          "name": "Mystery",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1294"
+        },
+        {
+          "name": "Billy Barratt",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1295"
+        },
+        {
+          "name": "Sally Hawkins",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1296"
+        },
+        {
+          "name": "Mischa Heywood",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1297"
+        },
+        {
+          "name": "Danny Philippou",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1298"
+        },
+        {
+          "name": "Bill Hinzman",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1299"
+        },
+        {
+          "name": "Danny Philippou",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1300"
+        },
+        {
+          "name": "Michael Philippou",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1301"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt32246771",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt5052448",
+      "name": "Get Out",
+      "popularities": {
+        "moviedb": 31.1946,
+        "stremio": 1.03982,
+        "trakt": 61,
+        "stremio_lib": 0
+      },
+      "type": "movie",
+      "affiliates": {
+        "fandango_link": "http://www.qksrv.net/click-7949808-10558776?url=http%3a%2f%2fwww.fandango.com%2fgetout_196665%2fmovieoverview%3fwssaffid%3d11830%26wssac%3d123",
+        "fandango_embed": "<p><a href=\"http://www.qksrv.net/click-7949808-10558776?url=http%3a%2f%2fwww.fandango.com%2fgetout_196665%2fmovieoverview%3fwssaffid%3d11830%26wssac%3d123\"><img src=\"http://images.fandango.com/r1.0.23/ImageRenderer/111/168/images/no_image_111x168.jpg/196665/images/masterrepository/fandango/196665/get out.jpg\" alt=\"Get Out\" title=\"Get Out\" border=\"0\" /></a></p><p><a href=\"http://www.qksrv.net/click-7949808-10558776?url=http%3a%2f%2fwww.fandango.com%2fgetout_196665%2fmovietimes%3fwssaffid%3d11830%26wssac%3d123\"><img src=\"http://images.fandango.com/r1.0.23//images/global/buy_tickets.gif\" alt=\"Buy Tickets\" title=\"Click here to see showtimes and buy tickets!\" border=\"0\" /></a></p><p><a href=\"http://www.qksrv.net/click-7949808-10558776?url=http%3a%2f%2fwww.fandango.com%2fmovie-trailer%2fgetout-trailer%2f196665%3fwssaffid%3d11830%26wssac%3d123\">Play Trailers</a></p>"
+      },
+      "trailers": [
+        {
+          "source": "gsB70ZRY-hI",
+          "type": "Trailer"
+        },
+        {
+          "source": "Lc9pZmkNf34",
+          "type": "Trailer"
+        },
+        {
+          "source": "sRfnevzM9kQ",
+          "type": "Trailer"
+        }
+      ],
+      "moviedb_id": 419430,
+      "year": "2017",
+      "runtime": "104 min",
+      "genre": [
+        "Horror",
+        "Mystery",
+        "Thriller"
+      ],
+      "released": "2017-02-24T00:00:00.000Z",
+      "director": [
+        "Jordan Peele"
+      ],
+      "writer": [
+        "Jordan Peele"
+      ],
+      "cast": [
+        "Daniel Kaluuya",
+        "Allison Williams",
+        "Bradley Whitford"
+      ],
+      "imdbRating": "7.8",
+      "poster": "https://images.metahub.space/poster/small/tt5052448/img",
+      "description": "A young African-American visits his white girlfriend's parents for the weekend, where his simmering uneasiness about their reception of him eventually reaches a boiling point.",
+      "country": "United States, Japan",
+      "awards": "Won 1 Oscar. 154 wins & 214 nominations total",
+      "dvdRelease": "2017-05-09T00:00:00.000Z",
+      "background": "https://images.metahub.space/background/medium/tt5052448/img",
+      "logo": "https://images.metahub.space/logo/medium/tt5052448/img",
+      "slug": "movie/get-out-5052448",
+      "popularity": 1.03982,
+      "id": "tt5052448",
+      "genres": [
+        "Horror",
+        "Mystery",
+        "Thriller"
+      ],
+      "releaseInfo": "2017",
+      "trailerStreams": [
+        {
+          "title": "Get Out",
+          "ytId": "gsB70ZRY-hI"
+        },
+        {
+          "title": "Get Out",
+          "ytId": "Lc9pZmkNf34"
+        },
+        {
+          "title": "Get Out",
+          "ytId": "sRfnevzM9kQ"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.8",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1302"
+        },
+        {
+          "name": "Get Out",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1303"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1304"
+        },
+        {
+          "name": "Mystery",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1305"
+        },
+        {
+          "name": "Thriller",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1306"
+        },
+        {
+          "name": "Daniel Kaluuya",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1307"
+        },
+        {
+          "name": "Allison Williams",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1308"
+        },
+        {
+          "name": "Bradley Whitford",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1309"
+        },
+        {
+          "name": "Jordan Peele",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1310"
+        },
+        {
+          "name": "Jordan Peele",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1311"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt5052448",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt5040012",
+      "cast": [
+        "Lily-Rose Depp",
+        "Nicholas Hoult",
+        "Bill Skarsgård"
+      ],
+      "country": "United States",
+      "description": "A gothic tale of obsession between a haunted young woman and the terrifying vampire infatuated with her, causing untold horror in its wake.",
+      "director": [
+        "Robert Eggers"
+      ],
+      "genre": [
+        "Fantasy",
+        "Horror",
+        "Mystery"
+      ],
+      "imdbRating": "7.1",
+      "name": "Nosferatu",
+      "released": "2024-12-25T00:00:00.000Z",
+      "slug": "movie/nosferatu-5040012",
+      "type": "movie",
+      "writer": [
+        "Robert Eggers",
+        "Henrik Galeen",
+        "Bram Stoker"
+      ],
+      "year": "2024",
+      "moviedb_id": 426063,
+      "popularities": {
+        "moviedb": 24.7726,
+        "stremio": 0.8257533333333333,
+        "stremio_lib": 0,
+        "trakt": 60
+      },
+      "poster": "https://images.metahub.space/poster/small/tt5040012/img",
+      "trailers": [
+        {
+          "source": "nulvWqYUM8k",
+          "type": "Trailer"
+        },
+        {
+          "source": "b59rxDB_JRg",
+          "type": "Trailer"
+        }
+      ],
+      "runtime": "133 min",
+      "background": "https://images.metahub.space/background/medium/tt5040012/img",
+      "logo": "https://images.metahub.space/logo/medium/tt5040012/img",
+      "awards": "Nominated for 4 Oscars. 62 wins & 197 nominations total",
+      "popularity": 0.8257533333333333,
+      "id": "tt5040012",
+      "genres": [
+        "Fantasy",
+        "Horror",
+        "Mystery"
+      ],
+      "releaseInfo": "2024",
+      "trailerStreams": [
+        {
+          "title": "Nosferatu",
+          "ytId": "nulvWqYUM8k"
+        },
+        {
+          "title": "Nosferatu",
+          "ytId": "b59rxDB_JRg"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.1",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1312"
+        },
+        {
+          "name": "Nosferatu",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1313"
+        },
+        {
+          "name": "Fantasy",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1314"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1315"
+        },
+        {
+          "name": "Mystery",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1316"
+        },
+        {
+          "name": "Lily-Rose Depp",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1317"
+        },
+        {
+          "name": "Nicholas Hoult",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1318"
+        },
+        {
+          "name": "Bill Skarsgård",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1319"
+        },
+        {
+          "name": "Robert Eggers",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1320"
+        },
+        {
+          "name": "Henrik Galeen",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1321"
+        },
+        {
+          "name": "Bram Stoker",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1322"
+        },
+        {
+          "name": "Robert Eggers",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1323"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt5040012",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "awards": "1 win & 5 nominations total",
+      "cast": [
+        "Kurt Russell",
+        "Wilford Brimley",
+        "Keith David"
+      ],
+      "country": "United States",
+      "description": "A research team in Antarctica is hunted by a shape-shifting alien that assumes the appearance of its victims.",
+      "director": [
+        "John Carpenter"
+      ],
+      "dvdRelease": "2012-06-15T00:00:00.000Z",
+      "genre": [
+        "Horror",
+        "Mystery",
+        "Sci-Fi"
+      ],
+      "imdbRating": "8.2",
+      "imdb_id": "tt0084787",
+      "moviedb_id": 1091,
+      "name": "The Thing",
+      "popularity": 0.6922133333333333,
+      "poster": "https://images.metahub.space/poster/small/tt0084787/img",
+      "released": "1982-06-25T00:00:00.000Z",
+      "runtime": "109 min",
+      "trailers": [
+        {
+          "source": "GigeANz21rk",
+          "type": "Trailer"
+        },
+        {
+          "source": "ySvzHdtCiWE",
+          "type": "Trailer"
+        }
+      ],
+      "type": "movie",
+      "writer": [
+        "Bill Lancaster",
+        "John W. Campbell Jr."
+      ],
+      "year": "1982",
+      "background": "https://images.metahub.space/background/medium/tt0084787/img",
+      "logo": "https://images.metahub.space/logo/medium/tt0084787/img",
+      "popularities": {
+        "moviedb": 20.7664,
+        "stremio": 0.6922133333333333,
+        "trakt": 41,
+        "stremio_lib": 0
+      },
+      "slug": "movie/the-thing-0084787",
+      "id": "tt0084787",
+      "genres": [
+        "Horror",
+        "Mystery",
+        "Sci-Fi"
+      ],
+      "releaseInfo": "1982",
+      "videos": [],
+      "trailerStreams": [
+        {
+          "title": "The Thing",
+          "ytId": "GigeANz21rk"
+        },
+        {
+          "title": "The Thing",
+          "ytId": "ySvzHdtCiWE"
+        }
+      ],
+      "links": [
+        {
+          "name": "8.2",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1324"
+        },
+        {
+          "name": "The Thing",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1325"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1326"
+        },
+        {
+          "name": "Mystery",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1327"
+        },
+        {
+          "name": "Sci-Fi",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1328"
+        },
+        {
+          "name": "Kurt Russell",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1329"
+        },
+        {
+          "name": "Wilford Brimley",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1330"
+        },
+        {
+          "name": "Keith David",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1331"
+        },
+        {
+          "name": "Bill Lancaster",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1332"
+        },
+        {
+          "name": "John W. Campbell Jr.",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1333"
+        },
+        {
+          "name": "John Carpenter",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1334"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt0084787",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "awards": "3 wins & 5 nominations total",
+      "cast": [
+        "Jason Patric",
+        "Corey Haim",
+        "Dianne Wiest"
+      ],
+      "country": "United States",
+      "description": "When a recently divorced mother and her two teenage boys move to a coastal town to stay with her father, it doesn't take long for the brothers to realize the area is a haven for something much more sinister than party-going surfers.",
+      "director": [
+        "Joel Schumacher"
+      ],
+      "dvdRelease": "2010-03-01T00:00:00.000Z",
+      "genre": [
+        "Comedy",
+        "Horror"
+      ],
+      "imdbRating": "7.2",
+      "imdb_id": "tt0093437",
+      "moviedb_id": 1547,
+      "name": "The Lost Boys",
+      "popularity": 0.13011999999999999,
+      "poster": "https://images.metahub.space/poster/small/tt0093437/img",
+      "released": "1987-07-31T00:00:00.000Z",
+      "runtime": "97 min",
+      "trailers": [
+        {
+          "source": "Q786UsnOcsY",
+          "type": "Trailer"
+        },
+        {
+          "source": "RbiOaaE2RGg",
+          "type": "Trailer"
+        },
+        {
+          "source": "5WlON7r0m7E",
+          "type": "Trailer"
+        }
+      ],
+      "type": "movie",
+      "writer": [
+        "Jan Fischer",
+        "James Jeremias",
+        "Jeffrey Boam"
+      ],
+      "year": "1987",
+      "background": "https://images.metahub.space/background/medium/tt0093437/img",
+      "logo": "https://images.metahub.space/logo/medium/tt0093437/img",
+      "popularities": {
+        "moviedb": 3.9036,
+        "stremio": 0.13011999999999999,
+        "trakt": 53,
+        "stremio_lib": 0
+      },
+      "slug": "movie/the-lost-boys-0093437",
+      "id": "tt0093437",
+      "genres": [
+        "Comedy",
+        "Horror"
+      ],
+      "releaseInfo": "1987",
+      "videos": [],
+      "trailerStreams": [
+        {
+          "title": "The Lost Boys",
+          "ytId": "Q786UsnOcsY"
+        },
+        {
+          "title": "The Lost Boys",
+          "ytId": "RbiOaaE2RGg"
+        },
+        {
+          "title": "The Lost Boys",
+          "ytId": "5WlON7r0m7E"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.2",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1335"
+        },
+        {
+          "name": "The Lost Boys",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1336"
+        },
+        {
+          "name": "Comedy",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1337"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1338"
+        },
+        {
+          "name": "Jason Patric",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1339"
+        },
+        {
+          "name": "Corey Haim",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1340"
+        },
+        {
+          "name": "Dianne Wiest",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1341"
+        },
+        {
+          "name": "Jan Fischer",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1342"
+        },
+        {
+          "name": "James Jeremias",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1343"
+        },
+        {
+          "name": "Jeffrey Boam",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1344"
+        },
+        {
+          "name": "Joel Schumacher",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1345"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt0093437",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt28015403",
+      "name": "Heretic",
+      "type": "movie",
+      "cast": [
+        "Hugh Grant",
+        "Sophie Thatcher",
+        "Chloe East"
+      ],
+      "country": "United States, Canada",
+      "description": "Two young religious women are drawn into a game of cat-and-mouse in the house of a strange man.",
+      "director": [
+        "Scott Beck",
+        "Bryan Woods"
+      ],
+      "genre": [
+        "Horror",
+        "Thriller"
+      ],
+      "imdbRating": "7.0",
+      "released": "2024-11-08T00:00:00.000Z",
+      "slug": "movie/heretic-28015403",
+      "writer": [
+        "Scott Beck",
+        "Bryan Woods"
+      ],
+      "year": "2024",
+      "moviedb_id": 1138194,
+      "popularities": {
+        "moviedb": 18.1425,
+        "stremio": 0.6047499999999999,
+        "stremio_lib": 0,
+        "trakt": 20
+      },
+      "poster": "https://images.metahub.space/poster/small/tt28015403/img",
+      "trailers": [
+        {
+          "source": "jpWUOxRozZg",
+          "type": "Trailer"
+        },
+        {
+          "source": "WSo0lmONZIU",
+          "type": "Trailer"
+        },
+        {
+          "source": "O9i2vmFhSSY",
+          "type": "Trailer"
+        }
+      ],
+      "runtime": "111 min",
+      "awards": "Nominated for 1 BAFTA Award4 wins & 38 nominations total",
+      "background": "https://images.metahub.space/background/medium/tt28015403/img",
+      "logo": "https://images.metahub.space/logo/medium/tt28015403/img",
+      "popularity": 0.6047499999999999,
+      "id": "tt28015403",
+      "genres": [
+        "Horror",
+        "Thriller"
+      ],
+      "releaseInfo": "2024",
+      "trailerStreams": [
+        {
+          "title": "Heretic",
+          "ytId": "jpWUOxRozZg"
+        },
+        {
+          "title": "Heretic",
+          "ytId": "WSo0lmONZIU"
+        },
+        {
+          "title": "Heretic",
+          "ytId": "O9i2vmFhSSY"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.0",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1346"
+        },
+        {
+          "name": "Heretic",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1347"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1348"
+        },
+        {
+          "name": "Thriller",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1349"
+        },
+        {
+          "name": "Hugh Grant",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1350"
+        },
+        {
+          "name": "Sophie Thatcher",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1351"
+        },
+        {
+          "name": "Chloe East",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1352"
+        },
+        {
+          "name": "Scott Beck",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1353"
+        },
+        {
+          "name": "Bryan Woods",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1354"
+        },
+        {
+          "name": "Scott Beck",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1355"
+        },
+        {
+          "name": "Bryan Woods",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1356"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt28015403",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "awards": "1 win & 5 nominations total",
+      "cast": [
+        "Melissa George",
+        "Joshua McIvor",
+        "Jack Taylor"
+      ],
+      "country": "United Kingdom, Australia",
+      "description": "Five friends set sail and their yacht is overturned by a strange and sudden storm. A mysterious ship arrives to rescue them, and what happens next cannot be explained.",
+      "director": [
+        "Christopher Smith"
+      ],
+      "dvdRelease": "2016-05-16T00:00:00.000Z",
+      "genre": [
+        "Fantasy",
+        "Mystery",
+        "Sci-Fi"
+      ],
+      "imdbRating": "6.9",
+      "imdb_id": "tt1187064",
+      "moviedb_id": 26466,
+      "name": "Triangle",
+      "popularity": 0.37848,
+      "poster": "https://images.metahub.space/poster/small/tt1187064/img",
+      "released": "2009-10-16T00:00:00.000Z",
+      "runtime": "99 min",
+      "trailers": [
+        {
+          "source": "RFLvVYetuTE",
+          "type": "Trailer"
+        },
+        {
+          "source": "17XqBdCiHOI",
+          "type": "Trailer"
+        }
+      ],
+      "type": "movie",
+      "writer": [
+        "Christopher Smith"
+      ],
+      "year": "2009",
+      "background": "https://images.metahub.space/background/medium/tt1187064/img",
+      "logo": "https://images.metahub.space/logo/medium/tt1187064/img",
+      "popularities": {
+        "moviedb": 11.3544,
+        "stremio": 0.37848,
+        "trakt": 2,
+        "stremio_lib": 0
+      },
+      "slug": "movie/triangle-1187064",
+      "id": "tt1187064",
+      "genres": [
+        "Fantasy",
+        "Mystery",
+        "Sci-Fi"
+      ],
+      "releaseInfo": "2009",
+      "trailerStreams": [
+        {
+          "title": "Triangle",
+          "ytId": "RFLvVYetuTE"
+        },
+        {
+          "title": "Triangle",
+          "ytId": "17XqBdCiHOI"
+        }
+      ],
+      "links": [
+        {
+          "name": "6.9",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1357"
+        },
+        {
+          "name": "Triangle",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1358"
+        },
+        {
+          "name": "Fantasy",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1359"
+        },
+        {
+          "name": "Mystery",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1360"
+        },
+        {
+          "name": "Sci-Fi",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1361"
+        },
+        {
+          "name": "Melissa George",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1362"
+        },
+        {
+          "name": "Joshua McIvor",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1363"
+        },
+        {
+          "name": "Jack Taylor",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1364"
+        },
+        {
+          "name": "Christopher Smith",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1365"
+        },
+        {
+          "name": "Christopher Smith",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1366"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt1187064",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt31728330",
+      "name": "They Will Kill You",
+      "popularities": {
+        "trakt": 62,
+        "moviedb": 21.2487,
+        "stremio": 0.70829,
+        "stremio_lib": 0
+      },
+      "type": "movie",
+      "cast": [
+        "Zazie Beetz",
+        "Patricia Arquette",
+        "Myha&apos;la"
+      ],
+      "country": "South Africa, United States, Canada",
+      "description": "A woman takes a job as a housekeeper in a NYC high-rise, unaware of the building's history of disappearances. She soon realizes the community is shrouded in mystery.",
+      "director": [
+        "Kirill Sokolov"
+      ],
+      "genre": [
+        "Action",
+        "Comedy",
+        "Horror"
+      ],
+      "imdbRating": "6.5",
+      "released": "2026-03-27T00:00:00.000Z",
+      "slug": "movie/they-will-kill-you-31728330",
+      "writer": [
+        "Alex Litvak",
+        "Kirill Sokolov"
+      ],
+      "year": "2026",
+      "moviedb_id": 1292695,
+      "poster": "https://images.metahub.space/poster/small/tt31728330/img",
+      "runtime": "95 min",
+      "trailers": [
+        {
+          "source": "s0PGrtw0X1Q",
+          "type": "Trailer"
+        },
+        {
+          "source": "AqNFJUihSHg",
+          "type": "Trailer"
+        }
+      ],
+      "background": "https://images.metahub.space/background/medium/tt31728330/img",
+      "logo": "https://images.metahub.space/logo/medium/tt31728330/img",
+      "awards": "1 nomination total",
+      "popularity": 0.70829,
+      "id": "tt31728330",
+      "genres": [
+        "Action",
+        "Comedy",
+        "Horror"
+      ],
+      "releaseInfo": "2026",
+      "trailerStreams": [
+        {
+          "title": "They Will Kill You",
+          "ytId": "s0PGrtw0X1Q"
+        },
+        {
+          "title": "They Will Kill You",
+          "ytId": "AqNFJUihSHg"
+        }
+      ],
+      "links": [
+        {
+          "name": "6.5",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1367"
+        },
+        {
+          "name": "They Will Kill You",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1368"
+        },
+        {
+          "name": "Action",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1369"
+        },
+        {
+          "name": "Comedy",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1370"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1371"
+        },
+        {
+          "name": "Zazie Beetz",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1372"
+        },
+        {
+          "name": "Patricia Arquette",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1373"
+        },
+        {
+          "name": "Myha&apos;la",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1374"
+        },
+        {
+          "name": "Alex Litvak",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1375"
+        },
+        {
+          "name": "Kirill Sokolov",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1376"
+        },
+        {
+          "name": "Kirill Sokolov",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1377"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt31728330",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt34381258",
+      "name": "Heel",
+      "popularities": {
+        "trakt": 60,
+        "moviedb": 16.9607,
+        "stremio": 0.5653566666666666,
+        "stremio_lib": 0
+      },
+      "type": "movie",
+      "cast": [
+        "Stephen Graham",
+        "Andrea Riseborough",
+        "Anson Boon"
+      ],
+      "country": "Poland, United Kingdom",
+      "description": "A 19-year-old criminal, Tommy, is kidnapped and forced into a rehabilitation process by a dysfunctional couple, Chris and Kathryn, who try to make him a \"good boy.\" Tommy must find a way to escape.",
+      "director": [
+        "Jan Komasa"
+      ],
+      "genre": [
+        "Crime",
+        "Drama",
+        "Horror"
+      ],
+      "imdbRating": "6.8",
+      "released": "2026-03-06T00:00:00.000Z",
+      "slug": "movie/heel-34381258",
+      "writer": [
+        "Bartek Bartosik",
+        "Naqqash Khalid"
+      ],
+      "year": "2026",
+      "moviedb_id": 1381027,
+      "poster": "https://images.metahub.space/poster/small/tt34381258/img",
+      "runtime": "110 min",
+      "trailers": [
+        {
+          "source": "qWkPjI-Brkc",
+          "type": "Trailer"
+        },
+        {
+          "source": "RN-AgjrWr2s",
+          "type": "Trailer"
+        },
+        {
+          "source": "Qhe6GNgW8uI",
+          "type": "Trailer"
+        }
+      ],
+      "background": "https://images.metahub.space/background/medium/tt34381258/img",
+      "logo": "https://images.metahub.space/logo/medium/tt34381258/img",
+      "awards": "2 wins & 2 nominations total",
+      "popularity": 0.5653566666666666,
+      "id": "tt34381258",
+      "genres": [
+        "Crime",
+        "Drama",
+        "Horror"
+      ],
+      "releaseInfo": "2026",
+      "trailerStreams": [
+        {
+          "title": "Heel",
+          "ytId": "qWkPjI-Brkc"
+        },
+        {
+          "title": "Heel",
+          "ytId": "RN-AgjrWr2s"
+        },
+        {
+          "title": "Heel",
+          "ytId": "Qhe6GNgW8uI"
+        }
+      ],
+      "links": [
+        {
+          "name": "6.8",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1378"
+        },
+        {
+          "name": "Heel",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1379"
+        },
+        {
+          "name": "Crime",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1380"
+        },
+        {
+          "name": "Drama",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1381"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1382"
+        },
+        {
+          "name": "Stephen Graham",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1383"
+        },
+        {
+          "name": "Andrea Riseborough",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1384"
+        },
+        {
+          "name": "Anson Boon",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1385"
+        },
+        {
+          "name": "Bartek Bartosik",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1386"
+        },
+        {
+          "name": "Naqqash Khalid",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1387"
+        },
+        {
+          "name": "Jan Komasa",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1388"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt34381258",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "awards": "Nominated for 1 Oscar. 8 wins & 46 nominations total",
+      "cast": [
+        "Dakota Fanning",
+        "Teri Hatcher",
+        "John Hodgman"
+      ],
+      "country": "United States",
+      "description": "Wandering her rambling old house in her boring new town, a young girl discovers a hidden door to a strangely idealized version of her life that seems too good to be true.",
+      "director": [
+        "Henry Selick"
+      ],
+      "dvdRelease": "2014-02-12T00:00:00.000Z",
+      "genre": [
+        "Animation",
+        "Drama",
+        "Family"
+      ],
+      "imdbRating": "7.8",
+      "imdb_id": "tt0327597",
+      "moviedb_id": 14836,
+      "name": "Coraline",
+      "popularity": 0.9346533333333333,
+      "poster": "https://images.metahub.space/poster/small/tt0327597/img",
+      "released": "2009-02-06T00:00:00.000Z",
+      "runtime": "100 min",
+      "trailers": [
+        {
+          "source": "T6iQnnHNF50",
+          "type": "Trailer"
+        },
+        {
+          "source": "txGOUJ5gegc",
+          "type": "Trailer"
+        },
+        {
+          "source": "P8lfdvXkhu0",
+          "type": "Trailer"
+        },
+        {
+          "source": "vlv4yzsmwyI",
+          "type": "Trailer"
+        }
+      ],
+      "type": "movie",
+      "writer": [
+        "Henry Selick",
+        "Neil Gaiman"
+      ],
+      "year": "2009",
+      "background": "https://images.metahub.space/background/medium/tt0327597/img",
+      "logo": "https://images.metahub.space/logo/medium/tt0327597/img",
+      "popularities": {
+        "moviedb": 28.0396,
+        "stremio": 0.9346533333333333,
+        "trakt": 93,
+        "stremio_lib": 0
+      },
+      "slug": "movie/coraline-0327597",
+      "id": "tt0327597",
+      "genres": [
+        "Animation",
+        "Drama",
+        "Family"
+      ],
+      "releaseInfo": "2009",
+      "trailerStreams": [
+        {
+          "title": "Coraline",
+          "ytId": "T6iQnnHNF50"
+        },
+        {
+          "title": "Coraline",
+          "ytId": "txGOUJ5gegc"
+        },
+        {
+          "title": "Coraline",
+          "ytId": "P8lfdvXkhu0"
+        },
+        {
+          "title": "Coraline",
+          "ytId": "vlv4yzsmwyI"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.8",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1389"
+        },
+        {
+          "name": "Coraline",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1390"
+        },
+        {
+          "name": "Animation",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1391"
+        },
+        {
+          "name": "Drama",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1392"
+        },
+        {
+          "name": "Family",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1393"
+        },
+        {
+          "name": "Dakota Fanning",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1394"
+        },
+        {
+          "name": "Teri Hatcher",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1395"
+        },
+        {
+          "name": "John Hodgman",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1396"
+        },
+        {
+          "name": "Henry Selick",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1397"
+        },
+        {
+          "name": "Neil Gaiman",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1398"
+        },
+        {
+          "name": "Henry Selick",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1399"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt0327597",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "awards": "Won 2 Oscars. 20 wins & 25 nominations total",
+      "cast": [
+        "Sigourney Weaver",
+        "Michael Biehn",
+        "Carrie Henn"
+      ],
+      "country": "United Kingdom, United States",
+      "description": "Decades after surviving the Nostromo incident, Ellen Ripley is sent out to re-establish contact with a terraforming colony but finds herself battling the Alien Queen and her offspring.",
+      "director": [
+        "James Cameron"
+      ],
+      "dvdRelease": "2013-03-01T00:00:00.000Z",
+      "genre": [
+        "Action",
+        "Adventure",
+        "Horror"
+      ],
+      "imdbRating": "8.4",
+      "imdb_id": "tt0090605",
+      "moviedb_id": 679,
+      "name": "Aliens",
+      "popularity": 0.83238,
+      "poster": "https://images.metahub.space/poster/small/tt0090605/img",
+      "released": "1986-07-18T00:00:00.000Z",
+      "runtime": "137 min",
+      "trailers": [
+        {
+          "source": "8OxirbuHsBA",
+          "type": "Trailer"
+        },
+        {
+          "source": "Ahi3JNdCD2U",
+          "type": "Trailer"
+        }
+      ],
+      "type": "movie",
+      "writer": [
+        "James Cameron",
+        "David Giler",
+        "Walter Hill"
+      ],
+      "year": "1986",
+      "background": "https://images.metahub.space/background/medium/tt0090605/img",
+      "logo": "https://images.metahub.space/logo/medium/tt0090605/img",
+      "popularities": {
+        "moviedb": 24.9714,
+        "stremio": 0.83238,
+        "trakt": 22,
+        "stremio_lib": 0
+      },
+      "slug": "movie/aliens-0090605",
+      "id": "tt0090605",
+      "genres": [
+        "Action",
+        "Adventure",
+        "Horror"
+      ],
+      "releaseInfo": "1986",
+      "trailerStreams": [
+        {
+          "title": "Aliens",
+          "ytId": "8OxirbuHsBA"
+        },
+        {
+          "title": "Aliens",
+          "ytId": "Ahi3JNdCD2U"
+        }
+      ],
+      "links": [
+        {
+          "name": "8.4",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1400"
+        },
+        {
+          "name": "Aliens",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1401"
+        },
+        {
+          "name": "Action",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1402"
+        },
+        {
+          "name": "Adventure",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1403"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1404"
+        },
+        {
+          "name": "Sigourney Weaver",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1405"
+        },
+        {
+          "name": "Michael Biehn",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1406"
+        },
+        {
+          "name": "Carrie Henn",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1407"
+        },
+        {
+          "name": "James Cameron",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1408"
+        },
+        {
+          "name": "David Giler",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1409"
+        },
+        {
+          "name": "Walter Hill",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1410"
+        },
+        {
+          "name": "James Cameron",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1411"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt0090605",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "awards": "1 win & 7 nominations total",
+      "cast": [
+        "Robin Tunney",
+        "Fairuza Balk",
+        "Neve Campbell"
+      ],
+      "country": "United States",
+      "description": "A young girl new to a Catholic school befriends a coven of witches whom the other students either shun or fear. But when a powerful invocation goes wrong, the consequences could endanger their lives.",
+      "director": [
+        "Andrew Fleming"
+      ],
+      "dvdRelease": "2014-02-12T00:00:00.000Z",
+      "genre": [
+        "Drama",
+        "Fantasy",
+        "Horror"
+      ],
+      "imdbRating": "6.5",
+      "imdb_id": "tt0115963",
+      "moviedb_id": 9100,
+      "name": "The Craft",
+      "popularity": 0.40902999999999995,
+      "poster": "https://images.metahub.space/poster/small/tt0115963/img",
+      "released": "1996-05-03T00:00:00.000Z",
+      "runtime": "101 min",
+      "trailers": [
+        {
+          "source": "SxEqB--5ToI",
+          "type": "Trailer"
+        }
+      ],
+      "type": "movie",
+      "writer": [
+        "Peter Filardi",
+        "Andrew Fleming"
+      ],
+      "year": "1996",
+      "background": "https://images.metahub.space/background/medium/tt0115963/img",
+      "logo": "https://images.metahub.space/logo/medium/tt0115963/img",
+      "popularities": {
+        "moviedb": 12.2709,
+        "stremio": 0.40902999999999995,
+        "trakt": 50,
+        "stremio_lib": 0
+      },
+      "slug": "movie/the-craft-0115963",
+      "id": "tt0115963",
+      "genres": [
+        "Drama",
+        "Fantasy",
+        "Horror"
+      ],
+      "releaseInfo": "1996",
+      "videos": [],
+      "trailerStreams": [
+        {
+          "title": "The Craft",
+          "ytId": "SxEqB--5ToI"
+        }
+      ],
+      "links": [
+        {
+          "name": "6.5",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1412"
+        },
+        {
+          "name": "The Craft",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1413"
+        },
+        {
+          "name": "Drama",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1414"
+        },
+        {
+          "name": "Fantasy",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1415"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1416"
+        },
+        {
+          "name": "Robin Tunney",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1417"
+        },
+        {
+          "name": "Fairuza Balk",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1418"
+        },
+        {
+          "name": "Neve Campbell",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1419"
+        },
+        {
+          "name": "Peter Filardi",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1420"
+        },
+        {
+          "name": "Andrew Fleming",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1421"
+        },
+        {
+          "name": "Andrew Fleming",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1422"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt0115963",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt13654226",
+      "name": "The Gorge",
+      "type": "movie",
+      "popularities": {
+        "trakt": 56,
+        "moviedb": 36.3729,
+        "stremio": 1.2124300000000001,
+        "stremio_lib": 0
+      },
+      "cast": [
+        "Miles Teller",
+        "Anya Taylor-Joy",
+        "Sigourney Weaver"
+      ],
+      "country": "United Kingdom, United States",
+      "description": "Two operatives are appointed to posts in guard towers on opposite sides of a classified gorge.",
+      "director": [
+        "Scott Derrickson"
+      ],
+      "genre": [
+        "Action",
+        "Adventure",
+        "Horror"
+      ],
+      "imdbRating": "6.7",
+      "released": "2025-02-14T00:00:00.000Z",
+      "slug": "movie/the-gorge-13654226",
+      "writer": [
+        "Zach Dean"
+      ],
+      "year": "2025",
+      "moviedb_id": 950396,
+      "poster": "https://images.metahub.space/poster/small/tt13654226/img",
+      "runtime": "128 min",
+      "trailers": [
+        {
+          "source": "rUSdnuOLebE",
+          "type": "Trailer"
+        }
+      ],
+      "background": "https://images.metahub.space/background/medium/tt13654226/img",
+      "logo": "https://images.metahub.space/logo/medium/tt13654226/img",
+      "awards": "Nominated for 2 Primetime Emmys. 2 wins & 12 nominations total",
+      "popularity": 1.2124300000000001,
+      "id": "tt13654226",
+      "genres": [
+        "Action",
+        "Adventure",
+        "Horror"
+      ],
+      "releaseInfo": "2025",
+      "trailerStreams": [
+        {
+          "title": "The Gorge",
+          "ytId": "rUSdnuOLebE"
+        }
+      ],
+      "links": [
+        {
+          "name": "6.7",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1423"
+        },
+        {
+          "name": "The Gorge",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1424"
+        },
+        {
+          "name": "Action",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1425"
+        },
+        {
+          "name": "Adventure",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1426"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1427"
+        },
+        {
+          "name": "Miles Teller",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1428"
+        },
+        {
+          "name": "Anya Taylor-Joy",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1429"
+        },
+        {
+          "name": "Sigourney Weaver",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1430"
+        },
+        {
+          "name": "Zach Dean",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1431"
+        },
+        {
+          "name": "Scott Derrickson",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1432"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt13654226",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "awards": "9 wins & 3 nominations total",
+      "cast": [
+        "Donald Pleasence",
+        "Jamie Lee Curtis",
+        "Tony Moran"
+      ],
+      "country": "United States",
+      "description": "Fifteen years after murdering his sister on Halloween night 1963, Michael Myers escapes from a mental hospital and returns to the small town of Haddonfield, Illinois, to kill again.",
+      "director": [
+        "John Carpenter"
+      ],
+      "dvdRelease": "2017-03-18T00:00:00.000Z",
+      "genre": [
+        "Horror",
+        "Thriller"
+      ],
+      "imdbRating": "7.7",
+      "imdb_id": "tt0077651",
+      "moviedb_id": 948,
+      "name": "Halloween",
+      "popularity": 0.34976333333333337,
+      "poster": "https://images.metahub.space/poster/small/tt0077651/img",
+      "released": "1978-10-27T00:00:00.000Z",
+      "runtime": "91 min",
+      "trailers": [
+        {
+          "source": "NT0loXUv-ks",
+          "type": "Trailer"
+        },
+        {
+          "source": "3JsrH8eUVOo",
+          "type": "Trailer"
+        },
+        {
+          "source": "2Orp73nufs0",
+          "type": "Trailer"
+        }
+      ],
+      "type": "movie",
+      "writer": [
+        "John Carpenter",
+        "Debra Hill"
+      ],
+      "year": "1978",
+      "background": "https://images.metahub.space/background/medium/tt0077651/img",
+      "logo": "https://images.metahub.space/logo/medium/tt0077651/img",
+      "popularities": {
+        "moviedb": 10.4929,
+        "stremio": 0.34976333333333337,
+        "trakt": 47,
+        "stremio_lib": 0
+      },
+      "slug": "movie/halloween-0077651",
+      "id": "tt0077651",
+      "genres": [
+        "Horror",
+        "Thriller"
+      ],
+      "releaseInfo": "1978",
+      "videos": [],
+      "trailerStreams": [
+        {
+          "title": "Halloween",
+          "ytId": "NT0loXUv-ks"
+        },
+        {
+          "title": "Halloween",
+          "ytId": "3JsrH8eUVOo"
+        },
+        {
+          "title": "Halloween",
+          "ytId": "2Orp73nufs0"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.7",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1433"
+        },
+        {
+          "name": "Halloween",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1434"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1435"
+        },
+        {
+          "name": "Thriller",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1436"
+        },
+        {
+          "name": "Donald Pleasence",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1437"
+        },
+        {
+          "name": "Jamie Lee Curtis",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1438"
+        },
+        {
+          "name": "Tony Moran",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1439"
+        },
+        {
+          "name": "John Carpenter",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1440"
+        },
+        {
+          "name": "Debra Hill",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1441"
+        },
+        {
+          "name": "John Carpenter",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1442"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt0077651",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt4263482",
+      "popularity": 0.6176566666666666,
+      "name": "The Witch",
+      "year": "2016",
+      "runtime": "92 min",
+      "genre": [
+        "Drama",
+        "Fantasy",
+        "Horror"
+      ],
+      "released": "2016-02-19T00:00:00.000Z",
+      "director": [
+        "Robert Eggers"
+      ],
+      "writer": [
+        "Robert Eggers"
+      ],
+      "cast": [
+        "Anya Taylor-Joy",
+        "Ralph Ineson",
+        "Kate Dickie"
+      ],
+      "imdbRating": "7.0",
+      "poster": "https://images.metahub.space/poster/small/tt4263482/img",
+      "description": "An isolated Puritan family in 1630s New England comes unraveled by the forces of witchcraft and possession.",
+      "country": "United Kingdom, Canada, United States",
+      "awards": "43 wins & 72 nominations total",
+      "dvdRelease": "2016-05-17T00:00:00.000Z",
+      "type": "movie",
+      "trailers": [
+        {
+          "source": "97OQ7MQC5Ck",
+          "type": "Trailer"
+        },
+        {
+          "source": "Bo2OTEbz-jU",
+          "type": "Trailer"
+        },
+        {
+          "source": "iQXmlf3Sefg",
+          "type": "Trailer"
+        }
+      ],
+      "moviedb_id": 310131,
+      "popularities": {
+        "moviedb": 18.5297,
+        "stremio": 0.6176566666666666,
+        "trakt": 63,
+        "stremio_lib": 0
+      },
+      "background": "https://images.metahub.space/background/medium/tt4263482/img",
+      "logo": "https://images.metahub.space/logo/medium/tt4263482/img",
+      "slug": "movie/the-witch-4263482",
+      "id": "tt4263482",
+      "genres": [
+        "Drama",
+        "Fantasy",
+        "Horror"
+      ],
+      "releaseInfo": "2016",
+      "trailerStreams": [
+        {
+          "title": "The Witch",
+          "ytId": "97OQ7MQC5Ck"
+        },
+        {
+          "title": "The Witch",
+          "ytId": "Bo2OTEbz-jU"
+        },
+        {
+          "title": "The Witch",
+          "ytId": "iQXmlf3Sefg"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.0",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1443"
+        },
+        {
+          "name": "The Witch",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1444"
+        },
+        {
+          "name": "Drama",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1445"
+        },
+        {
+          "name": "Fantasy",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1446"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1447"
+        },
+        {
+          "name": "Anya Taylor-Joy",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1448"
+        },
+        {
+          "name": "Ralph Ineson",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1449"
+        },
+        {
+          "name": "Kate Dickie",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1450"
+        },
+        {
+          "name": "Robert Eggers",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1451"
+        },
+        {
+          "name": "Robert Eggers",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1452"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt4263482",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "awards": "15 wins & 22 nominations total",
+      "cast": [
+        "Patrick Wilson",
+        "Vera Farmiga",
+        "Ron Livingston"
+      ],
+      "country": "United States",
+      "description": "Paranormal investigators Ed and Lorraine Warren work to help a family terrorized by a dark presence in their farmhouse.",
+      "director": [
+        "James Wan"
+      ],
+      "dvdRelease": "2013-10-08T00:00:00.000Z",
+      "genre": [
+        "Horror",
+        "Mystery",
+        "Thriller"
+      ],
+      "imdbRating": "7.5",
+      "imdb_id": "tt1457767",
+      "moviedb_id": 138843,
+      "name": "The Conjuring",
+      "popularity": 0.6900566666666667,
+      "poster": "https://images.metahub.space/poster/small/tt1457767/img",
+      "released": "2013-07-19T00:00:00.000Z",
+      "runtime": "112 min",
+      "trailers": [
+        {
+          "source": "k10ETZ41q5o",
+          "type": "Trailer"
+        },
+        {
+          "source": "Gb-jRz7HWqs",
+          "type": "Trailer"
+        }
+      ],
+      "type": "movie",
+      "writer": [
+        "Chad Hayes",
+        "Carey W. Hayes"
+      ],
+      "year": "2013",
+      "background": "https://images.metahub.space/background/medium/tt1457767/img",
+      "logo": "https://images.metahub.space/logo/medium/tt1457767/img",
+      "popularities": {
+        "moviedb": 20.7017,
+        "stremio": 0.6900566666666667,
+        "trakt": 61,
+        "stremio_lib": 0
+      },
+      "slug": "movie/the-conjuring-1457767",
+      "id": "tt1457767",
+      "genres": [
+        "Horror",
+        "Mystery",
+        "Thriller"
+      ],
+      "releaseInfo": "2013",
+      "trailerStreams": [
+        {
+          "title": "The Conjuring",
+          "ytId": "k10ETZ41q5o"
+        },
+        {
+          "title": "The Conjuring",
+          "ytId": "Gb-jRz7HWqs"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.5",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1453"
+        },
+        {
+          "name": "The Conjuring",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1454"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1455"
+        },
+        {
+          "name": "Mystery",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1456"
+        },
+        {
+          "name": "Thriller",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1457"
+        },
+        {
+          "name": "Patrick Wilson",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1458"
+        },
+        {
+          "name": "Vera Farmiga",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1459"
+        },
+        {
+          "name": "Ron Livingston",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1460"
+        },
+        {
+          "name": "Chad Hayes",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1461"
+        },
+        {
+          "name": "Carey W. Hayes",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1462"
+        },
+        {
+          "name": "James Wan",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1463"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt1457767",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt3986820",
+      "name": "The Endless",
+      "year": "2017",
+      "runtime": "112 min",
+      "genre": [
+        "Horror",
+        "Mystery",
+        "Sci-Fi"
+      ],
+      "released": "2018-04-06T00:00:00.000Z",
+      "director": [
+        "Justin Benson",
+        "Aaron Moorhead"
+      ],
+      "writer": [
+        "Justin Benson"
+      ],
+      "cast": [
+        "Aaron Moorhead",
+        "Justin Benson",
+        "Callie Hernandez"
+      ],
+      "imdbRating": "6.5",
+      "poster": "https://images.metahub.space/poster/small/tt3986820/img",
+      "description": "As kids, they escaped a UFO death cult. Now, two adult brothers seek answers after an old videotape surfaces and brings them back to where they began.",
+      "country": "United States",
+      "awards": "5 wins & 8 nominations total",
+      "type": "movie",
+      "trailers": [
+        {
+          "source": "_DTbx7c7ez8",
+          "type": "Trailer"
+        },
+        {
+          "source": "qMHpWCN0byw",
+          "type": "Trailer"
+        }
+      ],
+      "moviedb_id": 430231,
+      "popularities": {
+        "moviedb": 2.2219,
+        "stremio": 0.07406333333333334,
+        "trakt": 2,
+        "stremio_lib": 0
+      },
+      "dvdRelease": "2018-06-26T00:00:00.000Z",
+      "slug": "movie/the-endless-3986820",
+      "background": "https://images.metahub.space/background/medium/tt3986820/img",
+      "logo": "https://images.metahub.space/logo/medium/tt3986820/img",
+      "popularity": 0.07406333333333334,
+      "id": "tt3986820",
+      "genres": [
+        "Horror",
+        "Mystery",
+        "Sci-Fi"
+      ],
+      "releaseInfo": "2017",
+      "trailerStreams": [
+        {
+          "title": "The Endless",
+          "ytId": "_DTbx7c7ez8"
+        },
+        {
+          "title": "The Endless",
+          "ytId": "qMHpWCN0byw"
+        }
+      ],
+      "links": [
+        {
+          "name": "6.5",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1464"
+        },
+        {
+          "name": "The Endless",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1465"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1466"
+        },
+        {
+          "name": "Mystery",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1467"
+        },
+        {
+          "name": "Sci-Fi",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1468"
+        },
+        {
+          "name": "Aaron Moorhead",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1469"
+        },
+        {
+          "name": "Justin Benson",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1470"
+        },
+        {
+          "name": "Callie Hernandez",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1471"
+        },
+        {
+          "name": "Justin Benson",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1472"
+        },
+        {
+          "name": "Justin Benson",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1473"
+        },
+        {
+          "name": "Aaron Moorhead",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1474"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt3986820",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt8772262",
+      "cast": [
+        "Florence Pugh",
+        "Jack Reynor",
+        "Vilhelm Blomgren"
+      ],
+      "country": "United States, Sweden",
+      "description": "A couple travels to Northern Europe to visit a rural hometown's fabled Swedish mid-summer festival. What begins as an idyllic retreat quickly devolves into an increasingly violent and bizarre competition at the hands of a pagan cult.",
+      "director": [
+        "Ari Aster"
+      ],
+      "genre": [
+        "Drama",
+        "Horror",
+        "Mystery"
+      ],
+      "imdbRating": "7.1",
+      "name": "Midsommar",
+      "released": "2019-07-03T00:00:00.000Z",
+      "slug": "movie/midsommar-8772262",
+      "type": "movie",
+      "writer": [
+        "Ari Aster"
+      ],
+      "year": "2019",
+      "moviedb_id": 530385,
+      "popularities": {
+        "moviedb": 26.2562,
+        "stremio": 0.8752066666666667,
+        "stremio_lib": 0,
+        "trakt": 54
+      },
+      "trailers": [
+        {
+          "source": "1Vnghdsjmd0",
+          "type": "Trailer"
+        },
+        {
+          "source": "I0UWIya-O0s",
+          "type": "Trailer"
+        }
+      ],
+      "poster": "https://images.metahub.space/poster/small/tt8772262/img",
+      "affiliates": {
+        "fandango_embed": "<p><a href=\"http://www.qksrv.net/click-7949808-10576761?url=http%3a%2f%2fwww.fandango.com%2fmidsommar_217742%2fmovieoverview%3fwssaffid%3d11839%26wssac%3d123\"><img src=\"https://images.fandango.com/r1.0.695/ImageRenderer/111/168/images/no_image_111x168.jpg/217742/images/masterrepository/fandango/217742/midsommar2019.jpg\" alt=\"Midsommar\" title=\"Midsommar\" border=\"0\" /></a> Opens Wednesday, Jul 3, 2019</p><p></p><p><a href=\"http://www.qksrv.net/click-7949808-10576761?url=http%3a%2f%2fwww.fandango.com%2fmidsommar_217742%2fmovieoverview%3fwssaffid%3d11839%26wssac%3d123\">Movie Details</a> <a href=\"http://www.qksrv.net/click-7949808-10576761?url=http%3a%2f%2fwww.fandango.com%2fmovie-trailer%2fmidsommar-trailer%2f217742%3fwssaffid%3d11839%26wssac%3d123\">Play Trailers</a></p><p><a href=\"http://www.qksrv.net/click-7949808-10576761?url=http%3a%2f%2fwww.fandango.com%2fmidsommar_217742%2fmovietimes%3fwssaffid%3d11839%26wssac%3d123\"><img src=\"https://images.fandango.com/r1.0.695//images/global/buy_tickets.gif\" alt=\"Buy Tickets\" title=\"Click here to see showtimes and buy tickets!\" border=\"0\" /></a></p>",
+        "fandango_link": "http://www.qksrv.net/click-7949808-10576761?url=http%3a%2f%2fwww.fandango.com%2fmidsommar_217742%2fmovieoverview%3fwssaffid%3d11839%26wssac%3d123"
+      },
+      "runtime": "147 min",
+      "dvdRelease": "2019-09-24T00:00:00.000Z",
+      "awards": "27 wins & 74 nominations total",
+      "background": "https://images.metahub.space/background/medium/tt8772262/img",
+      "logo": "https://images.metahub.space/logo/medium/tt8772262/img",
+      "popularity": 0.8752066666666667,
+      "id": "tt8772262",
+      "genres": [
+        "Drama",
+        "Horror",
+        "Mystery"
+      ],
+      "releaseInfo": "2019",
+      "trailerStreams": [
+        {
+          "title": "Midsommar",
+          "ytId": "1Vnghdsjmd0"
+        },
+        {
+          "title": "Midsommar",
+          "ytId": "I0UWIya-O0s"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.1",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1475"
+        },
+        {
+          "name": "Midsommar",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1476"
+        },
+        {
+          "name": "Drama",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1477"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1478"
+        },
+        {
+          "name": "Mystery",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1479"
+        },
+        {
+          "name": "Florence Pugh",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1480"
+        },
+        {
+          "name": "Jack Reynor",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1481"
+        },
+        {
+          "name": "Vilhelm Blomgren",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1482"
+        },
+        {
+          "name": "Ari Aster",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1483"
+        },
+        {
+          "name": "Ari Aster",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1484"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt8772262",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt9764362",
+      "name": "The Menu",
+      "cast": [
+        "Ralph Fiennes",
+        "Anya Taylor-Joy",
+        "Nicholas Hoult"
+      ],
+      "country": "United States",
+      "description": "A young couple travels to a remote island to eat at an exclusive restaurant where the chef has prepared a lavish menu, with some shocking surprises.",
+      "director": [
+        "Mark Mylod"
+      ],
+      "genre": [
+        "Comedy",
+        "Horror",
+        "Thriller"
+      ],
+      "imdbRating": "7.2",
+      "released": "2022-11-18T00:00:00.000Z",
+      "slug": "movie/the-menu-9764362",
+      "type": "movie",
+      "writer": [
+        "Seth Reiss",
+        "Will Tracy"
+      ],
+      "year": "2022",
+      "moviedb_id": 593643,
+      "popularities": {
+        "moviedb": 18.3992,
+        "stremio": 0.6133066666666667,
+        "stremio_lib": 0,
+        "trakt": 58
+      },
+      "poster": "https://images.metahub.space/poster/small/tt9764362/img",
+      "trailers": [
+        {
+          "source": "C_uTkUGcHv4",
+          "type": "Trailer"
+        },
+        {
+          "source": "CAWZMssP3gM",
+          "type": "Trailer"
+        }
+      ],
+      "runtime": "107 min",
+      "background": "https://images.metahub.space/background/medium/tt9764362/img",
+      "logo": "https://images.metahub.space/logo/medium/tt9764362/img",
+      "awards": "2 wins & 68 nominations total",
+      "dvdRelease": "2023-01-03T00:00:00.000Z",
+      "popularity": 0.6133066666666667,
+      "id": "tt9764362",
+      "genres": [
+        "Comedy",
+        "Horror",
+        "Thriller"
+      ],
+      "releaseInfo": "2022",
+      "trailerStreams": [
+        {
+          "title": "The Menu",
+          "ytId": "C_uTkUGcHv4"
+        },
+        {
+          "title": "The Menu",
+          "ytId": "CAWZMssP3gM"
+        }
+      ],
+      "links": [
+        {
+          "name": "7.2",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1485"
+        },
+        {
+          "name": "The Menu",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1486"
+        },
+        {
+          "name": "Comedy",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1487"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1488"
+        },
+        {
+          "name": "Thriller",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1489"
+        },
+        {
+          "name": "Ralph Fiennes",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1490"
+        },
+        {
+          "name": "Anya Taylor-Joy",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1491"
+        },
+        {
+          "name": "Nicholas Hoult",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1492"
+        },
+        {
+          "name": "Seth Reiss",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1493"
+        },
+        {
+          "name": "Will Tracy",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1494"
+        },
+        {
+          "name": "Mark Mylod",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1495"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt9764362",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt10548174",
+      "name": "28 Years Later",
+      "type": "movie",
+      "cast": [
+        "Jodie Comer",
+        "Aaron Taylor-Johnson",
+        "Ralph Fiennes"
+      ],
+      "country": "United Kingdom, Canada, United States",
+      "description": "A group of survivors of the rage virus live on a small island. When one of the group leaves the island on a mission into the mainland, he discovers secrets, wonders, and horrors that have mutated not only the infected but other su...",
+      "director": [
+        "Danny Boyle"
+      ],
+      "genre": [
+        "Horror",
+        "Sci-Fi",
+        "Thriller"
+      ],
+      "imdbRating": "6.6",
+      "released": "2025-06-20T00:00:00.000Z",
+      "slug": "movie/28-years-later-10548174",
+      "writer": [
+        "Alex Garland"
+      ],
+      "year": "2025",
+      "moviedb_id": 1100988,
+      "popularities": {
+        "moviedb": 38.841,
+        "stremio": 1.2947,
+        "stremio_lib": 0,
+        "trakt": 58
+      },
+      "poster": "https://images.metahub.space/poster/small/tt10548174/img",
+      "trailers": [
+        {
+          "source": "IYGG55qwQZQ",
+          "type": "Trailer"
+        },
+        {
+          "source": "mcvLKldPM08",
+          "type": "Trailer"
+        }
+      ],
+      "background": "https://images.metahub.space/background/medium/tt10548174/img",
+      "logo": "https://images.metahub.space/logo/medium/tt10548174/img",
+      "awards": "Nominated for 1 BAFTA Award. 6 wins & 63 nominations total",
+      "runtime": "115 min",
+      "popularity": 1.2947,
+      "id": "tt10548174",
+      "genres": [
+        "Horror",
+        "Sci-Fi",
+        "Thriller"
+      ],
+      "releaseInfo": "2025",
+      "trailerStreams": [
+        {
+          "title": "28 Years Later",
+          "ytId": "IYGG55qwQZQ"
+        },
+        {
+          "title": "28 Years Later",
+          "ytId": "mcvLKldPM08"
+        }
+      ],
+      "links": [
+        {
+          "name": "6.6",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1496"
+        },
+        {
+          "name": "28 Years Later",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1497"
+        },
+        {
+          "name": "Horror",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1498"
+        },
+        {
+          "name": "Sci-Fi",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1499"
+        },
+        {
+          "name": "Thriller",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1500"
+        },
+        {
+          "name": "Jodie Comer",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1501"
+        },
+        {
+          "name": "Aaron Taylor-Johnson",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1502"
+        },
+        {
+          "name": "Ralph Fiennes",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1503"
+        },
+        {
+          "name": "Alex Garland",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1504"
+        },
+        {
+          "name": "Danny Boyle",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1505"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt10548174",
+        "hasScheduledVideos": false
+      }
+    }
+  ],
+  "hasMore": true,
+  "cacheMaxAge": 14400,
+  "staleRevalidate": 3600,
+  "staleError": 3600
+}

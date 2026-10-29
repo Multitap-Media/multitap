@@ -1,0 +1,76 @@
+{
+  "streams": [
+    {
+      "name": "Easynews++\n4K",
+      "description": "Parasite.2019.2160p.BluRay.DV.HDR.x265-dkore.mkv\n🕛 2h:11m:52s\n📦 24.2 GB 📅 98d\n🌐 kor, eng ⭐",
+      "url": "https://example.invalid/redacted/1673",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Parasite.2019.2160p.BluRay.DV.HDR.x265-dkore.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n4K",
+      "description": "Parasite (2019) (2160p UHD BluRay x265 DV HDR10+ DDP 7.1 English - Weasley HONE).mkv\n🕛 2h:11m:52s\n📦 17.4 GB 📅 2049d\n🌐 eng, kor ⭐",
+      "url": "https://example.invalid/redacted/1674",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Parasite (2019) (2160p UHD BluRay x265 DV HDR10+ DDP 7.1 English - Weasley HONE).mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1920 x 1080",
+      "description": "Parasite (2019).mkv\n🕛 2h:12m:16s\n📦 33.4 GB 📅 542d\n🌐 kor, eng ⭐",
+      "url": "https://example.invalid/redacted/1675",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Parasite (2019).mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "Parasite.2019.Criterion.1080p.BluRay.HEVC-HQ.x265.Opus.7.1.incl.Commentary-MrTentsaw.mkv\n🕛 2h:12m:16s\n📦 9.5 GB 📅 296d\n🌐 kor, eng ⭐",
+      "url": "https://example.invalid/redacted/1676",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Parasite.2019.Criterion.1080p.BluRay.HEVC-HQ.x265.Opus.7.1.incl.Commentary-MrTentsaw.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "Parasite.2019.Criterion.Black.and.White.1080p.BluRay.HEVC-HQ.x265.Opus.7.1.incl.Commentary-MrTentsaw.mkv\n🕛 2h:12m:16s\n📦 8.5 GB 📅 296d\n🌐 kor, eng ⭐",
+      "url": "https://example.invalid/redacted/1677",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Parasite.2019.Criterion.Black.and.White.1080p.BluRay.HEVC-HQ.x265.Opus.7.1.incl.Commentary-MrTentsaw.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1920 x 1080",
+      "description": "Parasite (2019) Black &amp; White.mkv\n🕛 2h:12m:16s\n📦 32.3 GB 📅 542d\n🌐 kor",
+      "url": "https://example.invalid/redacted/1678",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Parasite (2019) Black &amp; White.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n720p",
+      "description": "Parasite.2019.720p.BluRay.DD5.1.x264-TEPES.mkv\n🕛 2h:11m:53s\n📦 8.5 GB 📅 2388d\n🌐 kor",
+      "url": "https://example.invalid/redacted/1679",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Parasite.2019.720p.BluRay.DD5.1.x264-TEPES.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n720p",
+      "description": "Parasite.2019.Black.and.White.Version.720p.BluRay.DD5.1.x264-ZQ.mkv\n🕛 2h:11m:53s\n📦 8.1 GB 📅 2291d\n🌐 kor",
+      "url": "https://example.invalid/redacted/1680",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Parasite.2019.Black.and.White.Version.720p.BluRay.DD5.1.x264-ZQ.mkv"
+      }
+    }
+  ]
+}

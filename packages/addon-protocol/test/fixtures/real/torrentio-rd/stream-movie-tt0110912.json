@@ -1,0 +1,25 @@
+{
+  "streams": [
+    {
+      "name": "[RD+] Torrentio\n4k DV",
+      "title": "Pulp.Fiction.1994.Hybrid.2160p.UHD.Blu-ray.Remux.DV.HDR10P.HEVC.DTS-HD.MA.5.1-CiNEPHiLES\n👤 96 💾 83.5 GB ⚙️ ThePirateBay\n🇬🇧 / 🇯🇵 / 🇷🇺 / 🇮🇹 / 🇵🇹 / 🇪🇸 / 🇰🇷 / 🇨🇳 / 🇫🇷 / 🇩🇪 / 🇳🇱 / 🇮🇳 / 🇵🇱 / 🇨🇿 / 🇭🇺 / 🇧🇬 / 🇷🇸   / 🇭🇷 / 🇺🇦 / 🇩🇰 / 🇸🇪 / 🇳🇴 / 🇹🇷 / 🇸🇦 / 🇮🇱 / 🇻🇳 / 🇮🇩 / 🇲🇾 / 🇹🇭",
+      "url": "https://example.invalid/redacted/1579",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay REMUX|hevc|DV",
+        "filename": "Pulp.Fiction.1994.Hybrid.2160p.UHD.Blu-ray.Remux.DV.HDR10P.HEVC.DTS-HD.MA.5.1-CiNEPHiLES.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\nDVDRip",
+      "title": "Official IMDb Top 250 Movies Collection 6/17/2011\nPulp.Fiction.[1994].DvDrip[ENG]-P4DGE_[www.superfundo.org].avi\n👤 2 💾 700.46 MB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1580",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|DVDRip",
+        "filename": "Pulp.Fiction.[1994].DvDrip[ENG]-P4DGE_[www.superfundo.org].avi"
+      }
+    }
+  ],
+  "cacheMaxAge": 3600,
+  "staleRevalidate": 14400,
+  "staleError": 604800
+}

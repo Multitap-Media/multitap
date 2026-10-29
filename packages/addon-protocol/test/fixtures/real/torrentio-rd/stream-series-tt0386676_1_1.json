@@ -1,0 +1,34 @@
+{
+  "streams": [
+    {
+      "name": "[RD+] Torrentio\n1080p",
+      "title": "The Office (US) (2005) Season 1-9 S01-S09 (1080p BluRay x265 HEVC 10bit AAC 5.1 Silence) [QxR]\nSeason 1/The Office (US) (2005) - S01E01 - Pilot (1080p BluRay x265 Silence).mkv\n👤 475 💾 725.19 MB ⚙️ 1337x",
+      "url": "https://example.invalid/redacted/1605",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|d6797f5408e0c073ebae41c5ae2a4b354e47812c",
+        "filename": "The Office (US) (2005) - S01E01 - Pilot (1080p BluRay x265 Silence).mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n720p",
+      "title": "The Office Superfan Extended Cut COMPLETE S01 S02 S03 S04 S05 S06\nThe.Office.Extended.Cut.S01.720p.10bit.WEBRip.x265-budgetbits/The.Office.Extended.Cut.S01E01.Pilot.720p.10bit.WEBRip.x265-budgetbits.mkv\n👤 17 💾 167.01 MB ⚙️ TorrentGalaxy",
+      "url": "https://example.invalid/redacted/1606",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|e565448d34c14bab5ab52da211c7f0842bba8979",
+        "filename": "The.Office.Extended.Cut.S01E01.Pilot.720p.10bit.WEBRip.x265-budgetbits.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio",
+      "title": "The Office US Season 1 2 3 4 5 6 7 8 9 - threesixtyp\nThe Office S01E01 Pilot.mp4\n👤 72 💾 63.97 MB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1607",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|2d302dd91cefe563a7edd5c5bbf45ff75978027e",
+        "filename": "The Office S01E01 Pilot.mp4"
+      }
+    }
+  ],
+  "cacheMaxAge": 3600,
+  "staleRevalidate": 14400,
+  "staleError": 604800
+}

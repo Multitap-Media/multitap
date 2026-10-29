@@ -1,0 +1,76 @@
+{
+  "streams": [
+    {
+      "name": "Easynews++\n4K",
+      "description": "The.Shawshank.Redemption.1994.2160p.BluRay.REMUX.HEVC.DTS-HD.MA.5.1-FGT.mkv\n🕛 2h:22m:32s\n📦 58.0 GB 📅 1365d\n🌐 eng, fre, ger, ita, spa, chi, hun, pol, jpn ⭐",
+      "url": "https://example.invalid/redacted/1626",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The.Shawshank.Redemption.1994.2160p.BluRay.REMUX.HEVC.DTS-HD.MA.5.1-FGT.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n4K",
+      "description": "The.Shawshank.Redemption.1994.2160p.UHD.Blu-ray.REMUX.HEVC.DTS-HD.MA.5.1-PTer.mkv\n🕛 2h:22m:32s\n📦 57.6 GB 📅 1780d\n🌐 eng, fre, ger, ita, spa, chi, hun, pol, jpn ⭐",
+      "url": "https://example.invalid/redacted/1627",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The.Shawshank.Redemption.1994.2160p.UHD.Blu-ray.REMUX.HEVC.DTS-HD.MA.5.1-PTer.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "The Shawshank Redemption 1994 1080p BluRay REMUX AVC DTS-HD-MA 5 1.mkv\n🕛 2h:22m:33s\n📦 30.3 GB 📅 1968d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1628",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The Shawshank Redemption 1994 1080p BluRay REMUX AVC DTS-HD-MA 5 1.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "The.Shawshank.Redemption.(1994).1080p.BluRay.REMUX.TRUEHD.5.1.VC1-playBD.mkv\n🕛 2h:22m:33s\n📦 29.8 GB 📅 2590d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1629",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The.Shawshank.Redemption.(1994).1080p.BluRay.REMUX.TRUEHD.5.1.VC1-playBD.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1920 x 1080",
+      "description": "The Shawshank Redemption (1994).mkv\n🕛 2h:22m:33s\n📦 16.6 GB 📅 3580d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1630",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The Shawshank Redemption (1994).mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1920 x 1080",
+      "description": "The Shawshank Redemption (1994).mkv\n🕛 2h:22m:32s\n📦 8.1 GB 📅 1296d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1631",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The Shawshank Redemption (1994).mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n720p",
+      "description": "The.Shawshank.Redemption.1994.720p.BluRay.DTS.x264-HiDt.mkv\n🕛 2h:22m:33s\n📦 7.9 GB 📅 4253d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1632",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The.Shawshank.Redemption.1994.720p.BluRay.DTS.x264-HiDt.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n720p",
+      "description": "the.shawshank.redemption.1994.remastered.720p.bluray.x264-cinephilia.mkv\n🕛 2h:22m:32s\n📦 5.7 GB 📅 1749d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1633",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "the.shawshank.redemption.1994.remastered.720p.bluray.x264-cinephilia.mkv"
+      }
+    }
+  ]
+}

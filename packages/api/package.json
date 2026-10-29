@@ -1,0 +1,39 @@
+{
+  "name": "@multitap/api",
+  "version": "0.2.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "development": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./openapi.json": "./openapi.json"
+  },
+  "files": [
+    "dist",
+    "openapi.json"
+  ],
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./openapi.json": "./openapi.json"
+    }
+  },
+  "scripts": {
+    "generate": "openapi-typescript openapi.json -o src/schema.d.ts"
+  },
+  "dependencies": {
+    "@multitap/addon-protocol": "workspace:*",
+    "openapi-fetch": "0.17.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "openapi-typescript": "7.13.0"
+  }
+}

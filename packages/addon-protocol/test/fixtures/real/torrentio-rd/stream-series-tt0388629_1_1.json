@@ -1,0 +1,61 @@
+{
+  "streams": [
+    {
+      "name": "[RD+] Torrentio\n1080p",
+      "title": "[Anime Time] One Piece (0001-1071+Movies+Specials) [BD+CR] [Dual Audio] [1080p][HEVC 10bit x265][AAC][Multi Sub] [Batch]\nSeason 01 - East Blue/[Anime Time] One Piece - 0001 - I'm Luffy! The Man Who's Gonna Be King of the Pirates!.mkv\n👤 1151 💾 457.8 MB ⚙️ NyaaSi\nDubbed / Multi Subs / Dual Audio / 🇬🇧",
+      "url": "https://example.invalid/redacted/1615",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|3e3219582bc614cf52fa921209001343c361f318",
+        "filename": "[Anime Time] One Piece - 0001 - I'm Luffy! The Man Who's Gonna Be King of the Pirates!.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n720p",
+      "title": "[AnimeRG] One Piece (Episodes 001-837) Seasons 01-19 [720p] [Dual-Audio] [Multi-Sub] [HEVC] [x265] [Ultimate Batch 2018] [pseudo]\nOne Piece Season 01 (East Blue) EP 001-062 [Dual-Audio] [Multi-Sub]/[AnimeRG] One Piece - 001 [720p] [Dual-Audio] [Multi-Sub] [x265] [pseudo].mkv\n👤 57 💾 127.33 MB ⚙️ NyaaSi\nDubbed / Multi Audio / Multi Subs / Dual Audio",
+      "url": "https://example.invalid/redacted/1616",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|d8d3d6997d22a01d6a225877bb6697e031b8a034",
+        "filename": "[AnimeRG] One Piece - 001 [720p] [Dual-Audio] [Multi-Sub] [x265] [pseudo].mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n540p",
+      "title": "[F-R] One Piece 0001-0782 (Batch)\nOne Piece - 0001 (DVD 540p) [F-R][bb5cdb70].mkv\n👤 18 💾 364.39 MB ⚙️ NyaaSi",
+      "url": "https://example.invalid/redacted/1617",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|272158ae4b8d6ad69ffe347db418338900826320",
+        "filename": "One Piece - 0001 (DVD 540p) [F-R][bb5cdb70].mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n480p",
+      "title": "[Anime Time] One Piece (0001-1071+Movies+Specials) [BD+CR] [Dual Audio] [1080p][HEVC 10bit x265][AAC][Multi Sub] [Batch]\nEpisode 001-206 Uncropped (480p)/[Anime Time] One Piece - 0001 - I'm Luffy! The Man Who's Gonna Be King of the Pirates!.mkv\n👤 1151 💾 215.21 MB ⚙️ NyaaSi\nDubbed / Multi Subs / Dual Audio / 🇬🇧",
+      "url": "https://example.invalid/redacted/1618",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|3e3219582bc614cf52fa921209001343c361f318",
+        "filename": "[Anime Time] One Piece - 0001 - I'm Luffy! The Man Who's Gonna Be King of the Pirates!.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\nDVDRip",
+      "title": "[A&C] One Piece - [0001-0130] [R2J DVDrip] [Multi-Audio-Subs] [VFR] [v2]\n[A&C] One Piece - 0001 [DVDrip] [Multi-Audio-Subs] [v2] [AAD3EE84].mkv\n👤 24 💾 1.79 GB ⚙️ NyaaSi\nDubbed / Multi Audio",
+      "url": "https://example.invalid/redacted/1619",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|0795e58989ca49f7a2fb556c445e60c9f653be08",
+        "filename": "[A&C] One Piece - 0001 [DVDrip] [Multi-Audio-Subs] [v2] [AAD3EE84].mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio",
+      "title": "One Piece English DUBBED Episode 1-916\nNew folder/One Piece English Dubbed Episode(1).mp4\n👤 11 💾 55.64 MB ⚙️ 1337x\nDubbed / 🇬🇧",
+      "url": "https://example.invalid/redacted/1620",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|50b54fa65a8bd1a44539d56e67b3af5a64bcd340",
+        "filename": "One Piece English Dubbed Episode(1).mp4"
+      }
+    }
+  ],
+  "cacheMaxAge": 3600,
+  "staleRevalidate": 14400,
+  "staleError": 604800
+}

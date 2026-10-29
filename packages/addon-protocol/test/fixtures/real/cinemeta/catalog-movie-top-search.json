@@ -1,0 +1,632 @@
+{
+  "query": "dune",
+  "rank": 6.25,
+  "cacheMaxAge": 86400,
+  "metas": [
+    {
+      "imdb_id": "tt1160419",
+      "type": "movie",
+      "name": "Dune: Part One",
+      "cast": [
+        "Timothée Chalamet",
+        "Rebecca Ferguson",
+        "Zendaya"
+      ],
+      "description": "Paul Atreides arrives on Arrakis after his father accepts the stewardship of the dangerous planet. However, chaos ensues after a betrayal as forces clash to control melange, a precious resource.",
+      "director": [
+        "Denis Villeneuve"
+      ],
+      "genre": [
+        "Action",
+        "Adventure",
+        "Drama"
+      ],
+      "imdbRating": "8.0",
+      "released": "2021-10-22T00:00:00.000Z",
+      "slug": "movie/dune-part-one-1160419",
+      "writer": [
+        "Jon Spaihts",
+        "Denis Villeneuve",
+        "Eric Roth"
+      ],
+      "year": "2021",
+      "popularities": {
+        "moviedb": 49.3824,
+        "stremio": 1.64608,
+        "stremio_lib": 0,
+        "trakt": 108
+      },
+      "trailers": [
+        {
+          "source": "w0HgHet0sxg",
+          "type": "Trailer"
+        },
+        {
+          "source": "8g18jFHCLXk",
+          "type": "Trailer"
+        },
+        {
+          "source": "n9xhJrPXop4",
+          "type": "Trailer"
+        }
+      ],
+      "poster": "https://images.metahub.space/poster/small/tt1160419/img",
+      "background": "https://images.metahub.space/background/medium/tt1160419/img",
+      "logo": "https://images.metahub.space/logo/medium/tt1160419/img",
+      "runtime": "155 min",
+      "awards": "Won 6 Oscars. 178 wins & 299 nominations total",
+      "dvdRelease": "2021-10-22T00:00:00.000Z",
+      "popularity": 1.64608,
+      "id": "tt1160419",
+      "score": 7.5,
+      "genres": [
+        "Action",
+        "Adventure",
+        "Drama"
+      ],
+      "releaseInfo": "2021",
+      "trailerStreams": [
+        {
+          "title": "Dune: Part One",
+          "ytId": "w0HgHet0sxg"
+        },
+        {
+          "title": "Dune: Part One",
+          "ytId": "8g18jFHCLXk"
+        },
+        {
+          "title": "Dune: Part One",
+          "ytId": "n9xhJrPXop4"
+        }
+      ],
+      "links": [
+        {
+          "name": "8.0",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/975"
+        },
+        {
+          "name": "Dune: Part One",
+          "category": "share",
+          "url": "https://example.invalid/redacted/976"
+        },
+        {
+          "name": "Action",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/977"
+        },
+        {
+          "name": "Adventure",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/978"
+        },
+        {
+          "name": "Drama",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/979"
+        },
+        {
+          "name": "Timothée Chalamet",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/980"
+        },
+        {
+          "name": "Rebecca Ferguson",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/981"
+        },
+        {
+          "name": "Zendaya",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/982"
+        },
+        {
+          "name": "Jon Spaihts",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/983"
+        },
+        {
+          "name": "Denis Villeneuve",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/984"
+        },
+        {
+          "name": "Eric Roth",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/985"
+        },
+        {
+          "name": "Denis Villeneuve",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/986"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt1160419",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "id": "tt15239678",
+      "imdb_id": "tt15239678",
+      "type": "movie",
+      "name": "Dune: Part Two",
+      "poster": "https://m.media-amazon.com/images/M/MV5BNTc0YmQxMjEtODI5MC00NjFiLTlkMWUtOGQ5NjFmYWUyZGJhXkEyXkFqcGc@._V1_SX250.jpg",
+      "background": "https://images.metahub.space/background/medium/tt15239678/img",
+      "releaseInfo": "2024",
+      "links": [],
+      "behaviorHints": {
+        "defaultVideoId": "tt15239678",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "id": "tt31378509",
+      "imdb_id": "tt31378509",
+      "type": "movie",
+      "name": "Dune: Part Three",
+      "poster": "https://m.media-amazon.com/images/M/MV5BYjk1NjgwZDMtYzI5OS00Y2Q4LWI1NmItNTE5OGU2NDVmMTAxXkEyXkFqcGc@._V1_SX250.jpg",
+      "background": "https://images.metahub.space/background/medium/tt31378509/img",
+      "releaseInfo": "2026",
+      "links": [],
+      "behaviorHints": {
+        "defaultVideoId": "tt31378509",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "id": "tt0087182",
+      "imdb_id": "tt0087182",
+      "type": "movie",
+      "name": "Dune",
+      "poster": "https://m.media-amazon.com/images/M/MV5BMGJlMGM3NDAtOWNhMy00MWExLWI2MzEtMDQ0ZDIzZDY5ZmQ2XkEyXkFqcGc@._V1_SX250.jpg",
+      "background": "https://images.metahub.space/background/medium/tt0087182/img",
+      "releaseInfo": "1984",
+      "links": [],
+      "behaviorHints": {
+        "defaultVideoId": "tt0087182",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "id": "tt1935156",
+      "imdb_id": "tt1935156",
+      "type": "movie",
+      "name": "Jodorowsky's Dune",
+      "poster": "https://m.media-amazon.com/images/M/MV5BMTU0MzcxMTAxMl5BMl5BanBnXkFtZTgwODMyMTIxMTE@._V1_SX250.jpg",
+      "background": "https://images.metahub.space/background/medium/tt1935156/img",
+      "releaseInfo": "2013",
+      "links": [],
+      "behaviorHints": {
+        "defaultVideoId": "tt1935156",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "id": "tt11835714",
+      "imdb_id": "tt11835714",
+      "type": "movie",
+      "name": "Dune Drifter",
+      "poster": "https://m.media-amazon.com/images/M/MV5BZDZkNjFlYzYtMjNkMC00YmJiLWJkZDItZDIxYTU0MWJmNWNkXkEyXkFqcGc@._V1_SX250.jpg",
+      "background": "https://images.metahub.space/background/medium/tt11835714/img",
+      "releaseInfo": "2020",
+      "links": [],
+      "behaviorHints": {
+        "defaultVideoId": "tt11835714",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "id": "tt15331462",
+      "imdb_id": "tt15331462",
+      "type": "movie",
+      "name": "Planet Dune",
+      "poster": "https://m.media-amazon.com/images/M/MV5BOTI3ZDZjMzAtZTkyYi00YTc4LWEyNDctYzNlOTc2ODIwMWNhXkEyXkFqcGc@._V1_SX250.jpg",
+      "background": "https://images.metahub.space/background/medium/tt15331462/img",
+      "releaseInfo": "2021",
+      "links": [],
+      "behaviorHints": {
+        "defaultVideoId": "tt15331462",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "id": "tt0099474",
+      "imdb_id": "tt0099474",
+      "type": "movie",
+      "name": "Dune Warriors",
+      "poster": "https://m.media-amazon.com/images/M/MV5BNDk4ZjQzMGQtMDI1OC00NDY3LWFiMmItMmNmNTFjYmQwMDIzXkEyXkFqcGc@._V1_SX250.jpg",
+      "background": "https://images.metahub.space/background/medium/tt0099474/img",
+      "releaseInfo": "1991",
+      "links": [],
+      "behaviorHints": {
+        "defaultVideoId": "tt0099474",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "id": "tt14450978",
+      "imdb_id": "tt14450978",
+      "type": "movie",
+      "name": "Dune World",
+      "poster": "https://m.media-amazon.com/images/M/MV5BZGEzZTI2ZDQtZWI1YS00ZjZjLTllMTgtZTM1Y2Y2ODY5Mjk5XkEyXkFqcGc@._V1_SX250.jpg",
+      "background": "https://images.metahub.space/background/medium/tt14450978/img",
+      "releaseInfo": "2021",
+      "links": [],
+      "behaviorHints": {
+        "defaultVideoId": "tt14450978",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "id": "tt5288532",
+      "imdb_id": "tt5288532",
+      "type": "movie",
+      "name": "The Sand Dune",
+      "poster": "https://m.media-amazon.com/images/M/MV5BMjdiNTA3NjMtZWY1My00OTc1LWI0NzctM2Y1YWYzMWY0ZjNkXkEyXkFqcGc@._V1_SX250.jpg",
+      "background": "https://images.metahub.space/background/medium/tt5288532/img",
+      "releaseInfo": "2018",
+      "links": [],
+      "behaviorHints": {
+        "defaultVideoId": "tt5288532",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "id": "tt2251648",
+      "imdb_id": "tt2251648",
+      "type": "movie",
+      "name": "The Dune",
+      "poster": "https://m.media-amazon.com/images/M/MV5BNTY5NWNmNzYtZGY1OC00YjIzLWJjZTYtZGExY2QzMzM0ODFjXkEyXkFqcGc@._V1_SX250.jpg",
+      "background": "https://images.metahub.space/background/medium/tt2251648/img",
+      "releaseInfo": "2013",
+      "links": [],
+      "behaviorHints": {
+        "defaultVideoId": "tt2251648",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "id": "tt11018038",
+      "imdb_id": "tt11018038",
+      "type": "movie",
+      "name": "Dune Dreams",
+      "poster": "https://m.media-amazon.com/images/M/MV5BNDk0YTE2ODItMGVhYy00MmU0LWI3Y2MtZGY2ZmU5ZmFhOTlhXkEyXkFqcGc@._V1_SX250.jpg",
+      "background": "https://images.metahub.space/background/medium/tt11018038/img",
+      "releaseInfo": "2021",
+      "links": [],
+      "behaviorHints": {
+        "defaultVideoId": "tt11018038",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "id": "tt0058625",
+      "imdb_id": "tt0058625",
+      "type": "movie",
+      "name": "Woman in the Dunes",
+      "poster": "https://m.media-amazon.com/images/M/MV5BM2E1ZjY5MjItZTUxZS00NTI1LWEwMmEtODhlMDAyMzUyOTRmXkEyXkFqcGc@._V1_SX250.jpg",
+      "background": "https://images.metahub.space/background/medium/tt0058625/img",
+      "releaseInfo": "1964",
+      "links": [],
+      "behaviorHints": {
+        "defaultVideoId": "tt0058625",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "id": "tt0309338",
+      "imdb_id": "tt0309338",
+      "type": "movie",
+      "name": "Barkhan",
+      "poster": "https://m.media-amazon.com/images/M/MV5BNDg1ZWRmYTQtOWRkNC00NWEyLTgwMzktYjA3Mzk0YzQwNDQwXkEyXkFqcGc@._V1_SX250.jpg",
+      "background": "https://images.metahub.space/background/medium/tt0309338/img",
+      "releaseInfo": "1989",
+      "links": [],
+      "behaviorHints": {
+        "defaultVideoId": "tt0309338",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "id": "tt0396572",
+      "imdb_id": "tt0396572",
+      "type": "movie",
+      "name": "Dune Surfer",
+      "poster": "https://m.media-amazon.com/images/M/MV5BZWIwOGFiOWEtMjBmYS00NGE1LTkwNWYtNGE1MDk2ZmUxMmU0XkEyXkFqcGc@._V1_SX250.jpg",
+      "background": "https://images.metahub.space/background/medium/tt0396572/img",
+      "releaseInfo": "1988",
+      "links": [],
+      "behaviorHints": {
+        "defaultVideoId": "tt0396572",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt0363788",
+      "popularity": 0.001963,
+      "name": "Destination Dune",
+      "year": "1984",
+      "runtime": "7 min",
+      "genre": [
+        "Documentary",
+        "Short"
+      ],
+      "released": null,
+      "director": [
+        "Paul Sammon"
+      ],
+      "writer": [
+        "Paul Sammon"
+      ],
+      "cast": [
+        "Percy Rodrigues",
+        "Frank Herbert",
+        "David Lynch"
+      ],
+      "imdbRating": "6.3",
+      "poster": "https://images.metahub.space/poster/small/tt0363788/img",
+      "description": "This 1983 featurette, directed by Paul M. Sammon, was originally produced to promote the film at conventions and publicity events in the lead-up to its release.",
+      "awards": null,
+      "dvdRelease": null,
+      "type": "movie",
+      "popularities": {
+        "PXS_TEST": 0,
+        "EXMD": 0,
+        "ALLIANCE": 0,
+        "EJD": 0,
+        "stremio": 0.001963,
+        "stremio_lib": 0,
+        "moviedb": 0.5889
+      },
+      "slug": "movie/destination-dune-0363788",
+      "trailers": [],
+      "background": "https://images.metahub.space/background/medium/tt0363788/img",
+      "logo": "https://images.metahub.space/logo/medium/tt0363788/img",
+      "id": "tt0363788",
+      "score": 5,
+      "genres": [
+        "Documentary",
+        "Short"
+      ],
+      "releaseInfo": "1984",
+      "trailerStreams": [],
+      "links": [
+        {
+          "name": "6.3",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/987"
+        },
+        {
+          "name": "Destination Dune",
+          "category": "share",
+          "url": "https://example.invalid/redacted/988"
+        },
+        {
+          "name": "Documentary",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/989"
+        },
+        {
+          "name": "Short",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/990"
+        },
+        {
+          "name": "Percy Rodrigues",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/991"
+        },
+        {
+          "name": "Frank Herbert",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/992"
+        },
+        {
+          "name": "David Lynch",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/993"
+        },
+        {
+          "name": "Paul Sammon",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/994"
+        },
+        {
+          "name": "Paul Sammon",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/995"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt0363788",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt12451788",
+      "name": "Dune",
+      "popularities": {
+        "trakt": 4,
+        "moviedb": 0.2523,
+        "stremio": 0.0008410000000000001,
+        "stremio_lib": 0
+      },
+      "type": "movie",
+      "awards": "2 nominations",
+      "cast": [
+        "Irone Singleton"
+      ],
+      "description": "The sounds as witnesses. They blur into memories, half-dreams, it is undecided if they are real or not. Fluctuation between imagination and reality. Rocking pictures in the mind, pulsating dark emotions.",
+      "director": [
+        "Gábor Ulrich"
+      ],
+      "genre": [
+        "Animation",
+        "Short"
+      ],
+      "imdbRating": "7.7",
+      "poster": "https://images.metahub.space/poster/small/tt12451788/img",
+      "released": "2020-06-15T00:00:00.000Z",
+      "runtime": "4 min",
+      "writer": [
+        "Gábor Ulrich"
+      ],
+      "year": "2020",
+      "trailers": [],
+      "slug": "movie/dune-12451788",
+      "background": "https://images.metahub.space/background/medium/tt12451788/img",
+      "logo": "https://images.metahub.space/logo/medium/tt12451788/img",
+      "popularity": 0.0008410000000000001,
+      "id": "tt12451788",
+      "score": 7.5,
+      "genres": [
+        "Animation",
+        "Short"
+      ],
+      "releaseInfo": "2020",
+      "trailerStreams": [],
+      "links": [
+        {
+          "name": "7.7",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/996"
+        },
+        {
+          "name": "Dune",
+          "category": "share",
+          "url": "https://example.invalid/redacted/997"
+        },
+        {
+          "name": "Animation",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/998"
+        },
+        {
+          "name": "Short",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/999"
+        },
+        {
+          "name": "Irone Singleton",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1000"
+        },
+        {
+          "name": "Gábor Ulrich",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1001"
+        },
+        {
+          "name": "Gábor Ulrich",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1002"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt12451788",
+        "hasScheduledVideos": false
+      }
+    },
+    {
+      "imdb_id": "tt6910678",
+      "name": "The Dunes",
+      "popularities": {
+        "trakt": 3,
+        "stremio": 0.012873333333333332,
+        "stremio_lib": 0,
+        "moviedb": 0.3862
+      },
+      "type": "movie",
+      "awards": "22 wins & 1 nomination total",
+      "cast": [
+        "Marsha Vassilevskaia",
+        "Tatiana Sokolova",
+        "Alexandra Davies"
+      ],
+      "description": "A renowned journalist from the LA Times returns to his hometown of The Dunes. While he's there, a mysterious figure from his past arises and threatens his entire existence.",
+      "director": [
+        "Martin Copping"
+      ],
+      "genre": [
+        "Thriller"
+      ],
+      "imdbRating": "5.3",
+      "released": "2021-12-11T00:00:00.000Z",
+      "runtime": "84 min",
+      "slug": "movie/the-dunes-6910678",
+      "writer": [
+        "Martin Copping"
+      ],
+      "year": "2021",
+      "poster": "https://images.metahub.space/poster/small/tt6910678/img",
+      "trailers": [
+        {
+          "source": "-NXaz7NrnXk",
+          "type": "Trailer"
+        }
+      ],
+      "background": "https://images.metahub.space/background/medium/tt6910678/img",
+      "logo": "https://images.metahub.space/logo/medium/tt6910678/img",
+      "popularity": 0.012873333333333332,
+      "id": "tt6910678",
+      "score": 2.5,
+      "genres": [
+        "Thriller"
+      ],
+      "releaseInfo": "2021",
+      "trailerStreams": [
+        {
+          "title": "The Dunes",
+          "ytId": "-NXaz7NrnXk"
+        }
+      ],
+      "links": [
+        {
+          "name": "5.3",
+          "category": "imdb",
+          "url": "https://example.invalid/redacted/1003"
+        },
+        {
+          "name": "The Dunes",
+          "category": "share",
+          "url": "https://example.invalid/redacted/1004"
+        },
+        {
+          "name": "Thriller",
+          "category": "Genres",
+          "url": "https://example.invalid/redacted/1005"
+        },
+        {
+          "name": "Marsha Vassilevskaia",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1006"
+        },
+        {
+          "name": "Tatiana Sokolova",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1007"
+        },
+        {
+          "name": "Alexandra Davies",
+          "category": "Cast",
+          "url": "https://example.invalid/redacted/1008"
+        },
+        {
+          "name": "Martin Copping",
+          "category": "Writers",
+          "url": "https://example.invalid/redacted/1009"
+        },
+        {
+          "name": "Martin Copping",
+          "category": "Directors",
+          "url": "https://example.invalid/redacted/1010"
+        }
+      ],
+      "behaviorHints": {
+        "defaultVideoId": "tt6910678",
+        "hasScheduledVideos": false
+      }
+    }
+  ]
+}

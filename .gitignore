@@ -1,0 +1,13 @@
+# Build output and dependencies
+node_modules/
+dist/
+.env
+*.log
+data/
+
+# Local agent settings and worktrees
+.claude/settings.local.json
+.claude/worktrees/
+
+# Python bytecode (the contract run's Schemathesis hooks)
+__pycache__/

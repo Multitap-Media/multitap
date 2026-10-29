@@ -1,0 +1,51 @@
+{
+  "streams": [
+    {
+      "name": "[RD+] Torrentio\n4k HDR",
+      "title": "Parasite (2019) (2160p BluRay x265 HEVC 10bit HDR AAC 7.1 Bandi) [QxR]\n👤 68 💾 15.75 GB ⚙️ 1337x",
+      "url": "https://example.invalid/redacted/1567",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay|hevc|10bit|HDR",
+        "filename": "Parasite (2019) (2160p BluRay x265 10bit HDR Bandi).mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n4k",
+      "title": "Parasite (2019) [2160p] [4K] [BluRay] [7.1] [YTS] [YIFY]\n👤 100 💾 6.05 GB ⚙️ 1337x",
+      "url": "https://example.invalid/redacted/1568",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay|x265|10bit",
+        "filename": "Parasite.2019.REPACK.2160p.4K.BluRay.x265.10bit.AAC7.1-[YTS.MX].mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n1080p DV | HDR",
+      "title": "Parasite 2019 UHD BluRay 1080p DD Atmos 5 1 DoVi HDR10 x265-SM737\n👤 1 💾 6.45 GB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1569",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|1080p|BluRay|x265|10bit|DV|HDR",
+        "filename": "Parasite 2019 UHD BluRay 1080p DD Atmos 5 1 DoVi HDR10 x265-SM737.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n720p",
+      "title": "Parasite.2019.720p.BRRip.x264.AAC2.0-MP4\n👤 100 💾 1.15 GB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1570",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|720p|BRRip|x264",
+        "filename": "Parasite.2019.720p.BluRay.x264-[YTS.LT].mp4"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio",
+      "title": "Parasitos (Parasite) [2019] - Espanol (Spanish) audio\n👤 0 💾 1.98 GB ⚙️ ThePirateBay\n🇪🇸",
+      "url": "https://example.invalid/redacted/1571",
+      "behaviorHints": {
+        "filename": "Parasitos (2019).avi"
+      }
+    }
+  ],
+  "cacheMaxAge": 3600,
+  "staleRevalidate": 14400,
+  "staleError": 604800
+}

@@ -1,0 +1,6 @@
+# Breaking /v1 changes accepted on purpose (read by `pnpm run api:diff`).
+#
+# While Multitap is 0.x, a breaking change can ship only in a minor release, with a
+# "Breaking changes" entry in CHANGELOG.md. To accept one, copy the
+# line oasdiff prints for it (method, path and change text) here. The release
+# that ships it empties this file, since the new tag becomes the baseline.

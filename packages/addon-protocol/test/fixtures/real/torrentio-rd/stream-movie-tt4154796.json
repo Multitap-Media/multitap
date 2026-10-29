@@ -1,0 +1,69 @@
+{
+  "streams": [
+    {
+      "name": "[RD+] Torrentio\n4k DV | HDR",
+      "title": "Avengers Endgame 2019 2160p UHD BDRip HEVC 10bit DV HDR TrueHD7.1 Atmos MUSHR00M\n👤 141 💾 31.23 GB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1548",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BDRip|hevc|10bit|DV|HDR",
+        "filename": "Avengers Endgame 2019 2160p UHD BDRip HEVC 10bit DV HDR TrueHD.7.1 Atmos MUSHR00M.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n4k",
+      "title": "Avengers.Endgame.2019.2160p.4K.BluRay.x265.10bit.AAC5.1\n👤 100 💾 5.26 GB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1549",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay|x265|10bit",
+        "filename": "Avengers.Endgame.2019.2160p.4K.BluRay.x265.10bit.AAC5.1-[YTS.MX].mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n1080p HDR",
+      "title": "Avengers Endgame 2019 1080p BluRay HDR10 x265-GeneMige\n👤 119 💾 2.43 GB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1550",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|1080p|BluRay|x265|10bit|HDR",
+        "filename": "Avengers Endgame 2019 1080p BluRay HDR10 x265-GeneMige.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n1080p",
+      "title": "Avengers.Endgame.2019.1080p.BluRay.DDP5.1.x265.10bit-GalaxyRG265\n👤 118 💾 2.99 GB ⚙️ TorrentGalaxy",
+      "url": "https://example.invalid/redacted/1551",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|1080p|BluRay|x265|10bit",
+        "filename": "Avengers.Endgame.2019.1080p.BluRay.DDP5.1.x265.10bit-GalaxyRG265.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n360p",
+      "title": "MCU Marvel Cinematic Universe Phase 3 2016-2019 - threesixtyp\nMCU P03M10 Avengers Endgame (2019 360p re-blurip).mp4\n👤 2 💾 631.43 MB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1552",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|360p",
+        "filename": "MCU P03M10 Avengers Endgame (2019 360p re-blurip).mp4"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\nBluRay 3D HSBS",
+      "title": "Avengers: Endgame 2019 3D BluRay\n👤 14 💾 2.84 GB ⚙️ YTS",
+      "url": "https://example.invalid/redacted/1553",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|BluRay|x264",
+        "filename": "Avengers.Endgame.2019.3D.HSBS.BluRay.x264-[YTS.LT].mp4"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio",
+      "title": "Marvel - MCU - X-Men - Spider-Man - Collection 2000-2019\nInfinity Saga/Phase 3/22 - Avengers Endgame.mp4\n👤 3 💾 3.01 GB ⚙️ 1337x",
+      "url": "https://example.invalid/redacted/1554",
+      "behaviorHints": {
+        "filename": "22 - Avengers Endgame.mp4"
+      }
+    }
+  ],
+  "cacheMaxAge": 3600,
+  "staleRevalidate": 14400,
+  "staleError": 604800
+}

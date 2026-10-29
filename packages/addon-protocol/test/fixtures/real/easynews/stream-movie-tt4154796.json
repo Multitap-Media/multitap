@@ -1,0 +1,76 @@
+{
+  "streams": [
+    {
+      "name": "Easynews++\n4K",
+      "description": "Avengers.Endgame.2019.PROPER.2160p.BluRay.REMUX.HEVC.DTS-HD.MA.TrueHD.7.1.Atmos-FGT.mkv\n🕛 3h:1m:11s\n📦 60.6 GB 📅 1379d\n🌐 eng, fre, spa ⭐",
+      "url": "https://example.invalid/redacted/1656",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Avengers.Endgame.2019.PROPER.2160p.BluRay.REMUX.HEVC.DTS-HD.MA.TrueHD.7.1.Atmos-FGT.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n4K",
+      "description": "Avengers.Endgame.2019.REMUX.2160p.(10bit).BluRay.UHD.HDR.HEVC.Atmos.DTS-HD.MA.7.1-LEGi0N.mkv\n🕛 3h:1m:11s\n📦 58.2 GB 📅 2611d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1657",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Avengers.Endgame.2019.REMUX.2160p.(10bit).BluRay.UHD.HDR.HEVC.Atmos.DTS-HD.MA.7.1-LEGi0N.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n3840 x 2160",
+      "description": "Avengers Endgame (2019).mkv\n🕛 3h:1m:11s\n📦 2.3 GB 📅 156d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1658",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Avengers Endgame (2019).mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "Avengers.Endgame.(2019).1080p.BluRay.x264.24-bit.Stereo.WAV-CREATiVE24.mkv\n🕛 3h:1m:11s\n📦 56.7 GB 📅 759d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1659",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Avengers.Endgame.(2019).1080p.BluRay.x264.24-bit.Stereo.WAV-CREATiVE24.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "Avengers.Endgame.2019.NORDiC.1080p.BluRay.x265.TrueHD7.1.Atmos-TWA.mkv\n🕛 3h:1m:11s\n📦 45.0 GB 📅 1794d\n🌐 eng, fre, spa ⭐",
+      "url": "https://example.invalid/redacted/1660",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Avengers.Endgame.2019.NORDiC.1080p.BluRay.x265.TrueHD7.1.Atmos-TWA.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n3840 x 1080",
+      "description": "Avengers_ Endgame (2019) [3D Full-SBS 3840x1080 x265 7.1] - B3holDer.mkv\n🕛 3h:1m:11s\n📦 11.5 GB 📅 1099d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1661",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Avengers_ Endgame (2019) [3D Full-SBS 3840x1080 x265 7.1] - B3holDer.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n720p",
+      "description": "Avengers.Endgame.2019.720p.BluRay.DTS.x264-Du.mkv\n🕛 3h:1m:11s\n📦 13.2 GB 📅 2604d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1662",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Avengers.Endgame.2019.720p.BluRay.DTS.x264-Du.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n720p",
+      "description": "Avengers.Endgame.2019.720p.BluRay.DTS.x264-PbK.mkv\n🕛 3h:1m:11s\n📦 11.0 GB 📅 2610d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1663",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Avengers.Endgame.2019.720p.BluRay.DTS.x264-PbK.mkv"
+      }
+    }
+  ]
+}

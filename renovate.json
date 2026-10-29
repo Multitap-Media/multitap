@@ -1,0 +1,62 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "schedule": ["before 6am on monday"],
+  "rangeStrategy": "pin",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 6am on monday"]
+  },
+  "packageRules": [
+    {
+      "description": "One weekly PR for all non-major updates",
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "groupName": "non-major dependencies",
+      "groupSlug": "all-minor-patch"
+    },
+    {
+      "description": "Majors grouped by toolchain so related packages move together",
+      "matchUpdateTypes": ["major"],
+      "matchPackageNames": [
+        "typescript",
+        "typescript-eslint",
+        "eslint",
+        "@eslint/js",
+        "eslint-config-prettier",
+        "prettier"
+      ],
+      "groupName": "lint and typescript toolchain (major)"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "matchPackageNames": ["vitest", "vite", "@vitest/**"],
+      "groupName": "vitest (major)"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "matchPackageNames": ["hono", "@hono/**", "zod"],
+      "groupName": "hono and zod (major)"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "matchPackageNames": ["pino", "pino-pretty"],
+      "groupName": "pino (major)"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "matchPackageNames": ["kysely", "better-sqlite3", "@types/better-sqlite3"],
+      "groupName": "sqlite (major)"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "matchPackageNames": ["openapi-typescript", "openapi-fetch"],
+      "groupName": "openapi client (major)"
+    },
+    {
+      "description": "Node's major follows .nvmrc and the node:26-alpine image; bump it by hand",
+      "matchPackageNames": ["node", "@types/node"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    }
+  ]
+}

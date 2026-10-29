@@ -1,0 +1,70 @@
+{
+  "streams": [
+    {
+      "name": "[RD+] Torrentio\n4k HDR",
+      "title": "The.Matrix.1999.RERIP.2160p.UHD.BluRay.x265.10bit.HDR.TrueHD.7.1.Atmos-IAMABLE\n👤 99 💾 35.09 GB ⚙️ RARBG",
+      "url": "https://example.invalid/redacted/1572",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay|x265|10bit|HDR",
+        "filename": "The.Matrix.1999.RERIP.2160p.UHD.BluRay.X265-IAMABLE.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n4k",
+      "title": "The Matrix 1999 2160p BluRay\n👤 100 💾 6.49 GB ⚙️ YTS",
+      "url": "https://example.invalid/redacted/1573",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay|x265|10bit",
+        "filename": "The.Matrix.1999.2160p.4K.BluRay.x265.10bit.AAC5.1-[YTS.MX].mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n1080p DV | HDR",
+      "title": "The Matrix 1999 1080p UHD BluRay DD7 1 DV HDR x264-HiDt\n👤 17 💾 22.16 GB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1574",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|1080p|BluRay|x264|DV|HDR",
+        "filename": "The Matrix 1999 1080p UHD BluRay DD7 1 DV HDR x264-HiDt.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n1080p",
+      "title": "Imdb top 263 movies hindi english gdrive\nThe.Matrix.1999.1080p.BrRip.x264.YIFY.mp4\n👤 2081 💾 1.86 GB ⚙️ 1337x\n🇬🇧 / 🇮🇳",
+      "url": "https://example.invalid/redacted/1575",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|1080p|BRRip|x264",
+        "filename": "The.Matrix.1999.1080p.BrRip.x264.YIFY.mp4"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n720p",
+      "title": "The Matrix (1999) 720p BrRip x264 - 700mb - YIFY\n👤 100 💾 703.69 MB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1576",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|720p|BRRip|x264",
+        "filename": "The.Matrix.1999.720p.BrRip.264.YIFY.mp4"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n360p",
+      "title": "The Matrix 1999 Reloaded 2003 Revolutions 2003 - threesixtyp\nThe Matrix M01 (1999 360p re-blurip).mp4\n👤 1 💾 479.57 MB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1577",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|360p",
+        "filename": "The Matrix M01 (1999 360p re-blurip).mp4"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio",
+      "title": "The 3 Stooges (Comprehensive Film Collection in MP4 format) [Lando18]\nThe 3 Stooges (short films)/Matri-phony.mp4\n👤 4 💾 168.57 MB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1578",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|951f89a0c4d126c2640557c66046e366ef89cea9",
+        "filename": "Matri-phony.mp4"
+      }
+    }
+  ],
+  "cacheMaxAge": 3600,
+  "staleRevalidate": 14400,
+  "staleError": 604800
+}

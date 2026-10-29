@@ -1,0 +1,60 @@
+{
+  "streams": [
+    {
+      "name": "[RD+] Torrentio\n4320p HDR",
+      "title": "The Dark Knight (2008) 4320p HDR Ai Upscale 5.1 + 2.0 RiffTrax MultiSubs -Mesc\n👤 1 💾 39.82 GB ⚙️ ThePirateBay\nMulti Subs",
+      "url": "https://example.invalid/redacted/1555",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4320p|HDR",
+        "filename": "The Dark Knight (2008) 4320p HDR Ai Upscale -Mesc.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n4k HDR",
+      "title": "The.Dark.Knight.2008.2160p.UHD.BluRay.x265.10bit.HDR.DTS-HD.MA.5\n👤 101 💾 21.57 GB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1556",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay|x265|10bit|HDR",
+        "filename": "The.Dark.Knight.2008.2160p.UHD.BluRay.X265-IAMABLE.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n4k",
+      "title": "The.Dark.Knight.2008.2160p.BluRay.REMUX.HEVC.DTS-HD.MA.5.1-FGT\n👤 105 💾 63.11 GB ⚙️ RARBG",
+      "url": "https://example.invalid/redacted/1557",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay REMUX|hevc",
+        "filename": "The.Dark.Knight.2008.2160p.BluRay.REMUX.HEVC.DTS-HD.MA.5.1-FGT.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n1080p DV | HDR",
+      "title": "The Dark Knight 2008 UHD BluRay 1080p TrueHD 5 1 DoVi HDR10 x265-SM737\n👤 5 💾 10.45 GB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1558",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|1080p|BluRay|x265|10bit|DV|HDR",
+        "filename": "The Dark Knight 2008 UHD BluRay 1080p TrueHD 5 1 DoVi HDR10 x265-SM737.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\nDVDRip",
+      "title": "Official IMDb Top 250 Movies Collection 6/17/2011\nBatman The Dark Knight [2008] dvd rip nlx.avi\n👤 2 💾 698.99 MB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1559",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|DVDRip",
+        "filename": "Batman The Dark Knight [2008] dvd rip nlx.avi"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio",
+      "title": "Science Fiction A & B Movies Collection\nThe_Dark.avi\n👤 3 💾 1.09 GB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1560",
+      "behaviorHints": {
+        "filename": "The_Dark.avi"
+      }
+    }
+  ],
+  "cacheMaxAge": 3600,
+  "staleRevalidate": 14400,
+  "staleError": 604800
+}

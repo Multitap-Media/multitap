@@ -1,0 +1,22 @@
+{
+  "streams": [
+    {
+      "name": "Easynews++\n1080p",
+      "description": "Game.of.Thrones.2011.S01E07.German.1080p.BluRay.x264-GTVG.mkv\n🕛 57m:47s\n📦 4.2 GB 📅 179d\n🌐 ger, eng ⭐",
+      "url": "https://example.invalid/redacted/1694",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Game.of.Thrones.2011.S01E07.German.1080p.BluRay.x264-GTVG.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "game.of.thrones.s05e01.multi.1080p.bluray.x264-venue.mkv\n🕛 52m:11s\n📦 4.0 GB 📅 77d\n🌐 fre, eng ⭐",
+      "url": "https://example.invalid/redacted/1695",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "game.of.thrones.s05e01.multi.1080p.bluray.x264-venue.mkv"
+      }
+    }
+  ]
+}

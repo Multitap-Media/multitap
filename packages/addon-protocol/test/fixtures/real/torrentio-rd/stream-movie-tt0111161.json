@@ -1,0 +1,60 @@
+{
+  "streams": [
+    {
+      "name": "[RD+] Torrentio\n4k DV",
+      "title": "The.Shawshank.Redemption.1994.UHD.BluRay.2160p.DTS-HD.MA.5.1.DV.HEVC.HYBRID.REMUX-FraMeSToR\n👤 101 💾 54.33 GB ⚙️ TorrentGalaxy",
+      "url": "https://example.invalid/redacted/1525",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay REMUX|hevc|DV",
+        "filename": "The.Shawshank.Redemption.1994.UHD.BluRay.2160p.DTS-HD.MA.5.1.DV.HEVC.HYBRID.REMUX-FraMeSToR.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n4k",
+      "title": "The.Shawshank.Redemption.1994.2160p.BluRay.REMUX.HEVC.DTS-HD.MA.5.1-FGT\n👤 56 💾 57.98 GB ⚙️ RARBG",
+      "url": "https://example.invalid/redacted/1526",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay REMUX|hevc",
+        "filename": "The.Shawshank.Redemption.1994.2160p.BluRay.REMUX.HEVC.DTS-HD.MA.5.1-FGT.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n1080p HDR",
+      "title": "The Shawshank Redemption (1994) (1080p DS4K BluRay x265 10-bit HDR AAC 5.1) [WeSLeY]\n👤 16 💾 6.81 GB ⚙️ 1337x",
+      "url": "https://example.invalid/redacted/1527",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|1080p|BluRay|x265|10bit|HDR",
+        "filename": "The Shawshank Redemption (1994) (1080p DS4K BluRay x265 10-bit HDR AAC 5.1) [WeSLeY].mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n1080p",
+      "title": "Imdb top 263 movies hindi english gdrive\nThe.Shawshank.Redemption.1994.1080p.x264.YIFY.mp4\n👤 2081 💾 1.6 GB ⚙️ 1337x\n🇬🇧 / 🇮🇳",
+      "url": "https://example.invalid/redacted/1528",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|1080p|x264",
+        "filename": "The.Shawshank.Redemption.1994.1080p.x264.YIFY.mp4"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n720p",
+      "title": "The Shawshank Redemption (1994) 720p BrRip x264 - YIFY\n👤 100 💾 848.96 MB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1529",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|720p|BRRip|x264",
+        "filename": "The Shawshank Redemption 1994.720p.BRRip.x264.YIFY.mp4"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio",
+      "title": "43 Stephen King Movies\nShawshank Redemption.avi\n👤 3 💾 700 MB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1530",
+      "behaviorHints": {
+        "filename": "Shawshank Redemption.avi"
+      }
+    }
+  ],
+  "cacheMaxAge": 3600,
+  "staleRevalidate": 14400,
+  "staleError": 604800
+}

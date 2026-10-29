@@ -1,0 +1,43 @@
+{
+  "streams": [
+    {
+      "name": "[RD+] Torrentio\n4k HDR",
+      "title": "Spiderman No Way Home 2021 Bluray 2160p AV1 10bit HDR AC3 5.1-UH\n👤 136 💾 6.19 GB ⚙️ 1337x",
+      "url": "https://example.invalid/redacted/1544",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay|10bit|HDR",
+        "filename": "Spiderman.No.Way.Home.2021.Bluray.2160p.AV1.10bit.AC3.5.1-UH.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n4k",
+      "title": "Spider-Man.No.Way.Home.2021.2160p.4K.BluRay.x265.10bit.AAC5.1-LAMA\n👤 510 💾 6.93 GB ⚙️ 1337x",
+      "url": "https://example.invalid/redacted/1545",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay|x265|10bit",
+        "filename": "Spider-Man.No.Way.Home.2021.2160p.4K.BluRay.x265.10bit.AAC5.1-LAMA.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n1080p HDR",
+      "title": "Spiderman No Way Home 2021 Bluray 1080p AV1 10bit HDR AC3 5.1-UH\n👤 400 💾 3.54 GB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1546",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|1080p|BluRay|10bit|HDR",
+        "filename": "Spiderman.No.Way.Home.2021.Bluray.1080p.AV1.10bit.AC3.5.1-UH.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n1080p",
+      "title": "Amazing Films 11 - Mp4 x264 AC3 1080p\nSM3 Spider Man No Way Home (2021) 1080p Surround.mp4\n👤 917 💾 3.55 GB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1547",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|1080p|x264",
+        "filename": "SM3 Spider Man No Way Home (2021) 1080p Surround.mp4"
+      }
+    }
+  ],
+  "cacheMaxAge": 3600,
+  "staleRevalidate": 14400,
+  "staleError": 604800
+}

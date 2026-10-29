@@ -1,0 +1,15 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    // Tests only need type checking. Build mode requires referenced projects to
+    // emit, so emit declarations to a throwaway directory instead of `noEmit`.
+    "rootDir": ".",
+    "emitDeclarationOnly": true,
+    "declarationMap": false,
+    "rewriteRelativeImportExtensions": false,
+    "outDir": "../node_modules/.cache/tsc-test",
+    "tsBuildInfoFile": "../node_modules/.cache/tsc-test/tsconfig.tsbuildinfo"
+  },
+  "include": ["."],
+  "references": [{ "path": ".." }, { "path": "../migrations" }]
+}

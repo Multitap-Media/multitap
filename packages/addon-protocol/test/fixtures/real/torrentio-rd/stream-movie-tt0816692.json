@@ -1,0 +1,61 @@
+{
+  "streams": [
+    {
+      "name": "[RD+] Torrentio\n4k DV | HDR10+",
+      "title": "Interstellar 2014 2160p PROPER IMAX REMUX DV HDR10+ TrueHD 7.1 Atmos-jennaortegaUHD\n👤 271 💾 95.63 GB ⚙️ TorrentGalaxy",
+      "url": "https://example.invalid/redacted/1538",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|10bit|DV|HDR10+",
+        "filename": "Interstellar.2014.2160p.PROPER.IMAX.REMUX.DV.HDR10+.TrueHD.7.1.Atmos-jennaortegaUHD.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n4k",
+      "title": "Interstellar.2014.UHD.BluRay.2160p.DTS-HD.MA.5.1.HEVC.REMUX-FraMeSToR\n👤 121 💾 65.74 GB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1539",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay REMUX|hevc",
+        "filename": "Interstellar.2014.UHD.BluRay.2160p.DTS-HD.MA.5.1.HEVC.REMUX-FraMeSToR.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n1080p DV | HDR",
+      "title": "Interstellar.2014.PROPER.IMAX.1080p.UHD.BluRay.x265.HDR.DV.DD+5.1.Dual.YG⭐\n👤 511 💾 4.21 GB ⚙️ TorrentGalaxy\nDual Audio / 🇪🇸",
+      "url": "https://example.invalid/redacted/1540",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|1080p|BluRay|x265|DV|HDR",
+        "filename": "Interstellar.2014.PROPER.IMAX.1080p.UHD.BluRay.x265.HDR.DV.DD+5.1.Dual.YG.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n1080p",
+      "title": "Imdb top 263 movies hindi english gdrive\nInterstellar.2014.2014.1080p.BluRay.x264.YIFY.mp4\n👤 2081 💾 2.26 GB ⚙️ 1337x\n🇬🇧 / 🇮🇳",
+      "url": "https://example.invalid/redacted/1541",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|1080p|BluRay|x264",
+        "filename": "Interstellar.2014.2014.1080p.BluRay.x264.YIFY.mp4"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\nBRRip",
+      "title": "Interstellar (2014) BR-Rip - x264 - [Tamil Dub] - (AAC 2.0) - 65…\n👤 155 💾 662.14 MB ⚙️ TorrentGalaxy\n🇬🇧 / 🇮🇳",
+      "url": "https://example.invalid/redacted/1542",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|BRRip|x264",
+        "filename": "Interstellar (2014) BR-Rip - x264 - [Tamil Dub] - (AAC 2.0) - 650MB - ESub.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio",
+      "title": "[ArabP2P.net][مكتبة الأفلام لـ رشدي اباظة Library Rushdi AbaZa][#121 فلم]\n5ol5al 7abiby.x264.Amira.mkv\n👤 4 💾 700 MB ⚙️ 1337x\n🇸🇦",
+      "url": "https://example.invalid/redacted/1543",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|x264",
+        "filename": "5ol5al 7abiby.x264.Amira.mkv"
+      }
+    }
+  ],
+  "cacheMaxAge": 3600,
+  "staleRevalidate": 14400,
+  "staleError": 604800
+}

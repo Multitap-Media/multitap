@@ -1,0 +1,49 @@
+{
+  "streams": [
+    {
+      "name": "Easynews++\n4K",
+      "description": "House.Of.The.Dragon.S01E08.2160p.OSN.WEB-DL.HEVC.10bit.DDP.5.1.Atmos.HDR10.MultiSubs-POWER.mkv\n🕛 1h:7m:29s\n📦 8.6 GB 📅 18d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1713",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "House.Of.The.Dragon.S01E08.2160p.OSN.WEB-DL.HEVC.10bit.DDP.5.1.Atmos.HDR10.MultiSubs-POWER.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n4K",
+      "description": "House.Of.The.Dragon.S01E06.2160p.OSN.WEB-DL.HEVC.10bit.DDP.5.1.Atmos.HDR10.MultiSubs-POWER.mkv\n🕛 1h:7m:25s\n📦 8.6 GB 📅 18d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1714",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "House.Of.The.Dragon.S01E06.2160p.OSN.WEB-DL.HEVC.10bit.DDP.5.1.Atmos.HDR10.MultiSubs-POWER.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "House.Of.The.Dragon.S01E03.1080p.OSN.WEB-DL.AVC.8bit.DDP.5.1.MultiSubs-POWER.mkv\n🕛 1h:0m:36s\n📦 2.7 GB 📅 18d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1715",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "House.Of.The.Dragon.S01E03.1080p.OSN.WEB-DL.AVC.8bit.DDP.5.1.MultiSubs-POWER.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "House of the Dragon S03E01 2026 1080p HMAX WEB-DL DDP5 1 H 265-TURG.mkv\n🕛 1h:5m:36s\n📦 1.8 GB 📅 84d\n🌐 ger, eng, tur ⭐",
+      "url": "https://example.invalid/redacted/1716",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "House of the Dragon S03E01 2026 1080p HMAX WEB-DL DDP5 1 H 265-TURG.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n640 x 360",
+      "description": "House.of.the.Dragon.S03E03.XviD-AFG.avi\n🕛 56m:19s\n📦 431.1 MB 📅 84d\n🌐 Unknown",
+      "url": "https://example.invalid/redacted/1717",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "House.of.the.Dragon.S03E03.XviD-AFG.avi"
+      }
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "streams": [
+    {
+      "name": "[RD+] Torrentio\n4k HDR",
+      "title": "Rick and Morty - S01 - 2160p HDR Ai Upscale 5.1 MKV -Mesc\nRick and Morty - S01E01 - Pilot - 2160p HDR Ai Upscale -Mesc.mkv\n👤 97 💾 1.25 GB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1600",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|44c66ba1650661cb337cbac4d850e02d34ded802",
+        "filename": "Rick and Morty - S01E01 - Pilot - 2160p HDR Ai Upscale -Mesc.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n4k",
+      "title": "Rick and Morty Season 1-4 Upscale 2160p x265 - Uncensored\nSeason 1/Rick and Morty - S01E01 - Pilot (4K Upscale x265 10bit EAC3 5.1 chowderskitche, CG1989).mkv\n👤 40 💾 2 GB ⚙️ 1337x",
+      "url": "https://example.invalid/redacted/1601",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|3c7b3848f2b973bf31fb944f91c726ac20d26261",
+        "filename": "Rick and Morty - S01E01 - Pilot (4K Upscale x265 10bit EAC3 5.1 chowderskitche, CG1989).mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n1080p",
+      "title": "Rick.and.Morty.S01.1080p.BluRay.x265-RARBG\nRick.and.Morty.S01E01.1080p.BluRay.x265-RARBG.mp4\n👤 738 💾 351.21 MB ⚙️ RARBG",
+      "url": "https://example.invalid/redacted/1602",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4b91c9289fd752522348d5a67a4e8157dd1b5df2",
+        "filename": "Rick.and.Morty.S01E01.1080p.BluRay.x265-RARBG.mp4"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n360p",
+      "title": "Rick And Morty Season 1 2 3 REPACK: Threesixtyp\nRick and Morty S01 (360p re-blurip)/Rick and Morty S01E01 Pilot.mp4\n👤 0 💾 49.75 MB ⚙️ MagnetDL",
+      "url": "https://example.invalid/redacted/1603",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|dc418de2f13c0f342c9ac71cb87499188748af5c",
+        "filename": "Rick and Morty S01E01 Pilot.mp4"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio",
+      "title": "Rick and Morty COMPLETE Season 1 2 3 4\nRick and Morty - Season 1/Rick and Morty - S01E01 - Pilot.mp4\n👤 26 💾 297.03 MB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1604",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|e388216d789fe8061dd9b63cd2389f9817996af8",
+        "filename": "Rick and Morty - S01E01 - Pilot.mp4"
+      }
+    }
+  ],
+  "cacheMaxAge": 3600,
+  "staleRevalidate": 14400,
+  "staleError": 604800
+}

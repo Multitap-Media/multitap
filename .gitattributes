@@ -1,0 +1,11 @@
+# LF everywhere, also in Windows checkouts (core.autocrlf would otherwise give
+# CRLF, which Prettier's check and the byte-for-byte api:check reject).
+* text=auto eol=lf
+
+# Generated from core; api:check compares them byte for byte
+packages/api/openapi.json text eol=lf
+packages/api/src/schema.d.ts text eol=lf
+
+# Playable test clip for core's fake engine (binary segments, LF playlist)
+packages/core/test/fixtures/playable-hls/*.bin binary
+packages/core/test/fixtures/playable-hls/*.m3u8 text eol=lf

@@ -1,0 +1,43 @@
+{
+  "streams": [
+    {
+      "name": "[RD+] Torrentio\n4k HDR",
+      "title": "Inception 2010 PROPER Bluray 2160p AV1 HDR10 EN/ITA/FR/ES/DE OPUS 5.1-UH [UserHEVC]\n👤 284 💾 8.91 GB ⚙️ 1337x\n🇬🇧 / 🇮🇹 / 🇪🇸 / 🇫🇷 / 🇩🇪",
+      "url": "https://example.invalid/redacted/1531",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay|10bit|HDR",
+        "filename": "Inception.2010.PROPER.Bluray.2160p.AV1.HDR10.OPUS.5.1-UH.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n4k",
+      "title": "Inception 2010 2160p BluRay\n👤 100 💾 6.64 GB ⚙️ YTS",
+      "url": "https://example.invalid/redacted/1532",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay|x265|10bit",
+        "filename": "Inception.2010.2160p.4K.BluRay.x265.10bit.AAC5.1-[YTS.MX].mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n1080p HDR",
+      "title": "Inception (2010) (1080p BluRay x265 HEVC 10bit HDR AAC 5.1 afm72) [QxR]\n👤 49 💾 5.7 GB ⚙️ 1337x",
+      "url": "https://example.invalid/redacted/1533",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|1080p|BluRay|hevc|10bit|HDR",
+        "filename": "Inception (2010) (1080p BluRay x265 HDR afm72).mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n720p",
+      "title": "Inception (2010) 720p - mkv - 1.0GB - YIFY\n👤 62 💾 1.07 GB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1534",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|720p|x264",
+        "filename": "Inception.2010.720p.x264.mkv"
+      }
+    }
+  ],
+  "cacheMaxAge": 3600,
+  "staleRevalidate": 14400,
+  "staleError": 604800
+}

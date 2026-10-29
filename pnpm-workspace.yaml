@@ -1,0 +1,16 @@
+packages:
+  - packages/*
+
+# Exact versions for every added dependency; Renovate keeps them current.
+saveExact: true
+
+# pnpm 12 blocks dependency build scripts unless listed here. better-sqlite3
+# ships prebuilt binaries, so its node-gyp fallback build is skipped.
+allowBuilds:
+  better-sqlite3: false
+
+# openapi-typescript 7.13 declares typescript ^5.x but works with 6.0, the newest
+# TypeScript that typescript-eslint supports. Drop this once it widens its range.
+peerDependencyRules:
+  allowedVersions:
+    openapi-typescript>typescript: '6'

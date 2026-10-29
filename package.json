@@ -1,0 +1,38 @@
+{
+  "name": "multitap",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.6.0",
+  "engines": {
+    "node": ">=26"
+  },
+  "scripts": {
+    "lint": "eslint . && prettier --check . && depcruise packages",
+    "format": "prettier --write .",
+    "typecheck": "tsc -b",
+    "build": "node scripts/build-dist.js",
+    "test": "vitest run",
+    "contract": "node scripts/contract.js",
+    "api:generate": "pnpm --filter @multitap/core openapi && pnpm --filter @multitap/api generate",
+    "api:check": "node scripts/api-check.js",
+    "api:diff": "node scripts/api-diff.js",
+    "api:mock": "pnpm dlx @stoplight/prism-cli@5.16.0 mock packages/api/openapi.json",
+    "docs:check": "node scripts/docs-check.js",
+    "secrets:scan": "node scripts/secrets-scan.js",
+    "secrets:install-hook": "git config core.hooksPath scripts/hooks",
+    "ci": "node scripts/ci.js",
+    "pack:check": "node scripts/pack-check.js"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.6.3",
+    "dependency-cruiser": "18.4.0",
+    "eslint": "10.11.0",
+    "eslint-config-prettier": "10.1.8",
+    "prettier": "3.9.9",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.70.1",
+    "vite": "8.3.1",
+    "vitest": "5.0.2"
+  }
+}

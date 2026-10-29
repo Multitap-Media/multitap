@@ -1,0 +1,49 @@
+{
+  "streams": [
+    {
+      "name": "Easynews++\n4K",
+      "description": "Breaking.Bad.S02E01.2160p.WEB-DL.5xRus.Ukr.Eng.TrollUHD-ULTRAHDCLUB.mkv\n🕛 47m:6s\n📦 34.7 GB 📅 1312d\n🌐 eng, rus, ukr ⭐",
+      "url": "https://example.invalid/redacted/1689",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Breaking.Bad.S02E01.2160p.WEB-DL.5xRus.Ukr.Eng.TrollUHD-ULTRAHDCLUB.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n4K",
+      "description": "Breaking.Bad.S02E02.German.Dubbed.DD51.DL.2160p.WebDL.x264-NIMA4K.mkv\n🕛 47m:52s\n📦 27.1 GB 📅 313d\n🌐 ger, eng ⭐",
+      "url": "https://example.invalid/redacted/1690",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Breaking.Bad.S02E02.German.Dubbed.DD51.DL.2160p.WebDL.x264-NIMA4K.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "Breaking.Bad.S01E01.1080p.BluRay.REMUX.Multi-Multi.AVC-PiR8.mkv\n🕛 58m:6s\n📦 12.4 GB 📅 1636d\n🌐 eng, fre, ger, spa ⭐",
+      "url": "https://example.invalid/redacted/1691",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Breaking.Bad.S01E01.1080p.BluRay.REMUX.Multi-Multi.AVC-PiR8.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "Breaking.Bad.S01E06.1080p.BluRay.REMUX.Multi-Multi.AVC-PiR8.mkv\n🕛 48m:4s\n📦 12.2 GB 📅 1636d\n🌐 eng, fre, ger, spa ⭐",
+      "url": "https://example.invalid/redacted/1692",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Breaking.Bad.S01E06.1080p.BluRay.REMUX.Multi-Multi.AVC-PiR8.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1920 x 1080",
+      "description": "Breaking.Bad.S1E01.Pilot.REMUX-FraMeSToR.mkv\n🕛 58m:6s\n📦 11.4 GB 📅 2412d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1693",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Breaking.Bad.S1E01.Pilot.REMUX-FraMeSToR.mkv"
+      }
+    }
+  ]
+}

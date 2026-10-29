@@ -1,0 +1,14 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    // Migrations are loaded as .ts by Node's type stripping and never compiled
+    // (src/db/index.ts). This project only type-checks them; build mode needs
+    // an emit, so declarations go to a throwaway directory.
+    "rootDir": ".",
+    "emitDeclarationOnly": true,
+    "declarationMap": false,
+    "outDir": "../node_modules/.cache/tsc-migrations",
+    "tsBuildInfoFile": "../node_modules/.cache/tsc-migrations/tsconfig.tsbuildinfo"
+  },
+  "include": ["."]
+}

@@ -1,0 +1,61 @@
+{
+  "_comment": "Synthetic, not captured: a MediaFusion-style debrid addon (catalog, meta, stream) with a watchlist that lists an account action as an item, and cached (⚡) and uncached (⏳) sources. Ids, names and URLs are made up; example.invalid never resolves.",
+  "manifest": {
+    "id": "test.synthetic.debrid",
+    "version": "1.0.0",
+    "name": "Synthetic Debrid",
+    "description": "Synthetic debrid addon for tests.",
+    "types": ["movie"],
+    "resources": [
+      { "name": "catalog", "types": ["movie"], "idPrefixes": ["dlsynthetic"] },
+      { "name": "meta", "types": ["movie"], "idPrefixes": ["dlsynthetic"] },
+      { "name": "stream", "types": ["movie"], "idPrefixes": ["dlsynthetic", "tt"] }
+    ],
+    "catalogs": [{ "type": "movie", "id": "synthetic_watchlist", "name": "Debrid watchlist" }]
+  },
+  "catalog": {
+    "metas": [
+      { "id": "dlsynthetic_9f2c", "type": "movie", "name": "🗑️💩 Delete all files" },
+      { "id": "dlsynthetic_51ab", "type": "movie", "name": "Big Buck Bunny" },
+      { "id": "dlsynthetic_77de", "type": "movie", "name": "Wipeout Information" }
+    ]
+  },
+  "meta": {
+    "meta": {
+      "id": "dlsynthetic_9f2c",
+      "type": "movie",
+      "name": "🗑️💩 Delete all files",
+      "description": "Deletes every file in the debrid account."
+    }
+  },
+  "deleteStreams": {
+    "streams": [
+      {
+        "name": "Synthetic RD ⚡️",
+        "description": "📂 Debrid account\n🗑️ Remove the files",
+        "url": "https://example.invalid/synthetic/delete-all"
+      }
+    ]
+  },
+  "movieStreams": {
+    "streams": [
+      {
+        "name": "Synthetic RD ⏳ 1080p",
+        "description": "Movie.2026.1080p.WEB-DL.H264-GRP.mkv\n💾 4.2 GB 👤 50",
+        "url": "https://example.invalid/synthetic/uncached",
+        "behaviorHints": { "filename": "Movie.2026.1080p.WEB-DL.H264-GRP.mkv" }
+      },
+      {
+        "name": "Synthetic RD ⚡️ 1080p",
+        "description": "Movie.2026.1080p.WEB-DL.H264-OTHER.mkv\n💾 4.0 GB 👤 12",
+        "url": "https://example.invalid/synthetic/cached",
+        "behaviorHints": { "filename": "Movie.2026.1080p.WEB-DL.H264-OTHER.mkv" }
+      },
+      {
+        "name": "[RD download] Synthetic\n1080p",
+        "title": "Movie.2026.1080p.BluRay.H264-THIRD.mkv\n👤 80 💾 6 GB ⚙️ Somewhere",
+        "url": "https://example.invalid/synthetic/torrentio-style-uncached"
+      }
+    ]
+  }
+}

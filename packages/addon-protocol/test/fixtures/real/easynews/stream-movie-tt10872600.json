@@ -1,0 +1,76 @@
+{
+  "streams": [
+    {
+      "name": "Easynews++\n4K",
+      "description": "Spider-Man.No.Way.Home.2021.IMAX.2160p.BCORE.WEB-DL.x265.10bit.HDR.DTS-HD.MA.TrueHD.7.1.Atmos-SWTYBLZ.mkv\n🕛 2h:28m:10s\n📦 87.1 GB 📅 980d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1648",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Spider-Man.No.Way.Home.2021.IMAX.2160p.BCORE.WEB-DL.x265.10bit.HDR.DTS-HD.MA.TrueHD.7.1.Atmos-SWTYBLZ.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n4K",
+      "description": "Spider-Man.No.Way.Home.2021.IMAX.2160p.BCORE.WEB-DL.TrueHD.7.1.Atmos.HDR.H.265-SHIRT.mkv\n🕛 2h:28m:10s\n📦 83.1 GB 📅 1350d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1649",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Spider-Man.No.Way.Home.2021.IMAX.2160p.BCORE.WEB-DL.TrueHD.7.1.Atmos.HDR.H.265-SHIRT.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n3840 x 2160",
+      "description": "Spider-Man No Way Home (2021).mkv\n🕛 2h:28m:9s\n📦 2.1 GB 📅 156d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1650",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Spider-Man No Way Home (2021).mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "Spider-Man.No.Way.Home.2021.Hybrid.1080p.Remux.AVC.TrueHD.Atmos.7.1-playBD.mkv\n🕛 2h:28m:9s\n📦 28.0 GB 📅 1659d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1651",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Spider-Man.No.Way.Home.2021.Hybrid.1080p.Remux.AVC.TrueHD.Atmos.7.1-playBD.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "Spider-Man.No.Way.Home.2021.BluRay.1080p.TrueHD.Atmos.7.1.AVC.HYBRID.REMUX-FraMeSToR.mkv\n🕛 2h:28m:9s\n📦 28.0 GB 📅 642d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1652",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Spider-Man.No.Way.Home.2021.BluRay.1080p.TrueHD.Atmos.7.1.AVC.HYBRID.REMUX-FraMeSToR.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n3840 x 1080",
+      "description": "Spider-Man_ No Way Home (2021) [3D Full-SBS 3840x1080 x265 5.1] - B3holDer.mkv\n🕛 2h:28m:6s\n📦 6.1 GB 📅 1097d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1653",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Spider-Man_ No Way Home (2021) [3D Full-SBS 3840x1080 x265 5.1] - B3holDer.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n720p",
+      "description": "Spider-Man.No.Way.Home.2021.PLDUB.DUAL.720p.BluRay.x264-PLHD.mkv\n🕛 2h:28m:9s\n📦 7.7 GB 📅 1623d\n🌐 pol, eng ⭐",
+      "url": "https://example.invalid/redacted/1654",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Spider-Man.No.Way.Home.2021.PLDUB.DUAL.720p.BluRay.x264-PLHD.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n720p",
+      "description": "Spider-man.No.Way.Home.2021.720p.BluRay.DD5.1.x264-NTb.mkv\n🕛 2h:28m:9s\n📦 4.6 GB 📅 899d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1655",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Spider-man.No.Way.Home.2021.720p.BluRay.DD5.1.x264-NTb.mkv"
+      }
+    }
+  ]
+}

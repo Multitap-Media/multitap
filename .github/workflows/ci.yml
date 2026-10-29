@@ -1,0 +1,93 @@
+# `pnpm run ci` on Linux and Windows, and the Schemathesis contract run on
+# Linux. Actions are pinned by commit; Renovate keeps them current.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Pinned tool releases, checked against their published SHA-256 sums.
+  BETTERLEAKS_VERSION: 2.0.0-rc.2
+  BETTERLEAKS_SHA256_LINUX: 8f622e1fc93d06c7ecd2250e8d5d1cc323f379b1b0995364f973da476331b918
+  BETTERLEAKS_SHA256_WINDOWS: bf413ada5c347bc4ff79724dc45703c5950a3e7f1eec397fb9d09db8415dc8a3
+  OASDIFF_VERSION: 1.34.1
+  OASDIFF_SHA256_LINUX: 75775f65b0adebd26a8e013af51a799342dfdc6262d89efa9e3b7bdf89657d90
+  OASDIFF_SHA256_WINDOWS: 15e6f32ece94244534a61ce4fb1d60912e51e67e363a05bb6561d89b28df73bb
+  SCHEMATHESIS_VERSION: 4.28.0
+
+jobs:
+  ci:
+    name: ci (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Full history and tags: api:diff compares against the last v* tag,
+          # and the secrets scan reads the whole history.
+          fetch-depth: 0
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      # On PATH, so api:diff and the secrets scan run instead of being skipped.
+      - name: Install oasdiff and betterleaks (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          bin="$RUNNER_TEMP/bin"
+          mkdir -p "$bin" && cd "$RUNNER_TEMP"
+          curl -fsSLo oasdiff.tar.gz "https://github.com/oasdiff/oasdiff/releases/download/v${OASDIFF_VERSION}/oasdiff_${OASDIFF_VERSION}_linux_amd64.tar.gz"
+          echo "${OASDIFF_SHA256_LINUX}  oasdiff.tar.gz" | sha256sum -c -
+          mkdir oasdiff && tar -xzf oasdiff.tar.gz -C oasdiff
+          find oasdiff -type f -name oasdiff -exec cp {} "$bin/" \;
+          curl -fsSLo betterleaks.tar.gz "https://github.com/betterleaks/betterleaks/releases/download/v${BETTERLEAKS_VERSION}/betterleaks_${BETTERLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${BETTERLEAKS_SHA256_LINUX}  betterleaks.tar.gz" | sha256sum -c -
+          mkdir betterleaks && tar -xzf betterleaks.tar.gz -C betterleaks
+          find betterleaks -type f -name betterleaks -exec cp {} "$bin/" \;
+          chmod 755 "$bin"/*
+          echo "$bin" >> "$GITHUB_PATH"
+      - name: Install oasdiff and betterleaks (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          bin="$RUNNER_TEMP/bin"
+          mkdir -p "$bin" && cd "$RUNNER_TEMP"
+          curl -fsSLo oasdiff.tar.gz "https://github.com/oasdiff/oasdiff/releases/download/v${OASDIFF_VERSION}/oasdiff_${OASDIFF_VERSION}_windows_amd64.tar.gz"
+          echo "${OASDIFF_SHA256_WINDOWS}  oasdiff.tar.gz" | sha256sum -c -
+          mkdir oasdiff && tar -xzf oasdiff.tar.gz -C oasdiff
+          find oasdiff -type f -name oasdiff.exe -exec cp {} "$bin/" \;
+          curl -fsSLo betterleaks.zip "https://github.com/betterleaks/betterleaks/releases/download/v${BETTERLEAKS_VERSION}/betterleaks_${BETTERLEAKS_VERSION}_windows_x64.zip"
+          echo "${BETTERLEAKS_SHA256_WINDOWS}  betterleaks.zip" | sha256sum -c -
+          mkdir betterleaks && unzip -q betterleaks.zip -d betterleaks
+          find betterleaks -type f -name betterleaks.exe -exec cp {} "$bin/" \;
+          cygpath -w "$bin" >> "$GITHUB_PATH"
+      - run: pnpm install --frozen-lockfile
+      # The contract run is its own job; on Windows it would need WSL.
+      - run: pnpm run ci --no-contract
+
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+      - run: uv tool install "schemathesis==${SCHEMATHESIS_VERSION}"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run contract

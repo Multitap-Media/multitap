@@ -1,0 +1,138 @@
+<!doctype html>
+<!--
+  Multitap's throwaway /dev page (phase 1 step 10). Served only with NODE_ENV=development.
+  Walks catalogs → a catalog → meta → the source list through /v1 with an API key,
+  then plays a source through a playback session and media tokens with hls.js
+  (served from node_modules at /dev/hls.mjs, development only).
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <title>Multitap /dev</title>
+    <link rel="stylesheet" href="/dev/dev.css" />
+    <script type="module" src="/dev/dev.js"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Multitap <code>/dev</code></h1>
+      <form id="key-form">
+        <label>API key <input id="key" type="password" autocomplete="off" size="40" /></label>
+        <button type="submit">Use key</button>
+        <button type="button" id="forget">Forget</button>
+      </form>
+      <p id="error" class="error" hidden></p>
+    </header>
+
+    <main>
+      <section id="catalogs-section">
+        <h2>Catalogs <button type="button" id="reload-catalogs">Reload</button></h2>
+        <ul id="catalogs" class="list"></ul>
+      </section>
+
+      <section id="catalog-section" hidden>
+        <h2 id="catalog-title">Catalog</h2>
+        <form id="extras"></form>
+        <div id="catalog-status"></div>
+        <ul id="metas" class="list"></ul>
+      </section>
+
+      <section id="meta-section" hidden>
+        <h2 id="meta-title">Meta</h2>
+        <div id="meta-status"></div>
+        <p id="meta-info"></p>
+        <button type="button" id="movie-streams" hidden>Sources</button>
+        <ul id="videos" class="list"></ul>
+      </section>
+
+      <section id="streams-section" hidden>
+        <h2 id="streams-title">Sources</h2>
+        <form id="stream-options">
+          <label
+            >Order
+            <select id="sort">
+              <option value="addon">addon</option>
+              <option value="rank">rank</option>
+            </select>
+          </label>
+          <label
+            >highRes
+            <select id="high-res">
+              <option value="">(default)</option>
+              <option value="off">off</option>
+              <option value="prepareOnly">prepareOnly</option>
+              <option value="on">on</option>
+            </select>
+          </label>
+          <label>Engine <input id="engine" placeholder="(default)" size="12" /></label>
+          <label
+            >maxHeight
+            <input id="max-height" type="number" min="144" max="2160" placeholder="(engine)"
+          /></label>
+          <button type="submit">Load</button>
+          <button type="button" id="play-auto">Play (auto-select)</button>
+        </form>
+        <div id="streams-status"></div>
+        <table id="candidates">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Addon</th>
+              <th>Kind</th>
+              <th>Playable</th>
+              <th>Score</th>
+              <th>Name / title</th>
+              <th>Parsed</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <section id="player-section" hidden>
+        <h2>Player <span id="session-id" class="muted"></span></h2>
+        <p class="muted">
+          This page is on the API port and media is on the media port, so playback is cross-origin:
+          Multitap's <code>MULTITAP_CORS_ORIGINS</code> must include this page's origin (for example
+          <code>MULTITAP_CORS_ORIGINS=http://localhost:8080</code>), and media comes from
+          <code>MULTITAP_MEDIA_PUBLIC_BASE</code> when set, else from
+          <code>MULTITAP_MEDIA_PORT</code> on this host.
+        </p>
+        <p id="cors-note" class="error" hidden></p>
+        <p id="session-status" class="status-line"></p>
+        <div class="controls">
+          <button type="button" id="second-toggle">Add second player</button>
+          <button type="button" id="revoke-all">Revoke all tokens</button>
+          <button type="button" id="viewers-refresh">Viewers</button>
+          <button type="button" id="release">Release session</button>
+        </div>
+        <div class="players">
+          <div id="player-1" class="player">
+            <h3>Player 1 <span id="subject-1" class="muted"></span></h3>
+            <video id="video-1" controls crossorigin="anonymous" playsinline></video>
+            <div class="controls">
+              <button type="button" id="revoke-1">Revoke this subject</button>
+              <button type="button" id="remint-1">New token</button>
+            </div>
+            <p id="player-status-1" class="muted"></p>
+          </div>
+          <div id="player-2" class="player" hidden>
+            <h3>Player 2 <span id="subject-2" class="muted"></span></h3>
+            <video id="video-2" controls crossorigin="anonymous" playsinline></video>
+            <div class="controls">
+              <button type="button" id="revoke-2">Revoke this subject</button>
+              <button type="button" id="remint-2">New token</button>
+            </div>
+            <p id="player-status-2" class="muted"></p>
+          </div>
+        </div>
+        <h3>Viewers</h3>
+        <ul id="viewers" class="list"></ul>
+        <h3>Events</h3>
+        <ol id="event-log" class="list"></ol>
+      </section>
+    </main>
+  </body>
+</html>

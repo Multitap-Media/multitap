@@ -1,0 +1,25 @@
+{
+  "streams": [
+    {
+      "name": "[RD+] Torrentio\n720p",
+      "title": "Breaking Bad Season 1 Complete 720p.BRrip.Sujaidr (pimprg)\nBreaking Bad s01e01 720p.BRrip.Sujaidr.mkv\n👤 270 💾 464.62 MB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1581",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|72a391645b5ea76dd6f5ade169ffda943aa81649",
+        "filename": "Breaking Bad s01e01 720p.BRrip.Sujaidr.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n360p",
+      "title": "Breaking Bad Season 1 2 3 4 5: Threesixtyp\nBreaking Bad S01 (360p re-blurip)/Breaking Bad S01E01 Pilot.mp4\n👤 9 💾 213.16 MB ⚙️ MagnetDL",
+      "url": "https://example.invalid/redacted/1582",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|44b8d656eb545ba744e066c2c3b77a5dd8c4301e",
+        "filename": "Breaking Bad S01E01 Pilot.mp4"
+      }
+    }
+  ],
+  "cacheMaxAge": 3600,
+  "staleRevalidate": 14400,
+  "staleError": 604800
+}

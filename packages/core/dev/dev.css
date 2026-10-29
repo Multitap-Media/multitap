@@ -1,0 +1,122 @@
+body {
+  font:
+    14px/1.4 system-ui,
+    sans-serif;
+  margin: 0 1rem 2rem;
+  color: #222;
+}
+h1,
+h2 {
+  margin: 1rem 0 0.5rem;
+}
+h2 {
+  font-size: 1.1rem;
+}
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  margin: 0.5rem 0;
+}
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 20rem;
+  overflow: auto;
+  border: 1px solid #ddd;
+}
+.list li {
+  padding: 0.2rem 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+.list button {
+  all: unset;
+  cursor: pointer;
+  color: #0645ad;
+}
+.list button:hover {
+  text-decoration: underline;
+}
+.muted {
+  color: #777;
+}
+.error {
+  color: #b00020;
+  white-space: pre-wrap;
+}
+.status {
+  display: inline-block;
+  margin: 0 0.5rem 0.25rem 0;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  background: #eee;
+}
+.badge {
+  display: inline-block;
+  padding: 0 0.35rem;
+  border-radius: 3px;
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+.ok,
+.playable {
+  background: #d8f3dc;
+}
+.bad,
+.unplayable {
+  background: #ffd6d6;
+}
+.prepared {
+  background: #fff3bf;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 0.2rem 0.4rem;
+  text-align: left;
+  vertical-align: top;
+}
+td.title {
+  white-space: pre-wrap;
+  max-width: 30rem;
+}
+td.parsed {
+  font-family: ui-monospace, monospace;
+  font-size: 0.85em;
+}
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+.status-line {
+  font-family: ui-monospace, monospace;
+  padding: 0.3rem 0.5rem;
+  background: #f4f4f4;
+  border: 1px solid #ddd;
+}
+.players {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.player {
+  flex: 1 1 24rem;
+  max-width: 48rem;
+}
+.player video {
+  width: 100%;
+  background: #000;
+}
+#event-log {
+  font-family: ui-monospace, monospace;
+  font-size: 0.85em;
+}

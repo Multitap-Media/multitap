@@ -1,0 +1,40 @@
+{
+  "streams": [
+    {
+      "name": "Easynews++\n4K",
+      "description": "ONE.PIECE.2023.S01E01.German.ML.EAC3.2160p.DV.HDR.NF.WEB.H265-ZeroTwo.mkv\n🕛 1h:4m:26s\n📦 9.7 GB 📅 1107d\n🌐 ger, eng, jpn ⭐",
+      "url": "https://example.invalid/redacted/1718",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "ONE.PIECE.2023.S01E01.German.ML.EAC3.2160p.DV.HDR.NF.WEB.H265-ZeroTwo.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n4K",
+      "description": "one.piece.2023.s01e01.italian.multi.dv.2160p.web.h265-ntropic.mkv\n🕛 1h:5m:36s\n📦 9.6 GB 📅 175d\n🌐 ita, eng ⭐",
+      "url": "https://example.invalid/redacted/1719",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "one.piece.2023.s01e01.italian.multi.dv.2160p.web.h265-ntropic.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "One Piece (1999) - S21E138 - A Faint Memory! Luffy and Red-Haireds Daughter Uta! [v2 Bluray-1080p Remux v2][8bit][AVC][TrueHD 2.0][EN+JA]-ZR.mkv\n🕛 23m:55s\n📦 6.7 GB 📅 630d\n🌐 eng, jpn ⭐",
+      "url": "https://example.invalid/redacted/1720",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "One Piece (1999) - S21E138 - A Faint Memory! Luffy and Red-Haireds Daughter Uta! [v2 Bluray-1080p Remux v2][8bit][AVC][TrueHD 2.0][EN+JA]-ZR.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "One Piece (1999) - S21E139 - A Pledge for the New Genesis! Luffy and Uta! [v2 Bluray-1080p Remux v2][8bit][AVC][TrueHD 2.0][EN+JA]-ZR.mkv\n🕛 23m:55s\n📦 6.7 GB 📅 630d\n🌐 eng, jpn ⭐",
+      "url": "https://example.invalid/redacted/1721",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "One Piece (1999) - S21E139 - A Pledge for the New Genesis! Luffy and Uta! [v2 Bluray-1080p Remux v2][8bit][AVC][TrueHD 2.0][EN+JA]-ZR.mkv"
+      }
+    }
+  ]
+}

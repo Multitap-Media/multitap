@@ -1,0 +1,265 @@
+{
+  "streams": [
+    {
+      "name": "Torrentio\n4k HDR",
+      "title": "Inception 2010 PROPER Bluray 2160p AV1 HDR10 EN/ITA/FR/ES/DE OPUS 5.1-UH [UserHEVC]\n👤 284 💾 8.91 GB ⚙️ 1337x\n🇬🇧 / 🇮🇹 / 🇪🇸 / 🇫🇷 / 🇩🇪",
+      "infoHash": "2849211f150e966ef7924f43aec22727a644e10d",
+      "fileIdx": 0,
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay|10bit|HDR",
+        "filename": "Inception.2010.PROPER.Bluray.2160p.AV1.HDR10.OPUS.5.1-UH.mkv"
+      }
+    },
+    {
+      "name": "Torrentio\n4k DV | HDR",
+      "title": "Inception 2010 UHD BluRay 2160p HDR10 DV HEVC DTS-HD MA 5.1 x265-E\n👤 53 💾 25.23 GB ⚙️ 1337x",
+      "infoHash": "fa4a45aa220a6b0343817965a47d85f2d192e9b4",
+      "fileIdx": 0,
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay|hevc|10bit|DV|HDR",
+        "filename": "Inception (2010).mkv"
+      }
+    },
+    {
+      "name": "Torrentio\n4k HDR",
+      "title": "Inception (2010) (2160p BluRay x265 HEVC 10bit HDR AAC 5.1 Tigole) [QxR]\n👤 47 💾 17.23 GB ⚙️ 1337x",
+      "infoHash": "c560112bc616685f3fac460ee3c848813c71489f",
+      "fileIdx": 0,
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay|hevc|10bit|HDR",
+        "filename": "Inception (2010) (2160p x265 10bit HDR Tigole).mkv"
+      }
+    },
+    {
+      "name": "Torrentio\n4k DV | HDR",
+      "title": "Počátek / Inception (2010)(CZ/EN)[2160p][HDR/DV][HEVC]\n👤 45 💾 6.39 GB ⚙️ EXT\n🇬🇧 / 🇨🇿",
+      "infoHash": "6c8d49683ddaac279d1a96eb1390b108db3c0f2b",
+      "fileIdx": 0,
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|hevc|DV|HDR",
+        "filename": "Počátek (2010) UHDRDV cz en.mkv"
+      }
+    },
+    {
+      "name": "Torrentio\n4k DV",
+      "title": "Inception 2010 UHD BluRay 2160p DTS-HD MA 5 1 DV HEVC HYBRID REMUX-FraMeSToR\n👤 43 💾 66.25 GB ⚙️ 1337x",
+      "infoHash": "11f7c6833b905c21985a4ba0912d72a175f505b1",
+      "fileIdx": 0,
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay REMUX|hevc|DV",
+        "filename": "Inception.2010.UHD.BluRay.2160p.DTS-HD.MA.5.1.DV.HEVC.HYBRID.REMUX-FraMeSToR.mkv"
+      }
+    },
+    {
+      "name": "Torrentio\n4k DV | HDR",
+      "title": "Inception.2010.2160p.MA.WEB-DL.DTS-HD.MA.5.1.DV.HDR.H.265-TheFarm\n👤 42 💾 29.35 GB ⚙️ ThePirateBay\n🇬🇧 / 🇯🇵 / 🇷🇺 / 🇵🇹 / 🇪🇸 / 🇰🇷 / 🇨🇳 / 🇫🇷 / 🇩🇪 / 🇳🇱 / 🇵🇱 / 🇨🇿 / 🇭🇺 / 🇧🇬 / 🇺🇦 / 🇩🇰 / 🇸🇪 / 🇳🇴 / 🇹🇷 / 🇸🇦 / 🇮🇩 / 🇲🇾 / 🇹🇭",
+      "infoHash": "3efdb7d94fa293e28b8d9c2c24c0ca983621364f",
+      "fileIdx": 0,
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|WEB-DL|h265|DV|HDR",
+        "filename": "Inception.2010.2160p.MA.WEB-DL.DTS-HD.MA.5.1.DV.HDR.H.265-TheFarm.mkv"
+      }
+    },
+    {
+      "name": "Torrentio\n4k HDR",
+      "title": "Начало / Inception (2010) BDRip 2160p от VoX | 4K | HDR | D P A L1\n👤 16 💾 37.79 GB ⚙️ Rutor\n🇬🇧 / 🇷🇺 / 🇺🇦",
+      "infoHash": "a0cc8f61cbef63df1a42d2ed2485180f330f1ded",
+      "fileIdx": 0,
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BDRip|x265|HDR",
+        "filename": "Inception.2010.2160p.UHD.BDRip.HDR.x265.DD+5.1-VoX.mkv"
+      },
+      "sources": [
+        "tracker:http://retracker.local/announce",
+        "tracker:udp://opentor.org:2710",
+        "dht:a0cc8f61cbef63df1a42d2ed2485180f330f1ded",
+        "tracker:udp://tracker.opentrackr.org:1337/announce",
+        "tracker:udp://open.stealth.si:80/announce",
+        "tracker:udp://tracker.torrent.eu.org:451/announce",
+        "tracker:udp://open.demonii.com:1337/announce",
+        "tracker:udp://tracker.qu.ax:6969/announce",
+        "tracker:udp://tracker.nyaa.vc:6969/announce",
+        "tracker:udp://tracker.corpscorp.online:80/announce",
+        "tracker:udp://explodie.org:6969/announce",
+        "tracker:udp://tracker.bittor.pw:1337/announce",
+        "tracker:udp://tracker-udp.gbitt.info:80/announce",
+        "tracker:udp://retracker01-msk-virt.corbina.net:80/announce",
+        "tracker:udp://tracker.ducks.party:1984/announce",
+        "tracker:http://tracker2.dler.org:80/announce",
+        "tracker:udp://tracker.dler.org:6969/announce",
+        "tracker:http://tracker.dler.com:6969/announce",
+        "tracker:http://tracker.renfei.net:8080/announce",
+        "tracker:udp://tracker.peerfect.org:6969/announce",
+        "tracker:udp://tracker.opentrackr.com:6969/announce",
+        "tracker:udp://tracker.ilibr.org:6969/announce",
+        "tracker:udp://mail.segso.net:6969/announce",
+        "tracker:udp://opentor.net:6969",
+        "tracker:http://bt.t-ru.org/ann?magnet",
+        "tracker:http://bt2.t-ru.org/ann?magnet",
+        "tracker:http://bt3.t-ru.org/ann?magnet",
+        "tracker:http://bt4.t-ru.org/ann?magnet"
+      ]
+    },
+    {
+      "name": "Torrentio\n4k HDR",
+      "title": "Inception (2010) AC3 5.1 ITA.ENG 2160p H265 HDR10 sub NUita.eng Sp33dy94 MIRCrew\n👤 14 💾 3.77 GB ⚙️ ilCorSaRoNeRo\n🇬🇧 / 🇮🇹",
+      "infoHash": "b2f9bafe72d33707bf9e6b7c5e018cefbb54ef50",
+      "fileIdx": 0,
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|h265|10bit|HDR",
+        "filename": "Inception (2010) AC3 5.1 ITA.ENG 2160p H265 HDR10 sub NUita.eng Sp33dy94-MIRCrew.mkv"
+      }
+    },
+    {
+      "name": "Torrentio\n4k DV | HDR",
+      "title": "Начало / Inception (2010) UHD BDRemux 2160p | 4K | HDR | Dolby Vision Profile 8 | D P2 A | Лицензия\n👤 13 💾 86.15 GB ⚙️ Rutor\n🇬🇧 / 🇷🇺 / 🇺🇦",
+      "infoHash": "10c93a2ad69b9c576a5de6f9495b266fc992c889",
+      "fileIdx": 0,
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay REMUX|DV|HDR",
+        "filename": "Inception.2010.2160p.UHD.BDRemux.DTS-HD.MA.5.1.HYBRID.DoVi.P8.by.DVT.mkv"
+      },
+      "sources": [
+        "tracker:udp://opentor.net:6969",
+        "tracker:udp://opentor.org:2710",
+        "tracker:http://retracker.local/announce",
+        "dht:10c93a2ad69b9c576a5de6f9495b266fc992c889",
+        "tracker:udp://tracker.opentrackr.org:1337/announce",
+        "tracker:udp://open.stealth.si:80/announce",
+        "tracker:udp://tracker.torrent.eu.org:451/announce",
+        "tracker:udp://open.demonii.com:1337/announce",
+        "tracker:udp://tracker.qu.ax:6969/announce",
+        "tracker:udp://tracker.nyaa.vc:6969/announce",
+        "tracker:udp://tracker.corpscorp.online:80/announce",
+        "tracker:udp://explodie.org:6969/announce",
+        "tracker:udp://tracker.bittor.pw:1337/announce",
+        "tracker:udp://tracker-udp.gbitt.info:80/announce",
+        "tracker:udp://retracker01-msk-virt.corbina.net:80/announce",
+        "tracker:udp://tracker.ducks.party:1984/announce",
+        "tracker:http://tracker2.dler.org:80/announce",
+        "tracker:udp://tracker.dler.org:6969/announce",
+        "tracker:http://tracker.dler.com:6969/announce",
+        "tracker:http://tracker.renfei.net:8080/announce",
+        "tracker:udp://tracker.peerfect.org:6969/announce",
+        "tracker:udp://tracker.opentrackr.com:6969/announce",
+        "tracker:udp://tracker.ilibr.org:6969/announce",
+        "tracker:udp://mail.segso.net:6969/announce",
+        "tracker:http://bt.t-ru.org/ann?magnet",
+        "tracker:http://bt2.t-ru.org/ann?magnet",
+        "tracker:http://bt3.t-ru.org/ann?magnet",
+        "tracker:http://bt4.t-ru.org/ann?magnet"
+      ]
+    },
+    {
+      "name": "Torrentio\n4k HDR",
+      "title": "Inception.2010.2160p.UHD.BluRay.x265.10bit.HDR.DTS-HD.MA.5.1-TERMiNAL\n👤 11 💾 23.97 GB ⚙️ RARBG",
+      "infoHash": "17e4c600c0ba13e18df6d4881016434c6bf2d107",
+      "fileIdx": 2,
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay|x265|10bit|HDR",
+        "filename": "inception.2010.2160p.uhd.bluray.x265-terminal.mkv"
+      }
+    },
+    {
+      "name": "Torrentio\n4k DV | HDR10+",
+      "title": "Inception 2010 SPECIAL HYBRID 2160p REMUX DV HDR10+ DTS-HD MA 5.1-jennaortegaUHD\n👤 7 💾 67.88 GB ⚙️ TorrentGalaxy",
+      "infoHash": "7296f88bae7c73846734324054adf7b38a626457",
+      "fileIdx": 0,
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|hevc|10bit|DV|HDR10+",
+        "filename": "Inception.2010.INTERNAL.SPECIAL.2160p.REMUX.HEVC.DV.HDR10+.DTS-HD.MA.5.1-jennaortegaUHD.mkv"
+      }
+    },
+    {
+      "name": "Torrentio\n4k HDR",
+      "title": "Inception 2010 ITA ENG UHDrip HDR HEVC 2160p mkv\n👤 6 💾 21.21 GB ⚙️ TorrentGalaxy\n🇬🇧 / 🇮🇹",
+      "infoHash": "0bf43fe14791d79209ef02e53514f084222ba440",
+      "fileIdx": 0,
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|UHDRip|hevc|HDR",
+        "filename": "Inception.2010.ITA.ENG.UHDrip.HDR.HEVC.2160p.mkv"
+      }
+    },
+    {
+      "name": "Torrentio\n4k HDR",
+      "title": "Inception.2010.MULTi.VFF.2160p.BluRay.HDR10.HE.AAC.5.1.x265-QTZ\n👤 5 💾 4.36 GB ⚙️ Torrent9\nMulti Audio / 🇫🇷",
+      "infoHash": "ca7c2e3866eece3378b3cbefab30b6298a4fd0bf",
+      "fileIdx": 0,
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay|x265|10bit|HDR",
+        "filename": "Inception.2010.MULTi.VFF.2160p.BluRay.HDR10.HE.AAC.5.1.x265- QTZ.mkv"
+      }
+    },
+    {
+      "name": "Torrentio\n4k DV | HDR",
+      "title": "Inception.2010.2160p.BluRay.DV.HDR.ENG.LATINO.CASTELLANO.HINDI.ITA.GER.FRE.CHI.RUS.UKR.THAI.H265.MP4-BEN.THE.MEN\n👤 5 💾 69.66 GB ⚙️ TorrentGalaxy\n🇬🇧 / 🇷🇺 / 🇮🇹 / 🇪🇸 / 🇲🇽 / 🇨🇳 / 🇫🇷 / 🇩🇪 / 🇮🇳 / 🇺🇦 / 🇹🇭",
+      "infoHash": "3e979c3e183261623f9f390b8355ca109dcf0825",
+      "fileIdx": 3,
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay|h265|DV|HDR",
+        "filename": "Inception.2010.2160p.BluRay.DV.HDR.ENG.LATINO.CASTELLANO.HINDI.ITA.GER.FRE.CHI.RUS.UKR.THAI.H265.MP4-BEN.THE.MEN.mp4"
+      }
+    },
+    {
+      "name": "Torrentio\n4k DV | HDR",
+      "title": "Inception.2010.4K.HDR.DV.2160p.BDRemux Ita Eng x265-NAHOM\n👤 5 💾 62.59 GB ⚙️ ilCorSaRoNeRo\n🇬🇧 / 🇮🇹",
+      "infoHash": "e10c8eb30c64876fb82a9a49e2b9186e42191fe2",
+      "fileIdx": 2,
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay REMUX|x265|DV|HDR",
+        "filename": "Inception.2010.4K.HDR.DV.2160p.BDRemux Ita Eng x265-NAHOM.mkv"
+      }
+    },
+    {
+      "name": "Torrentio\n4k",
+      "title": "Inception 2010 2160p BluRay\n👤 100 💾 6.64 GB ⚙️ YTS",
+      "infoHash": "43e3691dc6f4172841e32b25b349e2b7a980b9c5",
+      "fileIdx": 0,
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay|x265|10bit",
+        "filename": "Inception.2010.2160p.4K.BluRay.x265.10bit.AAC5.1-[YTS.MX].mkv"
+      }
+    },
+    {
+      "name": "Torrentio\n4k",
+      "title": "Inception.2010.2160p.BluRay.REMUX.HEVC.DTS-HD.MA.5.1-FGT\n👤 73 💾 79.57 GB ⚙️ RARBG",
+      "infoHash": "ae3cd89c76804abfeb8977318afdc240de2ef246",
+      "fileIdx": 0,
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay REMUX|hevc",
+        "filename": "Inception.2010.2160p.BluRay.REMUX.HEVC.DTS-HD.MA.5.1-FGT.mkv"
+      }
+    },
+    {
+      "name": "Torrentio\n4k",
+      "title": "Inception.2010.2160p.BluRay.HEVC.DTS-HD.MA.5.1-COASTER\n👤 72 💾 86.12 GB ⚙️ RARBG",
+      "infoHash": "a75b82ad8477187109f80e7d3fee845923b78d7c",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay|hevc"
+      }
+    },
+    {
+      "name": "Torrentio\n4k",
+      "title": "Inception - Directors Cut 2010 Eng Ita Multi-Subs 4K 1080p\n👤 17 💾 5 GB ⚙️ ThePirateBay\nMulti Subs / 🇬🇧 / 🇮🇹",
+      "infoHash": "284499354b9280da45495cb8e2569b24842dff18",
+      "fileIdx": 11,
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|h264",
+        "filename": "Inception - Directors Cut 2010 Eng Ita Multi-Subs 4K 1080p [H264-mp4].mp4"
+      }
+    },
+    {
+      "name": "Torrentio\n4k",
+      "title": "Inception.2010.PROPER.2160p.BluRay.REMUX.HEVC.DTS-HD.MA.5.1-FGT\n👤 12 💾 79.56 GB ⚙️ RARBG",
+      "infoHash": "de4049fa95b169204038c60f71face6f52232d4e",
+      "fileIdx": 0,
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay REMUX|hevc",
+        "filename": "Inception.2010.PROPER.2160p.BluRay.REMUX.HEVC.DTS-HD.MA.5.1-FGT.mkv"
+      }
+    }
+  ],
+  "cacheMaxAge": 3600,
+  "staleRevalidate": 14400,
+  "staleError": 604800
+}

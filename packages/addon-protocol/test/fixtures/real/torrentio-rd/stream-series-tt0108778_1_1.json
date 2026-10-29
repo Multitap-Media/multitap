@@ -1,0 +1,52 @@
+{
+  "streams": [
+    {
+      "name": "[RD+] Torrentio\n4k DV",
+      "title": "Friends S01 UHD BluRay 2160p DTS-HD MA 5 1 DV HEVC REMUX-FraMeSToR\nFriends.S01E01.The.One.Where.Monica.Gets.a.Roommate.UHD.BluRay.2160p.DTS-HD.MA.5.1.DV.HEVC.REMUX-FraMeSToR.mkv\n👤 10 💾 7 GB ⚙️ 1337x",
+      "url": "https://example.invalid/redacted/1595",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|ebd9a1b943544fe7eb9a88056a060146b9bb9669",
+        "filename": "Friends.S01E01.The.One.Where.Monica.Gets.a.Roommate.UHD.BluRay.2160p.DTS-HD.MA.5.1.DV.HEVC.REMUX-FraMeSToR.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n1080p",
+      "title": "Friends (1994) Season 01 S01 (1080p BluRay x265 HEVC 10bit AAC 5.1 Joy) [UTR]\nFriends S01E01 The One Where It All Began  (1080p x265 10bit Joy) (C).mkv\n👤 361 💾 270.9 MB ⚙️ 1337x",
+      "url": "https://example.invalid/redacted/1596",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|f3eb7c3c1a4e5d5733e1ee171b762b0472007aac",
+        "filename": "Friends S01E01 The One Where It All Began  (1080p x265 10bit Joy) (C).mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n480p",
+      "title": "Friends Season 1-10 Cmplete 480p BluRay x264 MKVTV\nFriends S01 480p BluRay x264 mkvtv.net/Friends.S01E01.480p.MKVTV.mkv\n👤 45 💾 153.2 MB ⚙️ 1337x",
+      "url": "https://example.invalid/redacted/1597",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|d7c3b43d06103b5b93d5e78dbdeda2c8cdcfaa86",
+        "filename": "Friends.S01E01.480p.MKVTV.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n360p",
+      "title": "Friends Season 1 2 3 4 5 6 7 8 9 10 Extended - threesixtyp\nFriends S01 (360p re-dvdrip)/Friends S01E01 The One Where Monica gets a Roommate.mp4\n👤 11 💾 78.55 MB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1598",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|1b7001ceb4c69211fc812074db7f4bd01705df9f",
+        "filename": "Friends S01E01 The One Where Monica gets a Roommate.mp4"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\nDVDRip",
+      "title": "Friends [Complete Series Boxset] UNCUT.DVDRip.XviD-SAiNTS-SiSO\nFriends.S01.UNCUT.DVDRip.XviD-SAiNTS/Friends.S01E01.UNCUT.DVDRip.XviD-SAiNTS.avi\n👤 6 💾 233.74 MB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1599",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|d98723c78445384699f4f3232f4587bd9cd9fd54",
+        "filename": "Friends.S01E01.UNCUT.DVDRip.XviD-SAiNTS.avi"
+      }
+    }
+  ],
+  "cacheMaxAge": 3600,
+  "staleRevalidate": 14400,
+  "staleError": 604800
+}

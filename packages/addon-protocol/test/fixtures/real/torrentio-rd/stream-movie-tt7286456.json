@@ -1,0 +1,33 @@
+{
+  "streams": [
+    {
+      "name": "[RD+] Torrentio\n4k HDR",
+      "title": "Joker.2019.2160p.4K.BluRay.x265.10bit.HDR.AAC5.1\n👤 100 💾 5.98 GB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1561",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|4k|BluRay|x265|10bit|HDR",
+        "filename": "Joker.2019.2160p.4K.BluRay.x265.10bit.HDR.AAC5.1-[YTS.LT].mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n1080p DV | HDR",
+      "title": "Joker 2019 UHD BluRay 1080p DD Atmos 5 1 DoVi HDR10 x265-SM737\n👤 5 💾 5.76 GB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1562",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|1080p|BluRay|x265|10bit|DV|HDR",
+        "filename": "Joker 2019 UHD BluRay 1080p DD Atmos 5 1 DoVi HDR10  x265-SM737.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio",
+      "title": "Coach Red Pill Video Pack\n663_videos/[BlackPill] 'Joker' Livestream Review - CoachStream-8__AF4l3NyE.mkv\n👤 311 💾 136.24 MB ⚙️ TorrentGalaxy",
+      "url": "https://example.invalid/redacted/1563",
+      "behaviorHints": {
+        "filename": "[BlackPill] 'Joker' Livestream Review - CoachStream-8__AF4l3NyE.mkv"
+      }
+    }
+  ],
+  "cacheMaxAge": 3600,
+  "staleRevalidate": 14400,
+  "staleError": 604800
+}

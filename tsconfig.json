@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "tsBuildInfoFile": "node_modules/.cache/tsc/root.tsbuildinfo"
+  },
+  "include": ["vitest.config.ts"],
+  "references": [
+    { "path": "packages/addon-protocol" },
+    { "path": "packages/addon-protocol/test" },
+    { "path": "packages/api" },
+    { "path": "packages/api/test" },
+    { "path": "packages/core" },
+    { "path": "packages/core/test" }
+  ]
+}

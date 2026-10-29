@@ -1,0 +1,58 @@
+{
+  "streams": [
+    {
+      "name": "Easynews++\n4K",
+      "description": "Inception.2010.Hybrid.2160p.REMUX.DoVi.HDR10.HEVC.DTS-HD.MA.5.1-LM.mkv\n🕛 2h:28m:8s\n📦 66.2 GB 📅 223d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1634",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Inception.2010.Hybrid.2160p.REMUX.DoVi.HDR10.HEVC.DTS-HD.MA.5.1-LM.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n4K",
+      "description": "Inception.2010.UHD.BluRay.2160p.DTS-HD.MA.5.1.HEVC.REMUX-FraMeSToR.mkv\n🕛 2h:28m:8s\n📦 66.0 GB 📅 228d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1635",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Inception.2010.UHD.BluRay.2160p.DTS-HD.MA.5.1.HEVC.REMUX-FraMeSToR.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "Inception.2010.BluRay.1080p.DTS-HD.MA.5.1.VC-1.REMUX-FraMeSToR.mkv\n🕛 2h:28m:7s\n📦 29.3 GB 📅 65d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1636",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Inception.2010.BluRay.1080p.DTS-HD.MA.5.1.VC-1.REMUX-FraMeSToR.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "Inception 2010 1080p Blu-ray Remux VC-1 DTS-HD MA 5.1 - KRaLiMaRKo.mkv\n🕛 2h:28m:7s\n📦 29.2 GB 📅 197d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1637",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Inception 2010 1080p Blu-ray Remux VC-1 DTS-HD MA 5.1 - KRaLiMaRKo.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n720p",
+      "description": "Inception.2010.720p.AMZN.WEB-DL.DDP5.1.H.264-ViSTA.mkv\n🕛 2h:28m:6s\n📦 4.1 GB 📅 46d\n🌐 eng, hin ⭐",
+      "url": "https://example.invalid/redacted/1638",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Inception.2010.720p.AMZN.WEB-DL.DDP5.1.H.264-ViSTA.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n720p",
+      "description": "Inception.2010.720p.AMZN.WEB-DL.DDP5.1.H.265-ViSTA.mkv\n🕛 2h:28m:6s\n📦 1.6 GB 📅 57d\n🌐 eng, hin ⭐",
+      "url": "https://example.invalid/redacted/1639",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "Inception.2010.720p.AMZN.WEB-DL.DDP5.1.H.265-ViSTA.mkv"
+      }
+    }
+  ]
+}

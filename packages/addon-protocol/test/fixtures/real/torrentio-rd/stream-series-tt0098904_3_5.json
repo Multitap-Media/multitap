@@ -1,0 +1,52 @@
+{
+  "streams": [
+    {
+      "name": "[RD+] Torrentio\n4k DV | HDR",
+      "title": "Seinfeld S03 PROPER 2160p UHD Blu-ray Remux Hybrid DV HDR HEVC DTS-HD MA 5 1-NEWMAN\nSeinfeld.S03E05.The.Pen.mkv\n👤 5 💾 10.36 GB ⚙️ 1337x",
+      "url": "https://example.invalid/redacted/1621",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|f83e676e63d5e914e07be386cf86514071fd3242",
+        "filename": "Seinfeld.S03E05.The.Pen.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n720p",
+      "title": "Seinfeld Complete Series-720p WEBrip EN-SUB x264-[MULVAcoded]\nSeinfeld.S03E05.The.Library.720p.WEBrip.AAC.EN-SUB.x264-[MULVAcoded].mkv\n👤 106 💾 172.19 MB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1622",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|d0f120c1bbfb988eb35b648e1c78ca3e5d45ef39",
+        "filename": "Seinfeld.S03E05.The.Library.720p.WEBrip.AAC.EN-SUB.x264-[MULVAcoded].mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n480p",
+      "title": "Seinfeld The Complete Series[DVDRip 480p AC3][AtaraxiaPrime]\nSeinfeld/Season 3/E05.The Pen.mkv\n👤 1 💾 430.04 MB ⚙️ 1337x",
+      "url": "https://example.invalid/redacted/1623",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|eb9d1494049944d2a60f5181970c08661cc2bcb9",
+        "filename": "E05.The Pen.mkv"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\n360p",
+      "title": "Seinfeld Season 1 2 3 4 5 6 7 8 9 Original 4x3 - threesixtyp\nSeinfeld S03 [4x3] (360p re-dvdrip)/Seinfeld S03E05 The Pen.mp4\n👤 17 💾 60.22 MB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1624",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|d925962763863a3a179dfdeb5d110984f0cd0c7e",
+        "filename": "Seinfeld S03E05 The Pen.mp4"
+      }
+    },
+    {
+      "name": "[RD+] Torrentio\nDVDRip",
+      "title": "Seinfeld Complete Box-set x264 Seasons 1 - 9 + Extras DVDRip TSV\nSeason 3/Seinfeld Season 03 Episode 05 - The Pen.mkv\n👤 11 💾 232.65 MB ⚙️ ThePirateBay",
+      "url": "https://example.invalid/redacted/1625",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|c344aae151c3f7930f850265d7aec485c7091004",
+        "filename": "Seinfeld Season 03 Episode 05 - The Pen.mkv"
+      }
+    }
+  ],
+  "cacheMaxAge": 3600,
+  "staleRevalidate": 14400,
+  "staleError": 604800
+}

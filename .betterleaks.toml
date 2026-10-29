@@ -1,0 +1,84 @@
+title = "Multitap betterleaks config"
+
+# Scanned with scripts/secrets-scan.js (`pnpm run secrets:scan`), by the
+# pre-commit hook (`pnpm run secrets:install-hook`) and by `pnpm run ci`.
+# It extends betterleaks' default rules (466) with this repo's own.
+# Procedure and rationale: knowledge/process/secrets-sweep.md.
+#
+# Never write a real secret, provider name or password into this file: it is
+# committed. Put your own current values in BETTERLEAKS_EXTRA_PATTERN (an
+# RE2 regex, read by scripts/secrets-scan.js) in your shell, not here.
+
+# The repo's rule: fixtures, docs and logs never hold real manifest URLs,
+# stream URLs, keys or account details. Test files do hold made-up passwords
+# and tokens (the tests), so the generic and password-shaped
+# rules are allowed there. The manifest-URL and provider rules still apply in
+# test files. Also allowed: an ALL_CAPS placeholder such as METRICS_KEY, and the
+# public Easynews manifest signature (a fixture, see fixtures/real/README.md).
+filter = '''
+(matchesAny(attributes["path"], [`(?:^|/)test/`, `\.test\.ts$`, `_test\.go$`])
+  && finding["rule_id"] in ["generic-password", "generic-api-key", "multitap-proxy-password", "multitap-media-token-secret"])
+|| finding["secret"] matches `^[A-Z][A-Z0-9_]{3,}$`
+|| matchesAny(attributes["path"], [`(?:^|/)fixtures/real/easynews/manifest\.json$`])
+'''
+
+[extend]
+useDefault = true
+
+# A Stremio addon manifest URL with its configuration in the path: the
+# configuration is the user's credentials (debrid token, passwords).
+[[rules]]
+id = "multitap-manifest-url"
+description = "A Stremio addon manifest URL with configuration (credentials) in the path"
+regex = '''(?i)(?:stremio|https?)://[^\s/"'<>)\]]+/([A-Za-z0-9_%=+.~-]{24,}(?:/[A-Za-z0-9_%=+.~-]+)*)/manifest\.json'''
+keywords = ["manifest.json"]
+confidence = "high"
+filter = '''
+finding["secret"] matches `(?i)^(?:x{4,}|0{4,}|example|placeholder|redacted|your[-_a-z]*|<[^>]*>)`
+|| matchesAny(finding["match"], [`(?i)https?://(?:localhost|127\.0\.0\.1|[a-z0-9.-]*\.(?:test|example|invalid)|example\.(?:com|org|net))[:/]`])
+'''
+
+[[rules]]
+id = "multitap-proxy-password"
+description = "A non-placeholder api_password= value (the engine's stream proxy credentials)"
+regex = '''(?i)api_password=([^&\s"'<>)\]]{4,})'''
+keywords = ["api_password="]
+confidence = "high"
+filter = '''
+finding["secret"] matches `(?i)^(?:<.*|\.{2,}|…|\*+|x+|redacted|secret|password|changeme|pw|pass|test|abc|\$.*|\{.*|%.*)`
+|| containsAny(finding["secret"], ["…", "..."])
+'''
+
+[[rules]]
+id = "multitap-media-token-secret"
+description = "A MEDIA_TOKEN_SECRET value (signs the media grants)"
+regex = '''(?i)MEDIA_TOKEN_SECRET(?:_PREVIOUS)?\s*[:=]\s*["']?([A-Za-z0-9+_=-][A-Za-z0-9+/_=-]{15,})'''
+keywords = ["media_token_secret"]
+confidence = "high"
+filter = '''
+finding["secret"] matches `(?i)^(?:x+|<.*|\$.*|\{.*|redacted|change.*|your.*)`
+|| entropy(finding["secret"]) < 3.0
+|| finding["secret"] matches `(?i)(?:secrets/|_file$|^run/)`
+'''
+
+# A very long opaque path segment is almost always an encoded addon
+# configuration or a signed stream token.
+[[rules]]
+id = "multitap-long-opaque-token"
+description = "A very long opaque token (120+ characters): encoded addon configuration or a signed stream URL"
+regex = '''[A-Za-z0-9_%=-]{120,}'''
+keywords = ["a", "e", "i", "o", "u"]
+confidence = "medium"
+filter = '''
+entropy(finding["secret"]) < 4.0
+|| matchesAny(attributes["path"], [`(?:^|/)pnpm-lock\.yaml$`, `(?:^|/)openapi\.json$`, `schema\.d\.ts$`])
+'''
+
+# Debrid and hosted-provider markers that show up in real addon URLs and
+# logs. (Plain English mentions in docs need a `betterleaks:allow` marker.)
+[[rules]]
+id = "multitap-provider-marker"
+description = "A hosted addon or debrid provider marker (streaming_provider, elfhosted)" # betterleaks:allow (the rule itself)
+regex = '''(?i)\b(streaming_provider|elfhosted)\b''' # betterleaks:allow (the rule itself)
+keywords = ["streaming_provider", "elfhosted"] # betterleaks:allow (the rule itself)
+confidence = "medium"

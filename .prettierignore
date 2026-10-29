@@ -1,0 +1,13 @@
+# Not ours or generated
+.claude/
+node_modules/
+dist/
+pnpm-lock.yaml
+packages/api/openapi.json
+packages/api/src/schema.d.ts
+
+# Prose is formatted by hand
+*.md
+
+# Captured and generated fixtures keep their original formatting
+**/test/fixtures/

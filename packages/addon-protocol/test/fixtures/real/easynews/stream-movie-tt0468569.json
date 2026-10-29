@@ -1,0 +1,85 @@
+{
+  "streams": [
+    {
+      "name": "Easynews++\n4K",
+      "description": "The.Dark.Knight.2008.UHD.BluRay.2160p.DTS-HD.MA.5.1.HEVC.REMUX-FraMeSToR.mkv\n🕛 2h:32m:12s\n📦 54.3 GB 📅 218d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1664",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The.Dark.Knight.2008.UHD.BluRay.2160p.DTS-HD.MA.5.1.HEVC.REMUX-FraMeSToR.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n4K",
+      "description": "The.Dark.Knight.2008.UHD.BluRay.2160p.TrueHD.5.1.DV.HEVC.HYBRID.REMUX-FraMeSToR.mkv\n🕛 2h:32m:12s\n📦 53.8 GB 📅 73d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1665",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The.Dark.Knight.2008.UHD.BluRay.2160p.TrueHD.5.1.DV.HEVC.HYBRID.REMUX-FraMeSToR.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n3840 x 2160",
+      "description": "The Dark Knight (2008).mkv\n🕛 2h:32m:12s\n📦 2.8 GB 📅 156d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1666",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The Dark Knight (2008).mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "The Dark Knight (2008) Remux-1080p.mkv\n🕛 2h:32m:13s\n📦 27.3 GB 📅 368d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1667",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The Dark Knight (2008) Remux-1080p.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1080p",
+      "description": "The Dark Knight-2008-1080p-NF-WEBDL-H264-EAC3-GP-M-NLSubs.mkv\n🕛 2h:32m:8s\n📦 5.9 GB 📅 440d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1668",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The Dark Knight-2008-1080p-NF-WEBDL-H264-EAC3-GP-M-NLSubs.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n1920 x 1080",
+      "description": "The Dark Knight (2008).mkv\n🕛 2h:32m:12s\n📦 1.0 GB 📅 344d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1669",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The Dark Knight (2008).mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n720p",
+      "description": "The.Dark.Knight.2008.IMAX.Hybrid.720p.BluRay.DD+5.1.x264-playHD.mkv\n🕛 2h:32m:13s\n📦 9.2 GB 📅 422d\n🌐 eng ⭐",
+      "url": "https://example.invalid/redacted/1670",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The.Dark.Knight.2008.IMAX.Hybrid.720p.BluRay.DD+5.1.x264-playHD.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n720p",
+      "description": "The.Dark.Knight.2008.720p.NF.WEB-DL.DDP5.1.H.264-ViSTA.mkv\n🕛 2h:32m:8s\n📦 4.0 GB 📅 50d\n🌐 eng, hin ⭐",
+      "url": "https://example.invalid/redacted/1671",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The.Dark.Knight.2008.720p.NF.WEB-DL.DDP5.1.H.264-ViSTA.mkv"
+      }
+    },
+    {
+      "name": "Easynews++\n480p",
+      "description": "The.Dark.Knight.2008.480p.NF.WEB-DL.AAC2.0.H.264-ViSTA.mkv\n🕛 2h:32m:8s\n📦 2.1 GB 📅 55d\n🌐 eng, hin ⭐",
+      "url": "https://example.invalid/redacted/1672",
+      "behaviorHints": {
+        "notWebReady": true,
+        "filename": "The.Dark.Knight.2008.480p.NF.WEB-DL.AAC2.0.H.264-ViSTA.mkv"
+      }
+    }
+  ]
+}

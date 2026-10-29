@@ -1,0 +1,3 @@
+# Discovery
+* [ffmpeg input seek on MPEG-TS starts at the next keyframe](ffmpeg-mpegts-seek-next-keyframe.md) - With re-encoding, input -ss into MPEG-TS does not snap back to the previous keyframe, so the 10 s pre-roll fails for sources with keyframe intervals longer than about 10 s.
+* [A revoked media token subject can't be re-minted until its tokens would expire](media-subject-revocation-blocks-reuse.md) - Found planning phase 3: core denylists a revoked subject until its last token would expire and answers 409 to minting it, and revocation is per core session, so subject = memberId breaks a lifted kick or a re-signed-in device, and the client must record which subjects it minted where.

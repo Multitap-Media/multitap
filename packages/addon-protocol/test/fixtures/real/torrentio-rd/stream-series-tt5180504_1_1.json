@@ -1,0 +1,16 @@
+{
+  "streams": [
+    {
+      "name": "[RD+] Torrentio\n1080p HDR",
+      "title": "The Witcher (S01)(2019)(Hevc)(1080p)(HDR)(10bit)(WebDL)(Atmos-MultiLang)(MultiSub) PHDTeam\nZaklínač_S01E01_Začátek konce.mkv\n👤 9 💾 2.3 GB ⚙️ TorrentGalaxy\nMulti Audio / Multi Subs / 🇬🇧",
+      "url": "https://example.invalid/redacted/1608",
+      "behaviorHints": {
+        "bingeGroup": "torrentio|25e80dcc8e86b5a6ec6c14e0adff900508beb43a",
+        "filename": "Zaklínač_S01E01_Začátek konce.mkv"
+      }
+    }
+  ],
+  "cacheMaxAge": 3600,
+  "staleRevalidate": 14400,
+  "staleError": 604800
+}
