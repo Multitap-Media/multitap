@@ -27,6 +27,14 @@ repository; their tags are not part of this repository's history.
 
 ## Unreleased
 
+### Fixed
+
+- **An all-zero info hash no longer reaches the engine.** The addon protocol
+  accepts it, and engines before v0.28.0 panic on it while holding a lock,
+  which hangs later requests. A stream with that hash now fails as
+  `unsupported`, so auto-select moves on to the next source
+  (okf:architecture/engine-endpoints-core-uses).
+
 ### Changed
 
 - **The docs follow the engine's rename.** stremio-server-go is now

@@ -8,6 +8,13 @@
  */
 import type { EngineTransport } from './transport.ts';
 
+/**
+ * The all-zero info hash, which names no torrent. Engines before v0.28.0 panic
+ * on it while holding their manager lock, which hangs later requests, so it
+ * never reaches an engine (okf:architecture/engine-endpoints-core-uses).
+ */
+export const ZERO_INFO_HASH = '0'.repeat(40);
+
 /** `POST /{infoHash}/create` body (server-go's `createBody`). */
 export interface TorrentCreateRequest {
   /** `peerSearch.sources` from the addon's `Stream.sources` (trackers, `dht:…`). */

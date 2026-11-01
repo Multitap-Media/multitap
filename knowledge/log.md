@@ -1,4 +1,5 @@
 ## 2026-11-01
+* **Update**: Updated concepts `architecture/engine-endpoints-core-uses.md` and `architecture/engine-prepare-stream.md` (the all-zero info hash is refused as `unsupported` and never reaches an engine).
 * **Update**: Updated concepts `fact/engine-baseline.md` (upstream is now Rivulet Engine: the project renamed at v0.26.0, `RIVULET_*` settings from v0.27.0 with `STREMIO_*` silently ignored), `architecture/overview.md`, `architecture/goals-and-non-goals.md` and `process/upstream-engine-asks.md` (the new name and tracker URL), and their `fact/index.md`, `architecture/index.md` and `process/index.md` entries.
 
 ## 2026-10-29

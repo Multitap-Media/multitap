@@ -7,6 +7,7 @@
 import { z } from 'zod';
 import {
   ServerGoError,
+  ZERO_INFO_HASH,
   type DeleteSessionResult,
   type MasterRequest,
   type OpenSubHash,
@@ -185,7 +186,7 @@ export function createServerGoClient(options: ServerGoClientOptions): ServerGoCl
 
   const checkInfoHash = (infoHash: string) => {
     const ih = infoHash.toLowerCase();
-    if (!INFO_HASH.test(ih)) throw new Error('invalid info hash');
+    if (!INFO_HASH.test(ih) || ih === ZERO_INFO_HASH) throw new Error('invalid info hash');
     return ih;
   };
   const checkFileIdx = (fileIdx: number) => {

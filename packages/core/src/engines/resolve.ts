@@ -6,6 +6,7 @@
 import { createHash } from 'node:crypto';
 import type { SessionQuality } from '@multitap/api';
 import { StreamSchema, streamSourceVariant, type Stream } from '@multitap/addon-protocol';
+import { ZERO_INFO_HASH } from './server-go-types.ts';
 
 export type StreamPlan =
   | {
@@ -98,6 +99,9 @@ export function planStream(stream: Stream | Record<string, unknown>): StreamPlan
         : { kind: 'youtube', ytId };
     }
     case 'torrent': {
+      const infoHash = (s.infoHash as string).toLowerCase();
+      // Valid to the protocol, so it ends here: auto-select moves on to the next source.
+      if (infoHash === ZERO_INFO_HASH) return { kind: 'unplayable', reason: 'unsupported' };
       const fileIdx = typeof s.fileIdx === 'number' ? s.fileIdx : undefined;
       const announce = Array.isArray(s.announce) ? (s.announce as string[]) : [];
       const mustInclude = Array.isArray(s.fileMustInclude) ? (s.fileMustInclude as string[]) : [];
@@ -114,7 +118,7 @@ export function planStream(stream: Stream | Record<string, unknown>): StreamPlan
               : [];
       const plan: StreamPlan = {
         kind: 'torrent',
-        infoHash: (s.infoHash as string).toLowerCase(),
+        infoHash,
         sources: normalizeSources(announce),
         fileMustInclude,
       };

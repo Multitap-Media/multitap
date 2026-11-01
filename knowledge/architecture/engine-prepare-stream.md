@@ -3,7 +3,7 @@ type: Component
 title: "Preparing a stream for playback: steps, unplayable reasons and the resolution matrix"
 description: "The five prepare steps (engine session id, resolve mediaURL, probe, create the session, warm the start), the probe-caching hazard, the table of unplayable reasons with retryability, and the matrix mapping a raw Stream to a mediaURL."
 tags: [core, engine, prepare, component]
-generated: { by: "agent/claude-sonnet-5.5", at: "2026-10-17T02:10:23Z" }
+generated: { by: "agent/claude-opus-5.5", at: "2026-11-01T12:00:00Z" }
 code_refs:
   - "packages/core/src/engines/"
 status: stable
@@ -61,7 +61,7 @@ retries only torrents.
 
 | Reason | When | Retryable |
 |---|---|---|
-| `unsupported` | A kind the module doesn't handle: archives, NZB, player frames, a non-http(s) URL, an invalid stream | no |
+| `unsupported` | A kind the module doesn't handle: archives, NZB, player frames, a non-http(s) URL, an invalid stream, an all-zero info hash ([[architecture/engine-endpoints-core-uses]]) | no |
 | `external` | `externalUrl` only | no |
 | `live` | Zero duration on an HLS source (phase 4) | no |
 | `needs-prepare` | The probed height is above `liveMaxHeight` in mode `play` | no |

@@ -222,6 +222,15 @@ describe('server-go client against the fake engine', () => {
     await expect(c.createTorrent('nothex', {})).rejects.toThrow('invalid info hash');
   });
 
+  it('never sends the all-zero info hash to the engine', async () => {
+    const { fake, client: c } = client();
+    const zero = '0'.repeat(40);
+    await expect(c.createTorrent(zero, {})).rejects.toThrow('invalid info hash');
+    await expect(c.torrentStats(zero, 0)).rejects.toThrow('invalid info hash');
+    expect(() => c.torrentMediaURL(zero, 0)).toThrow('invalid info hash');
+    expect(fake.creates).toEqual([]);
+  });
+
   it('parses probes and drops placeholder zeros', async () => {
     const { fake, client: c } = client();
     fake.setProbe('https://m.example/a.mkv', 'hdr-4k');

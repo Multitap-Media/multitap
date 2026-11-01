@@ -384,6 +384,15 @@ describe('auto-select (okf:decision/auto-select-and-fallback)', () => {
     expect(new Set(chosen)).toEqual(new Set([first?.key, second?.key]));
   });
 
+  it('falls back past an all-zero info hash, which never reaches the engine', async () => {
+    const r = await rig();
+    const [, second] = r.auto(torrentStream('0'.repeat(40)), httpStream('good'));
+    const { session } = await r.service.create({ item: MOVIE, source: { auto: true } });
+    await r.settle();
+    expect(await r.service.get(session.id)).toMatchObject({ status: 'ready', chosen: second?.key });
+    expect(r.fake.creates).toEqual([]);
+  });
+
   it('fails with no-candidates when nothing is playable now', async () => {
     const r = await rig();
     const { session } = await r.service.create({ item: MOVIE, source: { auto: true } });
