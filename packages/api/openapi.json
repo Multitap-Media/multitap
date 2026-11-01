@@ -710,7 +710,7 @@
             "type": "integer",
             "minimum": 100000,
             "maximum": 200000000,
-            "description": "The engine's own video bitrate in bits per second (server-go's `STREMIO_TRANSCODE_VIDEO_BITRATE`), used when a session sets none. A bitrate Multitap derives from `quality.maxHeight` never exceeds it. Absent = unknown.",
+            "description": "The engine's own video bitrate in bits per second (`RIVULET_TRANSCODE_VIDEO_BITRATE`, or `STREMIO_TRANSCODE_VIDEO_BITRATE` on Rivulet Engine v0.26.0 and earlier), used when a session sets none. A bitrate Multitap derives from `quality.maxHeight` never exceeds it. Absent = unknown.",
             "example": 10000000
           }
         },
@@ -826,7 +826,7 @@
               "null"
             ],
             "maxLength": 1024,
-            "description": "Write-only secret: the engine's `STREMIO_PROXY_PASSWORD`, sent as `api_password` on the `/proxy/stream` URLs Multitap builds (sources with `proxyHeaders`). Omitted keeps the stored value; an empty string or null clears it. Never returned: responses carry only `proxyPasswordSet`.",
+            "description": "Write-only secret: the engine's `RIVULET_PROXY_PASSWORD` (`STREMIO_PROXY_PASSWORD` on Rivulet Engine v0.26.0 and earlier), sent as `api_password` on the `/proxy/stream` URLs Multitap builds (sources with `proxyHeaders`). Omitted keeps the stored value; an empty string or null clears it. Never returned: responses carry only `proxyPasswordSet`.",
             "writeOnly": true
           }
         },

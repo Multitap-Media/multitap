@@ -2,7 +2,7 @@
 
 A standalone headless server built on the Stremio addon protocol. Multitap browses
 Stremio addons, lists and ranks their sources for an engine, runs playback sessions on
-a streaming engine (a separate torrent and transcoding server, such as stremio-server-go)
+a streaming engine (a separate torrent and transcoding server, such as Rivulet Engine, formerly stremio-server-go)
 and serves their media to any number of players. It holds no app logic of its own: any
 client can use it through its `/v1` API.
 
@@ -139,27 +139,31 @@ client (`createMultitapClient` in `@multitap/api`, see [API](#api)).
 
 Multitap plays through a streaming engine: a separate server that adds torrents,
 fetches HTTP sources and transcodes them to HLS. Multitap isn't tied to one engine.
-It's developed and tested with [stremio-server-go](https://github.com/M0Rf30/stremio-server-go)
-v0.18.1 or later (or `main`), so far the only engine tested, and the settings below
-are that engine's. Another engine has to serve the same endpoints the same way
+It's developed and tested with [Rivulet Engine](https://github.com/rivulet-kodi/rivulet-engine)
+(named stremio-server-go before v0.26.0), v0.18.1 or later (or `main`), so far the only
+engine tested, and the settings below are that engine's. Another engine has to serve the same endpoints the same way
 ([what Multitap uses](knowledge/architecture/engine-endpoints-core-uses.md)).
 Multitap detects the optional engine features at runtime.
 
-Treat the engine as having **no authentication** (stremio-server-go has none): only
+Treat the engine as having **no authentication** (Rivulet Engine has none): only
 Multitap may reach it, so never expose its port. Run it on the same host as Multitap
-(for stremio-server-go, `BIND_ADDRESS=127.0.0.1`) or on a LAN address that a
+(for Rivulet Engine, `BIND_ADDRESS=127.0.0.1`) or on a LAN address that a
 firewall opens to Multitap's host only.
 
-stremio-server-go settings Multitap relies on:
+Rivulet Engine settings Multitap relies on, named as engines v0.27.0 and later read them.
+On v0.26.0 and earlier, use the same name with `STREMIO_` in place of `RIVULET_`:
 
 | Variable | Value | Why |
 |---|---|---|
-| `STREMIO_HLS_SESSION_TTL` | `0` | Multitap releases engine sessions itself (`DELETE`) |
-| `STREMIO_HLS_SESSION_OVERRIDES` | `1` | Per-session quality; set the engine's `sessionOverrides` capability to match |
-| `STREMIO_HLS_PERSIST` | `1` | Engine sessions survive an engine restart |
-| `STREMIO_TRANSCODE_TONEMAP` | `on` | HDR to SDR (needs ffmpeg with `zscale`); set `tonemap` to match |
-| `STREMIO_HLS_SEGMENT_TIMEOUT` | e.g. `180s` | Keep Multitap's `MULTITAP_ENGINE_TIMEOUT_MEDIA_MS` above it |
-| `STREMIO_PROXY_PASSWORD` | random | Optional; if set, give Multitap the same value (below) |
+| `RIVULET_HLS_SESSION_TTL` | `0` | Multitap releases engine sessions itself (`DELETE`) |
+| `RIVULET_HLS_SESSION_OVERRIDES` | `1` | Per-session quality; set the engine's `sessionOverrides` capability to match |
+| `RIVULET_HLS_PERSIST` | `1` | Engine sessions survive an engine restart |
+| `RIVULET_TRANSCODE_TONEMAP` | `on` | HDR to SDR (needs ffmpeg with `zscale`); set `tonemap` to match |
+| `RIVULET_HLS_SEGMENT_TIMEOUT` | e.g. `180s` | Keep Multitap's `MULTITAP_ENGINE_TIMEOUT_MEDIA_MS` above it |
+| `RIVULET_PROXY_PASSWORD` | random | Optional; if set, give Multitap the same value (below) |
+
+**Engines from v0.27.0 on ignore `STREMIO_*` names silently:** they aren't rejected and
+nothing warns, so a setting under its old name just stays at the engine's default.
 
 Multitap starts with **no engine**: until an admin adds one, source lists and
 sessions answer `400` saying so, and Multitap logs a warning at startup. Add one
@@ -175,18 +179,18 @@ curl -X PUT localhost:8080/v1/admin/engines/main -H "Authorization: Bearer $ADMI
 ```
 
 The capabilities are declared, not probed, and ranking and admission trust them (the
-variables named are stremio-server-go's):
+variables named are Rivulet Engine's, `STREMIO_*` on v0.26.0 and earlier):
 
 | Capability | Meaning |
 |---|---|
 | `hwaccel` | The engine's hardware acceleration: `none` (software x264), `qsv`, `nvenc` or `vaapi` |
 | `liveMaxHeight` | Tallest source it transcodes live. Taller sources are unplayable (`too-high`), or with `highRes` playable only once prepared, which isn't built yet. Use what the box keeps up with in real time |
 | `preparedMaxHeight` | Tallest source it could prepare ahead of time |
-| `tonemap` | It tone-maps HDR to SDR (`STREMIO_TRANSCODE_TONEMAP`); without it HDR sources rank lower |
-| `sessionOverrides` | It accepts per-session quality (`STREMIO_HLS_SESSION_OVERRIDES=1`); without it Multitap sends none |
+| `tonemap` | It tone-maps HDR to SDR (`RIVULET_TRANSCODE_TONEMAP`); without it HDR sources rank lower |
+| `sessionOverrides` | It accepts per-session quality (`RIVULET_HLS_SESSION_OVERRIDES=1`); without it Multitap sends none |
 | `liveConcurrency` | Live sessions it can transcode at once. Multitap compares it with the sessions actually playing and warns past it (or, with `MULTITAP_ENGINE_ADMISSION=reject`, refuses with `503`) |
 | `prepareConcurrency` | Preparation jobs at once |
-| `defaultBitrate` | Optional: the engine's `STREMIO_TRANSCODE_VIDEO_BITRATE`; a bitrate Multitap derives from `maxHeight` never exceeds it |
+| `defaultBitrate` | Optional: the engine's `RIVULET_TRANSCODE_VIDEO_BITRATE`; a bitrate Multitap derives from `maxHeight` never exceeds it |
 
 A request that names no engine uses `MULTITAP_SELECTION_DEFAULT_ENGINE`, or, when that is
 unset, the only engine there is; with several engines and no default it must
@@ -196,8 +200,8 @@ an offline engine as soon as it answers any request; `GET /v1/admin/engines`
 shows `online` and `lastSeen`.
 
 **The engine's proxy password.** Sources with `proxyHeaders` play through the
-engine's `/proxy/stream`. On an engine that sets `STREMIO_PROXY_PASSWORD`, give
-Multitap the same value, or those sources fail their probe (`probe-failed`, with a
+engine's `/proxy/stream`. On an engine that sets `RIVULET_PROXY_PASSWORD`
+(`STREMIO_PROXY_PASSWORD` on v0.26.0 and earlier), give Multitap the same value, or those sources fail their probe (`probe-failed`, with a
 log hint). It's write-only: set it from a file with the CLI, so it stays off
 command lines,
 
@@ -516,7 +520,7 @@ Sessions, media and engines:
 | `MULTITAP_ENGINE_HEALTH_INTERVAL_MS` / `_TIMEOUT_MS` / `_MAX_BACKOFF_MS` | 30000 / 5000 / 60000 | Engine health checks: interval while online, timeout, longest backoff while offline (also caps the retry of failed engine deletes). An offline engine that answers any request is re-checked at once |
 | `MULTITAP_ENGINE_CONNECT_TIMEOUT_MS` | 3000 | Connect timeout (TCP and TLS) of engine requests, 100–60000: a stopped engine host that drops connections fails fast (`engine-offline`) instead of after 10 s. The per-call timeouts below still apply |
 | `MULTITAP_ENGINE_SESSION_TTL_MS` | unset | Per-session engine `ttl` sent to engines with `sessionOverrides`, a safety net for sessions Multitap never manages to delete (e.g. `172800000`, 48 h). 60 s–30 d and at least `MULTITAP_RETENTION_IDLE_MS`; unset sends none. Failed engine deletes are retried by the retention sweep either way |
-| `MULTITAP_ENGINE_TIMEOUT_CONTROL_MS` / `_PREPARE_MS` / `_MEDIA_MS` | 10000 / 150000 / 200000 | Engine calls: stats and deletes; create, probe and the creating master request; playlists and segments (keep it above the engine's segment timeout, stremio-server-go's `STREMIO_HLS_SEGMENT_TIMEOUT`) |
+| `MULTITAP_ENGINE_TIMEOUT_CONTROL_MS` / `_PREPARE_MS` / `_MEDIA_MS` | 10000 / 150000 / 200000 | Engine calls: stats and deletes; create, probe and the creating master request; playlists and segments (keep it above the engine's segment timeout, Rivulet Engine's `RIVULET_HLS_SEGMENT_TIMEOUT`) |
 | `MULTITAP_EVENTS_REPLAY_SIZE` / `MULTITAP_EVENTS_HEARTBEAT_MS` | 1000 / 15000 | `/v1/events` replay buffer and heartbeat |
 
 ### Ranking settings
@@ -596,8 +600,8 @@ from the verified token, never the path (which holds the token). A proxy in
 front of it should drop the path from its access log too; that's the
 operator's policy. Multitap never returns raw streams, stream URLs or engine
 `mediaURL`s; they live only in its database. An engine's own request log can
-record `mediaURL`s, debrid tokens included (stremio-server-go's does, with
-`STREMIO_HTTP_LOG=1`).
+record `mediaURL`s, debrid tokens included (Rivulet Engine's does, with
+`RIVULET_HTTP_LOG=1`, or `STREMIO_HTTP_LOG=1` on v0.26.0 and earlier).
 
 ### Backups
 
@@ -718,4 +722,4 @@ From the repository root:
 Tests never reach the internet or start ffmpeg. Fixtures under
 `packages/addon-protocol/test/fixtures/real/` are real responses with every stream URL
 and credential redacted, and a fake engine (`test/fakes/engine.ts`) stands in
-for stremio-server-go; the tests and the contract run add it as engine `home`.
+for Rivulet Engine; the tests and the contract run add it as engine `home`.

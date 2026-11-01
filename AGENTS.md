@@ -17,11 +17,11 @@ Multitap is a standalone, headless Stremio client with a remote engine. The repo
 - `packages/api` (`@multitap/api`, MIT): the zod schemas, the generated OpenAPI document and the typed client.
 - `packages/addon-protocol` (`@multitap/addon-protocol`, MIT): Stremio addon protocol types and the addon HTTP client.
 
-The **engine** is the streaming server Multitap drives over HTTP. Multitap isn't tied to one engine: it's developed and tested with [stremio-server-go](https://github.com/M0Rf30/stremio-server-go), an upstream project, and engines are registered as data (okf:architecture/goals-and-non-goals). Multitap knows nothing about the apps built on it: rooms, watch parties, people, accounts and devices belong in clients, never here.
+The **engine** is the streaming server Multitap drives over HTTP. Multitap isn't tied to one engine: it's developed and tested with [Rivulet Engine](https://github.com/rivulet-kodi/rivulet-engine) (formerly stremio-server-go; `server-go` in the code), an upstream project, and engines are registered as data (okf:architecture/goals-and-non-goals). Multitap knows nothing about the apps built on it: rooms, watch parties, people, accounts and devices belong in clients, never here.
 
 ## Hard rules
 
-- **Engine:** treat it as having no authentication (stremio-server-go has none), so only Multitap may reach it. Changes to stremio-server-go go upstream as pull requests; Multitap detects each engine feature at runtime and keeps working without it.
+- **Engine:** treat it as having no authentication (Rivulet Engine has none), so only Multitap may reach it. Changes to Rivulet Engine go upstream as pull requests; Multitap detects each engine feature at runtime and keeps working without it.
 - **Git:** commit or push only when asked; the exception is a release, which needs no per-release approval (okf:decision/release-without-approval). Never use bare `git stash`. Don't rewrite pushed history.
 - **Secrets:** never commit manifest URLs, stream URLs, keys, account details, private hostnames or addresses, or credentials, in code, fixtures, docs or logs. Betterleaks scans every commit (`pnpm run secrets:install-hook` once per clone); run `pnpm run secrets:scan all` before pushing. Fixtures are redacted by rule (`packages/addon-protocol/test/fixtures/real/README.md`).
 - **Design changes:** update the owning concept in `knowledge/` (find it with `okf_search`) in the same piece of work. When an upstream engine PR merges, turn its "once #NN merges" notes into present tense.

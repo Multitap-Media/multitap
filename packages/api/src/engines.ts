@@ -33,7 +33,7 @@ export const EngineCapabilitiesSchema = z
     prepareConcurrency: concurrency.meta({ example: 1 }),
     defaultBitrate: z.number().int().min(100_000).max(200_000_000).optional().meta({
       description:
-        "The engine's own video bitrate in bits per second (server-go's `STREMIO_TRANSCODE_VIDEO_BITRATE`), used when a session sets none. A bitrate Multitap derives from `quality.maxHeight` never exceeds it. Absent = unknown.",
+        "The engine's own video bitrate in bits per second (`RIVULET_TRANSCODE_VIDEO_BITRATE`, or `STREMIO_TRANSCODE_VIDEO_BITRATE` on Rivulet Engine v0.26.0 and earlier), used when a session sets none. A bitrate Multitap derives from `quality.maxHeight` never exceeds it. Absent = unknown.",
       example: 10_000_000,
     }),
   })
@@ -82,7 +82,7 @@ export const EngineInputSchema = z
     localAddon: engineFields.localAddon.optional(),
     proxyPassword: z.string().max(MAX_PROXY_PASSWORD_LENGTH).nullable().optional().meta({
       description:
-        "Write-only secret: the engine's `STREMIO_PROXY_PASSWORD`, sent as `api_password` on the `/proxy/stream` URLs Multitap builds (sources with `proxyHeaders`). Omitted keeps the stored value; an empty string or null clears it. Never returned: responses carry only `proxyPasswordSet`.",
+        "Write-only secret: the engine's `RIVULET_PROXY_PASSWORD` (`STREMIO_PROXY_PASSWORD` on Rivulet Engine v0.26.0 and earlier), sent as `api_password` on the `/proxy/stream` URLs Multitap builds (sources with `proxyHeaders`). Omitted keeps the stored value; an empty string or null clears it. Never returned: responses carry only `proxyPasswordSet`.",
       writeOnly: true,
     }),
   })

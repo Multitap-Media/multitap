@@ -25,6 +25,18 @@ All notable changes to `@multitap/core` and its `/v1` API. The OpenAPI document
 Releases 0.1.0 to 0.1.4 were made under an earlier name, inside another
 repository; their tags are not part of this repository's history.
 
+## Unreleased
+
+### Changed
+
+- **The docs follow the engine's rename.** stremio-server-go is now
+  [Rivulet Engine](https://github.com/rivulet-kodi/rivulet-engine), renamed at
+  v0.26.0. From v0.27.0 it reads `RIVULET_*` settings and silently ignores the
+  old `STREMIO_*` names. The README and the OpenAPI descriptions of
+  `defaultBitrate` and `proxyPassword` give both spellings, and the log hint for
+  a failed `proxyHeaders` probe no longer names a variable. `server-go`
+  identifiers in the code are unchanged.
+
 ## 0.2.0 (2026-10-29)
 
 The first release as Multitap, from its own repository.

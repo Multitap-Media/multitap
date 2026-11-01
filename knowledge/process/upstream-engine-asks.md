@@ -1,13 +1,13 @@
 ---
 type: Process
 title: Upstream asks for stremio-server-go and maintainer answers
-description: "The engine asks tracked in upstream issue M0Rf30/stremio-server-go#43: merged items, maintainer answers from 2026-10-05, the 2026-10-13 re-check, the 2026-10-15 and 2026-10-16 reviews (#49–#53 and #57–#61 merged; #54 changes requested; post-merge nits), and the open asks in priority order."
+description: "The engine asks tracked in upstream issue rivulet-kodi/rivulet-engine#43: merged items, maintainer answers from 2026-10-05, the 2026-10-13 re-check, the 2026-10-15 and 2026-10-16 reviews (#49–#53 and #57–#61 merged; #54 changes requested; post-merge nits), and the open asks in priority order."
 tags: [engine, upstream, issue-43, process]
-generated: { by: agent/claude-sonnet-5.5, at: "2026-10-17T02:50:00Z" }
+generated: { by: "agent/claude-opus-5.5", at: "2026-11-01T12:00:00Z" }
 status: stable
 ---
 
-Source: the former design document; AGENTS.md "Open work". Tracker: M0Rf30/stremio-server-go#43 (posted 2026-10-05; closed by the maintainer 2026-10-09 with "feel free to re-open"; checklist posted 2026-10-13 with a request to re-open; re-opened since. The checklist comment was updated 2026-10-16 against `efa1b78`: items 1–5 done, plus a "related" list of #54, #66, #63, #64, #65 and #48). Check the issue and the maintainer's answers before starting a branch, and keep its checklist current.
+Source: the former design document; AGENTS.md "Open work". Tracker: rivulet-kodi/rivulet-engine#43, M0Rf30/stremio-server-go#43 before the rename (posted 2026-10-05; closed by the maintainer 2026-10-09 with "feel free to re-open"; checklist posted 2026-10-13 with a request to re-open; re-opened since. The checklist comment was updated 2026-10-16 against `efa1b78`: items 1–5 done, plus a "related" list of #54, #66, #63, #64, #65 and #48). Check the issue and the maintainer's answers before starting a branch, and keep its checklist current.
 
 **Maintainer answers (2026-10-05):** item 5 (api_password redaction) fixed upstream in `a038e80`. Small items 1–4 fine as described, with the private-host allowlist checked at dial time, and keep `BANDWIDTH` legacy strings without a knob. Medium items 6–9 welcome; preparation and transcode-ahead share one low-priority scheduler. Hardware decode accepted (off by default, per codec, software fallback). ABR ladder accepted as a new session shape behind a setting, design issue first. **Remux stays on the fork.** Event stream later. Order: small fixes, preparation, hardware decode, ladder. One area per PR.
 

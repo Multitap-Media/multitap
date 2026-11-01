@@ -87,7 +87,7 @@ vulnerability:
   contain every stored secret. Likewise, a `client` key acting within its
   scope, for example minting media tokens for any session.
 - **The engine itself** (for example
-  [stremio-server-go](https://github.com/M0Rf30/stremio-server-go), which has no
+  [Rivulet Engine](https://github.com/rivulet-kodi/rivulet-engine), which has no
   authentication by design). Making an engine reachable from a network is a
   deployment error. Report engine vulnerabilities to the engine's project.
 - **An exposed API listener without TLS.** `/v1` (port 8080 by default) must
