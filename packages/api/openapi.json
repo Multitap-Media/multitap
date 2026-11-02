@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Multitap API",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "description": "Multitap: a headless Stremio client with a remote engine. Errors are RFC 9457 problem details. CORS: for an `Origin` in `MULTITAP_CORS_ORIGINS`, every response carries `Access-Control-Allow-Origin` with that origin and `Vary: Origin`, and an `OPTIONS` preflight to a documented path answers `204` with its methods and the `Authorization`, `Content-Type` and `Last-Event-ID` headers, without a key. No credentials mode. Other origins get no CORS headers (and `OPTIONS` gets `405`)."
   },
   "components": {

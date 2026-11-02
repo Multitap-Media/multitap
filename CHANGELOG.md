@@ -27,6 +27,8 @@ repository; their tags are not part of this repository's history.
 
 ## Unreleased
 
+## 0.2.1 (2026-11-02)
+
 ### Fixed
 
 - **An all-zero info hash no longer reaches the engine.** The addon protocol
