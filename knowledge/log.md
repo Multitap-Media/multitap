@@ -1,3 +1,7 @@
+## 2026-11-01
+* **Update**: Updated concepts `architecture/engine-endpoints-core-uses.md` and `architecture/engine-prepare-stream.md` (the all-zero info hash is refused as `unsupported` and never reaches an engine).
+* **Update**: Updated concepts `fact/engine-baseline.md` (upstream is now Rivulet Engine: the project renamed at v0.26.0, `RIVULET_*` settings from v0.27.0 with `STREMIO_*` silently ignored), `architecture/overview.md`, `architecture/goals-and-non-goals.md` and `process/upstream-engine-asks.md` (the new name and tracker URL), and their `fact/index.md`, `architecture/index.md` and `process/index.md` entries.
+
 ## 2026-10-29
 * **Update**: Updated concept `decision/core-public-repo-fresh-history.md` (the commits made while the repository was private were squashed into the first commit, tagged `v0.2.0` and dated 2026-10-29; the secrets scan of the squashed history) and its `decision/index.md` entry, and `process/core-release.md` (`v0.2.0` is dated 2026-10-29).
 * **Update**: Updated concepts `architecture/goals-and-non-goals.md` (Multitap isn't tied to one engine; stremio-server-go is the one developed and tested with) and `architecture/overview.md` (the engine is a separate streaming server), and the overview's `architecture/index.md` entry.

@@ -3,10 +3,11 @@ type: Architecture
 title: "Engine endpoints core uses, and engine facts core relies on"
 description: "The stremio-server-go endpoints core calls, how core detects DELETE support, builds engine-local mediaURLs, picks the torrent file and keeps trackers; plus the torrent idle-timeout lifecycle."
 tags: [engine, endpoints, core, torrent]
-generated: { by: "agent/claude-sonnet-5.5", at: "2026-10-17T01:46:11Z" }
+generated: { by: "agent/claude-opus-5.5", at: "2026-11-01T12:00:00Z" }
 code_refs:
   - "packages/core/src/engines/server-go.ts"
   - "packages/core/src/engines/server-go-types.ts"
+  - "packages/core/src/engines/resolve.ts"
 status: stable
 ---
 
@@ -26,6 +27,8 @@ Source of truth for the engine surface core depends on  Only core talks to engin
 | `GET /proxy/hls/manifest.m3u8?d=…` + `POST /generate_url` | Live HLS passthrough (phase 4) |
 | `GET /local-addon/…` | Local-files addon (future: engine-local content, [[architecture/future-remote-engines]]) |
 | `GET /metrics` | Prometheus gauges for the admin health view; also core's health check ([[architecture/engine-transport-and-health]]) |
+
+**The all-zero info hash never reaches an engine.** The addon protocol accepts it, but on engines before v0.28.0 `POST /{infoHash}/create` panics in anacrolix with the engine's manager lock held and no deferred unlock, which upstream reports hangs later requests (fixed by upstream `a2949a6`). The hang was read from source, not reproduced. `planStream` classifies such a stream as `unsupported`, so auto-select moves on to the next source, and the client's `checkInfoHash` refuses it as well. That second check alone isn't enough: it throws a plain error, which would end auto-select with `internal-error`.
 
 `/{infoHash}/remove` isn't used: a torrent can back several sessions, so torrents are reclaimed by the idle timeout (below).
 

@@ -1,14 +1,15 @@
 # Multitap roadmap
 
 Everything outstanding for **Multitap** as a product: a menu of goals for filling
-out the service, not a schedule. Last updated 2026-10-29, at Multitap **0.2.0**.
+out the service, not a schedule. Last updated 2026-11-01, at Multitap **0.2.0**.
 
 ## What Multitap is
 
 Multitap is a standalone, headless Stremio client with a remote engine. It browses
 Stremio addons, lists and ranks sources, runs playback sessions on a streaming
 engine (developed and tested with
-[stremio-server-go](https://github.com/M0Rf30/stremio-server-go)) and serves
+[Rivulet Engine](https://github.com/rivulet-kodi/rivulet-engine), formerly
+stremio-server-go) and serves
 their media to any number of players through revocable media tokens,
 and keeps Stremio-format profiles and libraries, all behind a schema-first
 HTTP API (`/v1`, OpenAPI 3.1, with a generated typed client). It has no UI and
@@ -21,8 +22,8 @@ Its design is the OKF bundle in [`knowledge/`](knowledge/project-map.md)
 clients of Multitap, built on its `/v1` API; they are not part of it.
 
 Terms used below: the **engine** is the transcoding streaming server Multitap
-drives over the LAN, here stremio-server-go, the one Multitap is developed and
-tested with; the **reference deployment** is
+drives over the LAN, here Rivulet Engine (formerly stremio-server-go), the one Multitap
+is developed and tested with; the **reference deployment** is
 the setup Multitap was tested on: an Intel mini-PC with QuickSync running the
 engine on Windows, and Multitap run from source on another host behind a
 reverse proxy.
@@ -34,8 +35,8 @@ reverse proxy.
 - **Size:** **S** (hours to a day), **M** (days), **L** (a week or more, often
   several PRs). Rough, and blank where unknown.
 - **Area:** `multitap` (this service), `engine` (an upstream change to
-  stremio-server-go, tracked in
-  [M0Rf30/stremio-server-go#43](https://github.com/M0Rf30/stremio-server-go/issues/43);
+  Rivulet Engine, tracked in
+  [rivulet-kodi/rivulet-engine#43](https://github.com/rivulet-kodi/rivulet-engine/issues/43);
   Multitap detects each engine feature at runtime and keeps working without it),
   `app` (belongs to an app or people layer built on Multitap, never in Multitap).
 - **Source:** where the item is recorded. An `okf:` reference is a concept id in the

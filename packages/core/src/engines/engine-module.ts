@@ -511,7 +511,7 @@ export class ServerGoEngineModule implements EngineModule {
       if (err instanceof ServerGoError && plan.kind === 'proxy') {
         log.warn(
           { proxyPasswordSet: entry.proxyPassword !== undefined },
-          "probe of a proxyHeaders source failed; if the engine sets STREMIO_PROXY_PASSWORD, check the engine's proxyPassword",
+          "probe of a proxyHeaders source failed; if the engine sets a proxy password, check the engine's proxyPassword",
         );
       }
       if (err instanceof ServerGoError) {

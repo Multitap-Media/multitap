@@ -173,6 +173,17 @@ describe('resolution matrix', () => {
     expect(fake.masterRequests[0]?.mediaURL).toBe(`${SELF}/${IH}/1`);
   });
 
+  it('all-zero info hash → unsupported, without reaching the engine', async () => {
+    const { fake, prepare } = await setup();
+    expect(await prepare({ infoHash: '0'.repeat(40), fileIdx: 0 })).toEqual({
+      ok: false,
+      reason: 'unsupported',
+      retryable: false,
+    });
+    expect(fake.creates).toEqual([]);
+    expect(fake.masterRequests).toEqual([]);
+  });
+
   it('torrent without metadata in time → torrent-failed, retryable', async () => {
     const { fake, prepare } = await setup();
     const other = 'f'.repeat(40);
