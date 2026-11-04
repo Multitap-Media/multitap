@@ -283,6 +283,22 @@ describe('media tokens', () => {
     expect(problem.errors).toBeDefined();
   });
 
+  it('forbids "." and ".." as subjects: a URL path drops them', async () => {
+    const { readySession, call } = await setup();
+    const { id } = await readySession();
+    for (const subject of ['.', '..']) {
+      const res = await call('POST', `/v1/sessions/${id}/tokens`, { subject });
+      expect(res.status).toBe(400);
+      expect(JSON.stringify(res.json())).toContain('subject');
+      expect((res.json() as { errors: { message: string }[] }).errors[0]?.message).toContain(
+        'cannot be "." or ".."',
+      );
+    }
+    // Dots inside a subject are fine.
+    expect((await call('POST', `/v1/sessions/${id}/tokens`, { subject: '...' })).status).toBe(201);
+    expect((await call('POST', `/v1/sessions/${id}/tokens`, { subject: 'tv.1' })).status).toBe(201);
+  });
+
   it('keeps a subject revoked across a restart and accepts the previous secret while rotating', async () => {
     const { r, readySession } = await setup();
     const { id } = await readySession();

@@ -332,9 +332,15 @@ const subject = z.string().min(1).max(200).meta({
 /** Body of `POST /v1/sessions/{id}/tokens`. */
 export const MintTokenSchema = z
   .object({
-    subject: subject.refine((s) => s !== 'revoke-all', {
-      message: 'The subject value "revoke-all" is reserved and cannot be used.',
-    }),
+    subject: subject
+      .refine((s) => s !== 'revoke-all', {
+        message: 'The subject value "revoke-all" is reserved and cannot be used.',
+      })
+      // A URL path drops a `.` or `..` segment (WHATWG URL, also `%2E%2E`), so
+      // `DELETE …/tokens/..` would reach `DELETE /v1/sessions/{id}`.
+      .refine((s) => s !== '.' && s !== '..', {
+        message: 'The subject cannot be "." or "..": a URL path cannot carry it.',
+      }),
     ttl: z.number().int().min(TOKEN_MIN_TTL_SEC).max(TOKEN_MAX_TTL_SEC).optional().meta({
       description: 'Lifetime in seconds; default `MULTITAP_MEDIA_TOKEN_TTL_MS` (8 h).',
       example: 28_800,

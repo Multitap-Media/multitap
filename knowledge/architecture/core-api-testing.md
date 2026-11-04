@@ -3,7 +3,7 @@ type: Architecture
 title: "Building and testing the core API: zod-openapi, Schemathesis, oasdiff, fakes"
 description: "How core's API is built and tested: routes declared once with zod and @hono/zod-openapi, generated client, Schemathesis contract tests with stateful links, oasdiff against the last release, the client's equivalent, Prism, what the contract cannot cover, fakes, and why not tRPC."
 tags: [core, api, testing, contract, architecture]
-generated: { by: "agent/claude-sonnet-5.5", at: "2026-10-17T02:10:23Z" }
+generated: { by: "agent/claude-opus-5.5", at: "2026-11-04T12:00:00Z" }
 code_refs:
   - "packages/core/test/contract/"
   - "packages/api/"
@@ -19,7 +19,7 @@ hand.
 | Job | Tool | Notes |
 |---|---|---|
 | Define routes | **Hono + `@hono/zod-openapi`** | Each route is declared once with zod schemas for params, body and responses. Requests are validated from them, and the **OpenAPI 3.1 document is generated**, never hand-written. The same zod schemas can be imported by the client and the client app. |
-| Client | **`openapi-typescript` + `openapi-fetch`** | The client's client is generated from the OpenAPI document, not from core's source. A change to core's API shows up as a type error in the client. |
+| Client | **`openapi-typescript` + `openapi-fetch`** | The client's client is generated from the OpenAPI document, not from core's source. A change to core's API shows up as a type error in the client. `createMultitapClient` refuses (`TypeError`, nothing sent) a path parameter that is `.` or `..`: `encodeURIComponent` leaves them, and the URL would drop the segment and reach another route. |
 | Contract tests | **Schemathesis**, in CI | Generates requests from the schemas (edge cases, invalid input, missing or wrong-scope keys) and checks every response against the document: no 5xx, documented status codes and shapes. **Stateful mode** follows OpenAPI links, declared on the routes' responses (create session → get/update → mint token, revoke all, viewers, subtitles → release; create profile → report progress → library → continue watching → next, delete), so lifecycle sequences are exercised without writing them. The harness (`packages/core/test/contract/run.ts`) runs core against fake addons and the fake engine as `home`, in three passes (`read`, `client`, `admin`). `GET /v1/events` is left out of the run: an SSE response never ends; Vitest covers it. New endpoints are covered as soon as they're declared. |
 | Breaking changes | **oasdiff**, in CI | `pnpm run api:diff`, a step of `pnpm run ci`: diffs the generated document against the last release (the last `core-v*` tag) and fails on changes that would break a `/v1` client (`ERR`), unless `packages/api/breaking-accepted.txt` accepts them (the versioning rule is in [[architecture/core-v1-api]]). Where oasdiff isn't installed `ci` skips it with a warning; on Windows WSL's copy is used. The Linux copy made by `scripts/linux-run.sh` has no `.git`, so there it reports "not a git checkout" and skips: run it in the checkout. Before the first tag existed it only reported against `main` ([[process/build-plan]]). |
 | Developing against Multitap | **Prism** | A mock server from the same document, for client work without a running Multitap |
