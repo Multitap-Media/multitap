@@ -75,6 +75,28 @@ repository; their tags are not part of this repository's history.
   `MaxListeners` warning (okf:architecture/core-events-sse).
 - **The media listener's `500` carries `Cache-Control: no-store`, `nosniff`
   and `no-referrer`.**
+- **A slow or reset engine request no longer fails a session as
+  `engine-offline`.** Multitap checks the engine's health first: if it
+  answers, only that source failed (`engine-error`) and auto-select tries the
+  next one (okf:architecture/engine-transport-and-health).
+- **A restarted engine plays at once.** A new session on an engine marked
+  offline triggers a health check (at most one every 5 s) instead of waiting
+  out the backoff.
+- **No engine session is left behind** when an auto-selected source becomes
+  ready just after its session was released, and a retry no longer joins an
+  engine prepare that was already aborted (which failed the session with
+  `internal-error`).
+- **The retention sweep goes on past a failing release**, and the
+  pending-release retries and purges still run
+  (okf:architecture/engine-retention).
+- **`POST /v1/sessions` answers `503` while Multitap shuts down**, and nothing
+  starts resolving after shutdown begins.
+- **Addon URLs pointing at loopback or the engine are refused with a trailing
+  dot or mixed case too** (`localhost.`), and the engine gets the URL that was
+  checked (okf:core-review/sec-input-engine-proxy-password).
+- **`/opensubHash` stays on after a per-file `404`**; only a missing route
+  turns it off. A subtitle list that goes away no longer ends the shared hash
+  lookup or caches it as a miss.
 
 ### Changed
 
@@ -82,6 +104,10 @@ repository; their tags are not part of this repository's history.
   at most once a second, shared by its streams; each event is serialised once;
   the replay buffer is a ring. A token for a deleted session reads the
   database at most every 5 s, and `/v1/whoami` answers without a second read.
+- Releases on an engine marked offline are queued for retry without
+  contacting it, and the sweep releases up to four sessions at a time.
+- Multitap warns when an engine address isn't on port 11470: engine-local URLs
+  (torrents, YouTube, proxied sources) assume the engine listens there itself.
 
 ## 0.2.1 (2026-11-02)
 
