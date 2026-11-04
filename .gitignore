@@ -11,3 +11,6 @@ data/
 
 # Python bytecode (the contract run's Schemathesis hooks)
 __pycache__/
+
+# Schemathesis run cache (pnpm run contract)
+.schemathesis/
