@@ -25,7 +25,8 @@ Source of truth for this topic
   answers from the key as verified for that request, with no second read.
 - **Revoking a key** (CLI or `DELETE /v1/admin/api-keys/{id}`) makes every
   later request with it a `404`, and ends its open `/v1/events` streams at
-  their next event or heartbeat ([[architecture/core-events-sse]]). Media
+  their next event or heartbeat (at once through the API; within about a
+  second more from the CLI, [[architecture/core-events-sse]]). Media
   tokens it minted stay valid until they expire or are revoked themselves
   ([[concept/media-tokens]]); `SECURITY.md` says so.
 - The client holds a `client` key for normal use and an `admin` key used only
