@@ -79,6 +79,7 @@ function heightOf(resolution: string | undefined, name: string): number | undefi
   if (dims) {
     const w = Number(dims[1]);
     const h = Number(dims[2]);
+    if (w === 0 || h === 0) return undefined;
     // Cropped or ultra-wide frames: class by width (1920 x 800 is a 1080p release).
     // Side-by-side 3D (3840 x 1080) is two 1080p frames, so keep its height.
     return snapHeight(w / h <= 2.5 ? Math.max(h, Math.round((w * 9) / 16)) : h);
@@ -87,7 +88,8 @@ function heightOf(resolution: string | undefined, name: string): number | undefi
   const label = HEIGHT_BY_LABEL[resolution.toLowerCase()];
   if (label !== undefined) return label;
   const p = /^(\d{3,4})[pi]$/i.exec(resolution);
-  return p ? Number(p[1]) : undefined;
+  // `0000p` is no height.
+  return p ? positiveInt(Number(p[1])) : undefined;
 }
 
 const HEIGHT_CLASSES = [240, 360, 480, 576, 720, 1080, 1440, 2160, 4320];
@@ -133,8 +135,10 @@ function dvProfileOf(name: string): number | undefined {
 }
 
 function bitDepthOf(bitDepth: string | undefined, hdr: HdrFormat | undefined): number | undefined {
-  const m = bitDepth === undefined ? null : /(\d+)/.exec(bitDepth);
-  if (m) return Number(m[1]);
+  const m = bitDepth === undefined ? null : /(?<!\d)(\d{1,2})(?!\d)/.exec(bitDepth);
+  const stated = Number(m?.[1]);
+  // Video is 8 to 16 bits per channel; anything else isn't a bit depth.
+  if (stated >= 8 && stated <= 16) return stated;
   // HDR10, HDR10+, HLG and Dolby Vision are all at least 10-bit.
   return hdr === undefined ? undefined : 10;
 }
@@ -169,21 +173,53 @@ function languagesOf(tokens: readonly string[], name: string): string[] | undefi
   return out.length > 0 ? out : undefined;
 }
 
-/** Parses one release or file name. Never throws; unknown fields are left out. */
-export function parseReleaseName(raw: string): NameInfo {
-  const name = raw.trim();
-  if (name === '') return {};
-  const ext = CONTAINER_EXT.exec(name);
-  const container = ext?.[1]?.toLowerCase();
-  // Strip the extension first: the library would read `.ts` as TeleSync.
-  const stem = ext ? name.slice(0, ext.index) : name;
+export type ParsedTitle = Readonly<ReturnType<typeof parseTorrentTitle>>;
 
-  let lib: ReturnType<typeof parseTorrentTitle>;
+/** Most library parses remembered, and the longest name remembered (real ones are well under). */
+const TITLE_CACHE_ENTRIES = 1_024;
+const TITLE_CACHE_KEY_MAX = 512;
+const titles = new Map<string, ParsedTitle>();
+
+/**
+ * The library's parse of a name without its container extension, remembered:
+ * ranking reads a candidate's release lines again (the mismatch check, every
+ * time a list is annotated) after `parseStream` read them, and the library is
+ * the expensive part. Never throws. The result is shared: don't change it.
+ */
+export function parseTitle(stem: string): ParsedTitle {
+  const known = titles.get(stem);
+  if (known !== undefined) return known;
+  let lib: ParsedTitle;
   try {
     lib = parseTorrentTitle(stem);
   } catch {
     lib = {};
   }
+  if (stem.length <= TITLE_CACHE_KEY_MAX) {
+    // Oldest first out: enough for the lists being ranked right now.
+    if (titles.size >= TITLE_CACHE_ENTRIES) titles.delete(titles.keys().next().value ?? '');
+    titles.set(stem, lib);
+  }
+  return lib;
+}
+
+/** A trimmed name split into its stem and container extension (`mts` read as `m2ts`). */
+export function splitContainer(raw: string): { stem: string; container: string | undefined } {
+  const name = raw.trim();
+  const ext = CONTAINER_EXT.exec(name);
+  const container = ext?.[1]?.toLowerCase();
+  // Strip the extension first: the library would read `.ts` as TeleSync.
+  return {
+    stem: ext ? name.slice(0, ext.index) : name,
+    container: container === 'mts' ? 'm2ts' : container,
+  };
+}
+
+/** Parses one release or file name. Never throws; unknown fields are left out. */
+export function parseReleaseName(raw: string): NameInfo {
+  if (raw.trim() === '') return {};
+  const { stem, container } = splitContainer(raw);
+  const lib = parseTitle(stem);
 
   const hdr = hdrOf(lib.hdr ?? [], stem);
   // Hi10P is 10-bit H.264 (common in anime); the library doesn't know the P form.
@@ -196,11 +232,16 @@ export function parseReleaseName(raw: string): NameInfo {
     codec: codecOf(lib.codec, stem) ?? (hi10p ? 'h264' : undefined),
     bitDepth: bitDepthOf(lib.bitDepth ?? (hi10p ? '10bit' : undefined), hdr),
     audio: audioOf(lib.audio ?? [], source, stem),
-    container: container === 'mts' ? 'm2ts' : container,
+    container,
     source,
     languages: languagesOf(lib.languages ?? [], stem),
   };
   return compact(info);
+}
+
+/** `n` when it is a positive safe integer, else `undefined`. */
+export function positiveInt(n: number | undefined): number | undefined {
+  return n !== undefined && Number.isSafeInteger(n) && n > 0 ? n : undefined;
 }
 
 /** Drops `undefined` fields, so results compare and serialize cleanly. */

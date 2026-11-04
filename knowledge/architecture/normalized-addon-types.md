@@ -8,6 +8,7 @@ code_refs:
   - "packages/api/src/browse.ts"
   - "packages/api/src/selection.ts"
   - "packages/core/src/selection/candidates.ts"
+  - "packages/core/src/addons/meta-view.ts"
 status: stable
 ---
 
@@ -33,6 +34,8 @@ SourceCandidate {
   // container, source (bluray/web/cam…), languages, durationSec
 }
 ```
+
+URLs in the meta views (and an addon's manifest `logo`) are filtered by scheme in core (`addons/meta-view.ts`), since a client may load or follow them: `poster`, `background`, `logo` and episode `thumbnail` must be http(s), and `links[].url` http(s) or `stremio:`. Anything else (`javascript:`, `data:`, …) is left out. A `stremio:` link that carries an `http:`/`https:` URL (a manifest URL can hold an addon's configuration) is dropped too, looking through up to eight layers of percent-encoding; one still encoded after that is dropped as well.
 
 Clients only ever see `SourceCandidate`s. Raw `Stream` objects stay in core. stremio-core's `StreamSource` also has archive (`Rar`, `Zip`, `Zip7`, `Tgz`, `Tar`), `Nzb` and `PlayerFrame` variants; they're parsed and listed with `unplayableReason: 'unsupported'` until the engine module handles them ([[architecture/engine-prepare-stream]], [[architecture/engine-module]]).
 

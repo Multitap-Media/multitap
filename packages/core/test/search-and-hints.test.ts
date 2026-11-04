@@ -112,6 +112,33 @@ describe('GET /v1/search', () => {
     ]);
   });
 
+  it("asks at most 20 of an addon's catalogs, 4 at a time", async () => {
+    const t = await setup();
+    const catalogs = Array.from({ length: 30 }, (_, i) => ({
+      type: 'movie',
+      id: `c${String(i)}`,
+      extra: [{ name: 'search', isRequired: true }],
+    }));
+    let running = 0;
+    let most = 0;
+    const { fake } = await t.install({
+      fixture: 'cinemeta',
+      manifest: { catalogs },
+      emptyWhenUnknown: true,
+      latencyMs: () => {
+        running += 1;
+        most = Math.max(most, running);
+        setTimeout(() => (running -= 1), 30);
+        return 30;
+      },
+    });
+    const result = SearchResultSchema.parse((await t.get('/v1/search?q=dune')).json());
+    expect(result.sources.map((s) => s.catalogId)).toEqual(catalogs.slice(0, 20).map((c) => c.id));
+    expect(fake.resourceRequests()).toHaveLength(20);
+    expect(most).toBeLessThanOrEqual(4);
+    expect(most).toBeGreaterThan(1);
+  });
+
   it('filters by type and types', async () => {
     const t = await setup();
     const { fake } = await t.install({ fixture: 'cinemeta' });

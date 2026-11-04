@@ -517,6 +517,13 @@ describe('settings', () => {
     const noRuntime = (sizeBytes: number) =>
       scoreCandidate(cand({ sizeBytes }), home, 'live', { settings: D });
     expect(noRuntime(101 * 1024 ** 2) - noRuntime(99 * 1024 ** 2)).toBe(SIZE_TOO_SMALL_PENALTY);
+    // A 0 duration says nothing: the item's runtime decides.
+    const zero = (sizeBytes: number) =>
+      scoreCandidate(cand({ sizeBytes, height: 1080, durationSec: 0 }), home, 'live', {
+        settings: D,
+        runtimeSec: 3600,
+      });
+    expect(zero(676e6) - zero(674e6)).toBe(SIZE_TOO_SMALL_PENALTY);
   });
 });
 
@@ -579,6 +586,18 @@ describe('explain', () => {
       })[0],
     );
     expect(secondary.explain?.contributions.map((x) => x.rule)).toContain('languageSecondary');
+    // Equal bonuses: a primary-language match is still `language`.
+    const equal = mergeRankingSettings(D, {
+      language: { matchBonus: 50, secondaryMatchBonus: 50 },
+    });
+    const primary = must(
+      annotate([cand({ languages: ['ita'] })], home, 'off', {
+        settings: equal,
+        explain: true,
+        preferredLanguages: ['ita', 'eng'],
+      })[0],
+    );
+    expect(primary.explain?.contributions.find((x) => x.points === 50)?.rule).toBe('language');
     const binge = must(
       annotate([cand({}, { bingeGroup: 'g' })], home, 'off', {
         settings: D,

@@ -38,8 +38,12 @@ Source of truth for core's subtitle, player-state and search behaviour (migrated
   setting a player delay, which stays possible per viewer. A media request may add
   `?offsetMs=` (the query is not part of the allowlisted path; `Cache-Control:
   no-store` as ever); the effective offset is the sum, clamped. `/v1/subtitles/file/…`
-  takes `?offsetMs=` too. Only the unshifted conversion is cached; the shift is
-  applied per request, so varying offsets can't grow the cache. No event is
+  takes `?offsetMs=` too. The unshifted conversion is cached (10 minutes, 200
+  files, 50 MiB), and each shifted one by file id and offset in a budget of its
+  own (200 entries, 20 MiB), so a player reloading a shifted track doesn't
+  reparse the file and varying offsets can't crowd out unshifted files. A file
+  whose fetch or conversion failed fails the same way for 30 s without being
+  fetched again (`SUBTITLE_FAILURE_TTL_MS`). No event is
   emitted on a change (a new event type would break the response union); players
   reload the track, and `GET …/subtitles` reports the current `offsetMs`.
 - **Per-item player state (P1, core 0.1.3):** `GET`/`PUT
@@ -63,7 +67,11 @@ Source of truth for core's subtitle, player-state and search behaviour (migrated
 - **Search and subtitle extras:** `GET /v1/search` fans one query out to every
   enabled catalog that declares the `search` extra (and no other required one,
   as stremio-core's `catalogs_with_extra` does) through the normal aggregation,
-  so timeouts, the circuit breaker and the response cache apply; results are
+  so timeouts, the circuit breaker and the response cache apply. Addons are
+  asked at once, but at most 20 catalogs of one addon (the first in its
+  manifest; `SEARCH_MAX_CATALOGS_PER_ADDON`) and at most 4 of them at a time
+  (`SEARCH_ADDON_CONCURRENCY`), so one manifest can't fan a search out
+  without bound; results are
   grouped per catalog with each addon's status, and `skip` pages the catalogs
   that declare it. Addons that use `videoHash`, `videoSize` and `filename` to
   match subtitles (OpenSubtitles) get them: `/v1/subtitles/…` takes them as

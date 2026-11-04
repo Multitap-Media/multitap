@@ -29,7 +29,7 @@ Source of truth for this topic ("Runtime", "Tooling", "Wrapped or written in-hou
 | SQLite | **better-sqlite3** | Mature, synchronous. Ships prebuilt binaries (glibc, musl, Windows, macOS), so set `allowBuilds: { better-sqlite3: false }` in `pnpm-workspace.yaml` to skip a redundant `node-gyp` build. Node's built-in `node:sqlite` replaces it once stable in our LTS; the database layer keeps that a small change. |
 | Queries and migrations | **Kysely** | Thin typed SQL builder with its own migrator; no hidden behaviour and no engine binary |
 | Lint and format | **ESLint + typescript-eslint + Prettier**, **dependency-cruiser** | Long-standing defaults; dependency-cruiser enforces the package boundaries ([[architecture/boundary-rule]]) |
-| Dependency updates | **Renovate** | Grouped update PRs with pinned versions; the main defence against slow rot |
+| Dependency updates | **Renovate** | Grouped update PRs with pinned versions (the `node:26-alpine` base image by digest), each release at least 3 days old (`minimumReleaseAge`); the main defence against slow rot |
 | Releases (once core has its own repo) | **Changesets** | Versions and changelogs for `core-api` and core's image |
 
 **Wrapped or written in-house:**

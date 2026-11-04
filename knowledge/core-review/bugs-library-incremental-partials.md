@@ -13,6 +13,7 @@ Area `bugs-library` of the [core adversarial review](charter.md); listed in [bug
 
 - **Severity:** medium. **Kind:** bug.
 - **Verdict:** confirmed.
+- **Status:** fixed 2026-11-04 (see [Fix](#fix)).
 - **Where:** `packages/core/src/selection/source-list.ts:129-133` (`aggregate`'s `onOutcome` calls `emit`), `:213-214` (`let partials`, declared only after `await lookup` and `await collection.get(...)`), `:224` (`remaining + (synthetic ? 1 : 0)`), `:244` (`emit(own, 0)` for the synthetic part).
 
 ## What happens
@@ -31,6 +32,12 @@ pnpm vitest run packages/core/test/review-poc/bugs-library/selection-source-list
 ## Fix direction
 
 Declare `partials`, `built` and `build` before calling `aggregate` (or queue outcomes until setup is done), and don't add the synthetic 1 when emitting the synthetic outcome itself.
+
+## Fix
+
+`emit` and the partial queue are declared before the addons are asked, so an answer that arrives during the meta lookup waits in the queue for the setup and is sent once the setup is done. The synthetic part's own partial is emitted without the extra 1, so it is the one with `remaining: 0`. Both PoC tests are now plain `it` tests and pass. A listener that throws is logged at `debug` (`source list listener failed`). Each addon's part is annotated once, for its partial or the full list, which reuses it.
+
+Not changed: the `202` still waits for the meta lookup, because its `addons` count (the partials to expect) includes the synthetic part, which only the meta says exists; answering first would change the `SourceListStarted` contract.
 
 ## Public-release blocker
 

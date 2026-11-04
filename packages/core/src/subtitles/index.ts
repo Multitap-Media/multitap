@@ -40,6 +40,12 @@ export const SUBTITLE_FILE_MAX_ENTRIES = 10_000;
 export const SUBTITLE_VTT_TTL_MS = 10 * 60_000;
 export const SUBTITLE_VTT_MAX_ENTRIES = 200;
 export const SUBTITLE_VTT_MAX_BYTES = 50 * 1024 * 1024;
+/** Shifted conversions (a non-zero `offsetMs`), cached like the unshifted ones but in a budget of their own. */
+export const SUBTITLE_SHIFTED_MAX_ENTRIES = 200;
+export const SUBTITLE_SHIFTED_MAX_BYTES = 20 * 1024 * 1024;
+/** A file that failed is not fetched again for this long; the same error is served meanwhile. */
+export const SUBTITLE_FAILURE_TTL_MS = 30_000;
+export const SUBTITLE_FAILURE_MAX_ENTRIES = 1_000;
 
 /** A file id: base64url, 32 characters. */
 export const SUBTITLE_FILE_ID_PATTERN = '^[A-Za-z0-9_-]{32}$';
@@ -129,6 +135,8 @@ export class SubtitleService {
   readonly #timeoutMs: number;
   readonly #files: TtlCache<SubtitleSource>;
   readonly #vtt: TtlCache<string>;
+  readonly #shifted: TtlCache<string>;
+  readonly #failures: TtlCache<SubtitleFileError>;
   readonly #inFlight = new Map<string, Promise<string>>();
 
   constructor(deps: SubtitleServiceDeps) {
@@ -149,6 +157,18 @@ export class SubtitleService {
       maxEntries: SUBTITLE_VTT_MAX_ENTRIES,
       maxWeight: SUBTITLE_VTT_MAX_BYTES,
       weigh: (text) => Buffer.byteLength(text, 'utf8'),
+    });
+    this.#shifted = new TtlCache({
+      clock: deps.clock,
+      ttlMs: SUBTITLE_VTT_TTL_MS,
+      maxEntries: SUBTITLE_SHIFTED_MAX_ENTRIES,
+      maxWeight: SUBTITLE_SHIFTED_MAX_BYTES,
+      weigh: (text) => Buffer.byteLength(text, 'utf8'),
+    });
+    this.#failures = new TtlCache({
+      clock: deps.clock,
+      ttlMs: SUBTITLE_FAILURE_TTL_MS,
+      maxEntries: SUBTITLE_FAILURE_MAX_ENTRIES,
     });
   }
 
@@ -192,13 +212,23 @@ export class SubtitleService {
   /**
    * A listed file as WebVTT, fetched and converted on first use and cached
    * briefly. `offsetMs` shifts the cues (clamped to +-`SUBTITLE_OFFSET_MAX_MS`;
-   * see `shiftWebVtt`). Only the unshifted conversion is cached, and the shift
-   * is applied per request, so varying offsets can't grow the cache.
+   * see `shiftWebVtt`). A shifted file is cached too, by file id and offset,
+   * in a byte budget of its own, so a player asking for the same offset again
+   * doesn't reparse the file and varying offsets can't crowd out unshifted
+   * files. A file that failed fails the same way for `SUBTITLE_FAILURE_TTL_MS`
+   * without being fetched again.
    *
    * @throws {SubtitleFileError}
    */
   async file(fileId: string, offsetMs = 0): Promise<string> {
-    return shiftWebVtt(await this.#unshifted(fileId), clampSubtitleOffset(offsetMs));
+    const offset = clampSubtitleOffset(offsetMs);
+    if (offset === 0) return this.#unshifted(fileId);
+    const key = `${fileId}@${String(offset)}`;
+    const cached = this.#shifted.get(key);
+    if (cached !== undefined) return cached;
+    const shifted = shiftWebVtt(await this.#unshifted(fileId), offset);
+    this.#shifted.set(key, shifted);
+    return shifted;
   }
 
   async #unshifted(fileId: string): Promise<string> {
@@ -208,6 +238,8 @@ export class SubtitleService {
     if (source === undefined) {
       throw new SubtitleFileError('not-found', 'No subtitle file with this id; list them again.');
     }
+    const failed = this.#failures.get(fileId);
+    if (failed !== undefined) throw failed;
     let pending = this.#inFlight.get(fileId);
     if (pending === undefined) {
       pending = this.#load(fileId, source).finally(() => this.#inFlight.delete(fileId));
@@ -233,6 +265,7 @@ export class SubtitleService {
         { addonId: source.addonId, host, code: failure.code },
         'subtitle file failed',
       );
+      this.#failures.set(fileId, failure);
       throw failure;
     }
   }

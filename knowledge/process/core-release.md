@@ -21,7 +21,7 @@ Also the `release` skill (`.claude/skills/release/SKILL.md`). No per-release app
 4. `pnpm run api:generate` (OpenAPI `info.version` is the release), then `pnpm run ci` again.
 5. Commit `chore: release X.Y.Z`.
 6. `git tag -a vX.Y.Z -m "Multitap X.Y.Z: <one line>. See CHANGELOG.md"`, then push `main` and the tag.
-7. The tag runs `.github/workflows/release.yml`: it checks the tag against `packages/core`'s version, builds the image for amd64 and arm64, pushes `ghcr.io/multitap-media/multitap` as `X.Y.Z`, `X.Y` and `latest` with provenance and an SBOM, and creates the GitHub release from the CHANGELOG section.
+7. The tag runs `.github/workflows/release.yml`: it checks the tag against `packages/core`'s version, builds the image for amd64 and arm64, pushes `ghcr.io/multitap-media/multitap` as `X.Y.Z`, as `X.Y` when it is the highest release of `X.Y` and as `latest` when it is the highest release of all (so a patch to an older line never moves them back), with provenance and an SBOM (BuildKit attestations: the job needs only `packages: write`) and the GitHub Actions build cache, and creates the GitHub release from the CHANGELOG section.
 8. `pnpm run api:diff` should report nothing against the new tag. If the release shipped accepted breaking changes, empty `packages/api/breaking-accepted.txt` (keep its comment): the new tag is the baseline.
 9. Update doc version mentions (README status, ROADMAP header), then `pnpm run docs:check`.
 

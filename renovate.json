@@ -3,11 +3,17 @@
   "extends": ["config:recommended"],
   "schedule": ["before 6am on monday"],
   "rangeStrategy": "pin",
+  "minimumReleaseAge": "3 days",
   "lockFileMaintenance": {
     "enabled": true,
     "schedule": ["before 6am on monday"]
   },
   "packageRules": [
+    {
+      "description": "Base images are pinned by digest (tag@sha256:…); the digest moves in the weekly PR",
+      "matchDatasources": ["docker"],
+      "pinDigests": true
+    },
     {
       "description": "One weekly PR for all non-major updates",
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],

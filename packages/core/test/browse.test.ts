@@ -279,6 +279,53 @@ describe('GET /v1/meta/{type}/{id}', () => {
     expect(res.text).not.toContain(SECRET);
   });
 
+  it('passes only http(s) images and http(s) or stremio: links', async () => {
+    const t = await setup();
+    const { fake } = await t.install({ fixture: 'cinemeta' });
+    const twice = encodeURIComponent(encodeURIComponent(fake.manifestUrl));
+    const links = [
+      { name: 'Script', category: 'x', url: 'javascript:alert(1)' },
+      { name: 'Data', category: 'x', url: 'data:text/html,<script>alert(1)</script>' },
+      { name: 'Twice', category: 'Genres', url: `stremio:///discover/${twice}/series/top` },
+      { name: 'Single slash', category: 'Genres', url: 'stremio:/discover/https:/a.example.com' },
+      { name: 'Broken escape', category: 'Genres', url: 'stremio:///discover/https%3A%2F%2Fa%ZZ' },
+      { name: 'Search', category: 'Cast', url: 'stremio:///search?search=Jane%20Doe' },
+      { name: 'Web', category: 'imdb', url: 'https://imdb.com/title/tt0903747' },
+    ];
+    fake.set({
+      routes: {
+        'meta/series/tt0903747': {
+          meta: {
+            id: 'tt0903747',
+            type: 'series',
+            name: 'Breaking Bad',
+            poster: 'javascript:alert(1)',
+            background: 'data:image/png;base64,AAAA',
+            logo: 'https://images.example.com/logo.png',
+            links,
+            videos: [
+              { id: 'tt0903747:1:1', title: 'Pilot', thumbnail: 'javascript:alert(1)' },
+              { id: 'tt0903747:1:2', title: 'Two', thumbnail: 'https://images.example.com/2.jpg' },
+            ],
+          },
+        },
+      },
+    });
+    const res = await t.get('/v1/meta/series/tt0903747');
+    expect(res.status).toBe(200);
+    const { meta } = MetaResultSchema.parse(res.json());
+    expect(meta.links.map((l) => l.name)).toEqual(['Search', 'Web']);
+    expect(meta.poster).toBeUndefined();
+    expect(meta.background).toBeUndefined();
+    expect(meta.logo).toBe('https://images.example.com/logo.png');
+    expect(meta.videos.map((v) => v.thumbnail)).toEqual([
+      undefined,
+      'https://images.example.com/2.jpg',
+    ]);
+    expect(res.text).not.toContain('javascript:');
+    expect(res.text).not.toContain(SECRET);
+  });
+
   it('falls back to the next addon when the first one fails', async () => {
     const t = await setup();
     const broken = await t.install({
@@ -677,6 +724,43 @@ describe('GET /v1/subtitles', () => {
     expect(unreadable.status).toBe(502);
     expect((unreadable.json() as { detail: string }).detail).toMatch(/no supported format/);
     expect(t.bodies.join('\n')).not.toContain(t.subs.fake.origin);
+  });
+
+  it('serves a failed file from its failure for 30 s instead of refetching it', async () => {
+    const t = await subtitlesSetup();
+    t.subs.fake.set({ subtitleFiles: { 'gone.srt': { lang: 'eng', body: '' } } });
+    const list = SubtitleListSchema.parse((await t.get('/v1/subtitles/movie/tt1375666')).json());
+    const url = list.subtitles[0]?.url ?? '';
+    const fetches = () => t.subs.fake.requests.filter((path) => path === '/subs/gone.srt').length;
+    for (let i = 0; i < 3; i++) expect((await t.get(url)).status).toBe(502);
+    expect((await t.get(`${url}?offsetMs=500`)).status).toBe(502);
+    expect(fetches()).toBe(1);
+
+    t.subs.fake.set({ subtitleFiles: { 'gone.srt': { lang: 'eng', body: SRT } } });
+    t.clock.advance(29_999);
+    expect((await t.get(url)).status).toBe(502);
+    t.clock.advance(1);
+    expect((await t.get(url)).status).toBe(200);
+    expect(fetches()).toBe(2);
+  });
+
+  it('serves each offset of a file shifted by that offset, from one fetch', async () => {
+    const t = await subtitlesSetup();
+    const list = SubtitleListSchema.parse((await t.get('/v1/subtitles/movie/tt1375666')).json());
+    const url = list.subtitles[0]?.url ?? '';
+    const cue = (start: string, end: string) =>
+      `WEBVTT\n\n${start} --> ${end}\n<i>Hello</i> there\n`;
+    for (const [offset, expected] of [
+      ['500', cue('00:00:01.500', '00:00:03.000')],
+      ['-500', cue('00:00:00.500', '00:00:02.000')],
+      ['500', cue('00:00:01.500', '00:00:03.000')],
+      ['0', cue('00:00:01.000', '00:00:02.500')],
+      ['-500', cue('00:00:00.500', '00:00:02.000')],
+    ] as const) {
+      const res = await t.get(`${url}?offsetMs=${offset}`);
+      expect(res.text, offset).toBe(expected);
+    }
+    expect(t.subs.fake.requests.filter((path) => path === '/subs/eng.srt')).toHaveLength(1);
   });
 });
 
