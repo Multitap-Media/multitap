@@ -6,6 +6,7 @@ tags: [core, deployment, tls, cors, architecture]
 generated: { by: "agent/claude-opus-5.5", at: "2026-10-26T12:00:00Z" }
 code_refs:
   - "Dockerfile"
+  - "packages/core/src/index.ts"
   - "packages/core/src/http/listen.ts"
   - "packages/core/src/http/cors.ts"
 status: stable
@@ -20,5 +21,13 @@ Multitap listens on two ports: `8080` for `/v1` and `8081` for `/media`. Each ca
 - **Path routing is not required.** Same-host path routing still works if an operator prefers it, because Multitap returns absolute media URLs from `MULTITAP_MEDIA_PUBLIC_BASE`.
 
 The media path is browser → (optional proxy) → Multitap → engine. A client that coordinates viewers (sync, chat) is not in it, so restarting such a client doesn't interrupt playback.
+
+**Process lifecycle** (`main` in `packages/core/src/index.ts`):
+
+- **One server per data folder.** Startup takes the data folder's lock before anything touches the database; a second core on the same folder stops with an error naming the folder ([[architecture/core-persistence]]).
+- **`SIGTERM` / `SIGINT`:** graceful shutdown (event streams end, listeners close, held-back library progress is flushed, the database closes, the lock is released), then exit 0. If that takes longer than 8 s, core exits 1 anyway: below Docker's default 10 s stop grace, so core's own exit and last log lines come before Docker's `SIGKILL`. The listeners cut open responses after 5 s (`CLOSE_GRACE_MS`), which leaves the rest for flushing.
+- **`SIGHUP`** is always handled, so it never kills core without a graceful shutdown: with built-in TLS it reloads the certificate files; without, it is logged and ignored. Windows has no `SIGHUP`.
+- **Uncaught errors** (`uncaughtException`, `unhandledRejection`): logged as `fatal`, then the same graceful shutdown bounded to 3 s, then exit 1, so a crash still flushes progress and the log file where it can.
+- **Unknown `MULTITAP_*` variables** are named in one startup warning (names only, never values) ([[architecture/configuration]]).
 
 The decision that nothing assumes a reverse proxy (2026-10-06) is [[decision/no-reverse-proxy-dependency]]. The settings are in [[architecture/configuration]].

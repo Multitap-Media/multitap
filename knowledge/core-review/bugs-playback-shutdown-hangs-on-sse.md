@@ -49,7 +49,7 @@ On shutdown, end open SSE streams first (a shutdown signal the route's loop watc
 
 ## Fix
 
-`RunningCore.close()` first aborts a shutdown signal (`AppDeps.shutdown`) that the `/v1/events` loop watches, so every open stream ends and its client reconnects with `Last-Event-ID` later. `Listener.close()` keeps closing connections that turn idle, and cuts any still open after `CLOSE_GRACE_MS` (5 s), which also bounds a long media response. `library.flush()` and `db.destroy()` then run well inside the 10 s force-exit. The design is in [core events](../architecture/core-events-sse.md).
+`RunningCore.close()` first aborts a shutdown signal (`AppDeps.shutdown`) that the `/v1/events` loop watches, so every open stream ends and its client reconnects with `Last-Event-ID` later. `Listener.close()` keeps closing connections that turn idle, and cuts any still open after `CLOSE_GRACE_MS` (5 s), which also bounds a long media response. `library.flush()` and `db.destroy()` then run well inside the force-exit (10 s then, 8 s since 2026-11-04, below Docker's default stop grace; [[architecture/core-deployment]]). The design is in [core events](../architecture/core-events-sse.md).
 
 ## Public-release blocker
 
