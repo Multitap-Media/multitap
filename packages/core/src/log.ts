@@ -1,3 +1,4 @@
+import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { multistream, pino, transport, type DestinationStream, type Logger } from 'pino';
 import type { Config, LogLevel } from './config.ts';
@@ -86,7 +87,13 @@ export async function openLogFile(logging: Config['logging']): Promise<LogFileSt
   if (logging.dir === null) throw new Error('MULTITAP_LOG_DIR is not set');
   // Loaded on demand: it pulls in date-fns, which the CLI and tests don't need.
   const { default: roll } = await import('pino-roll');
+  // Private where the platform has modes, like the database and its backups:
+  // logs name hosts and ids, and at debug/trace they hold credentials. A
+  // directory that already exists keeps its mode.
+  await mkdir(logging.dir, { recursive: true, mode: 0o700 });
   return (await roll({
+    // Each new file (rotations included) is created 0600; sonic-boom's option.
+    mode: 0o600,
     file: join(logging.dir, 'multitap'),
     extension: '.log',
     dateFormat: 'yyyy-MM-dd',

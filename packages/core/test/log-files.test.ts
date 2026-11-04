@@ -1,4 +1,4 @@
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Writable } from 'node:stream';
@@ -73,6 +73,19 @@ describe('log files (MULTITAP_LOG_DIR)', { timeout: 20_000 }, () => {
     expect(JSON.parse(readAll())).toMatchObject({ msg: 'hello', port: 8080 });
     expect(out.text()).toContain('"msg":"hello"');
   });
+
+  it.skipIf(process.platform === 'win32')(
+    'creates the directory 0700 and the files 0600',
+    async () => {
+      await open();
+      const logger = createLogger({ level: 'info', file, stdout: false });
+      logger.info('hello');
+      await settle();
+      expect(statSync(logs).mode & 0o777).toBe(0o700);
+      expect(names()).toHaveLength(1);
+      expect(statSync(join(logs, names()[0] ?? '')).mode & 0o777).toBe(0o600);
+    },
+  );
 
   it('writes only to the file with stdout off', async () => {
     await open();
