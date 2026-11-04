@@ -3,7 +3,7 @@ type: Component
 title: "Engine session lifecycle during playback: self-heal and admission"
 description: "How an engine session behaves while a viewer plays: self-healing master requests, no keepalive, no seek prewarm from core, and admission against the engine's liveConcurrency (warn, reject or off) measured as load."
 tags: [core, engine, lifecycle, admission, component]
-generated: { by: "agent/claude-sonnet-5.5", at: "2026-10-17T02:10:23Z" }
+generated: { by: "agent/claude-opus-5.5", at: "2026-11-04T02:45:00Z" }
 code_refs:
   - "packages/core/src/engines/"
   - "packages/core/src/sessions/"
@@ -39,6 +39,8 @@ Source of truth for engine session lifecycle during playback  Interface and over
   warning and goes ahead, `reject` answers `503` with a problem and
   `Retry-After` (the window, in seconds), `off` does nothing. An idempotent
   create that finds its open session is never refused. The load is in memory:
-  after a core restart it counts from the next segment requests.
+  after a core restart it counts from the next segment requests. Once core
+  begins shutting down, every create is refused with `503` (no `Retry-After`),
+  and one already past that check is stopped before it resolves.
 
 Related: [[architecture/engine-module]], [[concept/engine-descriptor]], [[architecture/engine-hls-model]], [[architecture/engine-endpoints-core-uses]].

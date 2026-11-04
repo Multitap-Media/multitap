@@ -138,9 +138,12 @@ const fail = (reason: UnplayableEngineReason, retryable: boolean): Failure => ({
 interface EngineDetail {
   engineStatus?: number;
   engineError?: string;
+  /** A request that got no answer: `timeout` or `network`. */
+  transportError?: string;
 }
 
 function detailOf(err: unknown): EngineDetail {
+  if (err instanceof EngineTransportError) return { transportError: err.code };
   if (!(err instanceof ServerGoError)) return {};
   const out: EngineDetail = {};
   if (err.status !== undefined) out.engineStatus = err.status;
@@ -154,21 +157,26 @@ const handleKey = (engineId: string, sid: string) => `${engineId}\u0000${sid}`;
 const withPassword = (entry: EngineEntry, mediaURL: string) =>
   entry.client.withApiPassword(mediaURL, entry.proxyPassword?.reveal());
 
+/** A URL's host name as DNS compares it: lower-cased, without the root's trailing dot. */
+function hostOf(url: string): string {
+  return new URL(url).hostname.toLowerCase().replace(/\.+$/, '');
+}
+
 /**
  * Whether an addon's own URL points at loopback or at the engine's host. The
  * engine would take its own `/proxy/stream` there as a media URL, so such a
  * source is refused (okf:core-review/sec-input-engine-proxy-password).
  */
-function pointsAtEngine(url: string, engineAddress: string | null): boolean {
+export function pointsAtEngine(url: string, engineAddress: string | null): boolean {
   let host: string;
   try {
-    host = new URL(url).hostname.toLowerCase();
+    host = hostOf(url);
   } catch {
     return false;
   }
   if (host === 'localhost' || host.endsWith('.localhost')) return true;
   try {
-    if (engineAddress !== null && host === new URL(engineAddress).hostname.toLowerCase()) {
+    if (engineAddress !== null && host === hostOf(engineAddress)) {
       return true;
     }
   } catch {
@@ -208,12 +216,21 @@ function sleep(ms: number, signal: AbortSignal | undefined): Promise<void> {
   });
 }
 
-/** Maps an engine call failure to a coarse reason; rethrows aborts and programming errors. */
-function engineFailure(err: unknown, signal: AbortSignal | undefined): Failure {
-  if (isAbort(err, signal)) throw err;
-  if (err instanceof EngineTransportError) return fail('engine-offline', true);
-  if (err instanceof ServerGoError) return fail('engine-error', true);
-  throw err;
+/**
+ * Reads a body to its end chunk by chunk, keeping none of it (warm-up: the
+ * engine caches a segment only once its transcode completes).
+ */
+async function drainBody(res: Response): Promise<void> {
+  const reader = res.body?.getReader();
+  if (reader === undefined) return;
+  try {
+    for (;;) {
+      const { done } = await reader.read();
+      if (done) return;
+    }
+  } finally {
+    reader.releaseLock();
+  }
 }
 
 /** The video stream the engine transcodes: the default one, else the first. */
@@ -330,7 +347,11 @@ export class ServerGoEngineModule implements EngineModule {
   readonly #retryMaxMs: number;
   readonly #busyRetryMaxMs: number;
   readonly #sessions = new Map<string, SessionState>();
-  readonly #inflight = new Map<string, Promise<PrepareResult>>();
+  /** Prepares in flight by identity, with the signal of the caller that started each. */
+  readonly #inflight = new Map<
+    string,
+    { promise: Promise<PrepareResult>; signal: AbortSignal | undefined }
+  >();
   readonly #background = new Set<Promise<unknown>>();
 
   constructor(options: EngineModuleOptions) {
@@ -363,10 +384,60 @@ export class ServerGoEngineModule implements EngineModule {
       JSON.stringify(request.quality ?? null),
     ].join('\u0000');
     const existing = this.#inflight.get(key);
-    if (existing !== undefined) return existing;
-    const promise = this.#prepare(request).finally(() => this.#inflight.delete(key));
-    this.#inflight.set(key, promise);
+    // A run its caller aborted is never joined: it ends with the abort.
+    if (existing !== undefined && existing.signal?.aborted !== true) {
+      if (existing.signal === request.signal) return existing.promise;
+      // Joined, but the run belongs to its first caller: when that caller
+      // aborts it, this one (still waiting) starts its own.
+      const again = () =>
+        existing.signal?.aborted === true && request.signal?.aborted !== true
+          ? this.prepare(request)
+          : undefined;
+      return existing.promise.then(
+        (result) => again() ?? result,
+        (err: unknown) => {
+          const retry = again();
+          if (retry === undefined) throw err;
+          return retry;
+        },
+      );
+    }
+    const promise = this.#prepare(request);
+    const entry = { promise, signal: request.signal };
+    const forget = () => {
+      if (this.#inflight.get(key) === entry) this.#inflight.delete(key);
+    };
+    this.#inflight.set(key, entry);
+    // Aborted: forgotten at once, so a new caller doesn't join it while it winds down.
+    request.signal?.addEventListener('abort', forget, { once: true });
+    const done = () => {
+      request.signal?.removeEventListener('abort', forget);
+      forget();
+    };
+    void promise.then(done, done);
     return promise;
+  }
+
+  /**
+   * Maps an engine call failure to a coarse reason; rethrows aborts and
+   * programming errors. A request that got no answer (timed out, reset,
+   * refused) is `engine-offline` only when a health check on demand
+   * (okf:architecture/engine-transport-and-health) doesn't find the engine
+   * answering; otherwise this source failed on a healthy engine
+   * (`engine-error`, retryable), and auto-select moves on to the next.
+   */
+  async #engineFailure(
+    engineId: string,
+    err: unknown,
+    signal: AbortSignal | undefined,
+  ): Promise<Failure> {
+    if (isAbort(err, signal)) throw err;
+    if (err instanceof EngineTransportError) {
+      const online = await this.#o.registry.requestCheck(engineId);
+      return fail(online === true ? 'engine-error' : 'engine-offline', true);
+    }
+    if (err instanceof ServerGoError) return fail('engine-error', true);
+    throw err;
   }
 
   async #prepare(request: PrepareRequest): Promise<PrepareResult> {
@@ -397,6 +468,7 @@ export class ServerGoEngineModule implements EngineModule {
       };
       if (phase !== undefined) fields.phase = phase;
       if (detail.engineStatus !== undefined) fields.engineStatus = detail.engineStatus;
+      if (detail.transportError !== undefined) fields.transportError = detail.transportError;
       if (detail.engineError !== undefined && detail.engineError !== '') {
         let text = detail.engineError;
         if (ctx.secret !== undefined && ctx.secret !== '') {
@@ -404,7 +476,12 @@ export class ServerGoEngineModule implements EngineModule {
         }
         fields.engineError = text;
       }
-      if (ctx.client !== undefined && torrentRef !== undefined) {
+      // Not from an engine found offline: the stats request would only wait for its timeout.
+      if (
+        ctx.client !== undefined &&
+        torrentRef !== undefined &&
+        plain.reason !== 'engine-offline'
+      ) {
         try {
           const stats = await ctx.client.torrentStats(torrentRef.infoHash, torrentRef.fileIdx);
           if (stats !== undefined) {
@@ -422,7 +499,14 @@ export class ServerGoEngineModule implements EngineModule {
 
     const entry = await registry.get(request.engineId);
     if (entry === undefined) return failed(fail('engine-offline', false));
-    if (registry.isOnline(request.engineId) === false) return failed(fail('engine-offline', true));
+    // Marked offline: checked again on demand (at most once per re-check gap),
+    // so an engine that came back plays now rather than after its backoff.
+    if (
+      registry.isOnline(request.engineId) === false &&
+      (await registry.requestCheck(request.engineId)) !== true
+    ) {
+      return failed(fail('engine-offline', true));
+    }
     const { engine, client } = entry;
     ctx.client = client;
     const password = entry.proxyPassword?.reveal();
@@ -483,7 +567,7 @@ export class ServerGoEngineModule implements EngineModule {
       if (plan.fileIdx !== undefined) {
         torrentRef = { infoHash: plan.infoHash, fileIdx: plan.fileIdx };
       }
-      const resolved = await this.#resolveTorrent(client, plan, request.signal);
+      const resolved = await this.#resolveTorrent(request.engineId, client, plan, request.signal);
       if (!resolved.ok) return failed(resolved);
       torrent = { infoHash: plan.infoHash, fileIdx: resolved.fileIdx };
       torrentRef = torrent;
@@ -518,7 +602,7 @@ export class ServerGoEngineModule implements EngineModule {
         // A torrent may just lack peers yet; the engine's negative-probe window is short.
         return failed(fail('probe-failed', plan.kind === 'torrent'), err);
       }
-      return failed(engineFailure(err, request.signal), err);
+      return failed(await this.#engineFailure(request.engineId, err, request.signal), err);
     }
     if (!(probe.durationSec > 0)) {
       const hls = (plan.kind === 'url' || plan.kind === 'proxy') && plan.hls;
@@ -552,12 +636,16 @@ export class ServerGoEngineModule implements EngineModule {
       }
       master = await res.text();
     } catch (err) {
-      if (isAbort(err, request.signal)) {
-        // Aborted mid-create: the engine may have made the session anyway. Best
-        // effort; a row of an earlier prepare stays pending if the delete fails.
+      if (
+        isAbort(err, request.signal) ||
+        (err instanceof EngineTransportError && err.code === 'timeout')
+      ) {
+        // Aborted or timed out mid-create: the engine may have made the session
+        // anyway. Best effort; a row of an earlier prepare stays pending if the
+        // delete fails.
         this.#track(this.release({ engineId: request.engineId, sid }).catch(() => undefined));
       }
-      return failed(engineFailure(err, request.signal), err);
+      return failed(await this.#engineFailure(request.engineId, err, request.signal), err);
     }
 
     const now = clock();
@@ -623,6 +711,7 @@ export class ServerGoEngineModule implements EngineModule {
   }
 
   async #resolveTorrent(
+    engineId: string,
     client: ServerGoClient,
     plan: Extract<StreamPlan, { kind: 'torrent' }>,
     signal: AbortSignal | undefined,
@@ -671,7 +760,7 @@ export class ServerGoEngineModule implements EngineModule {
       if (err instanceof ServerGoError && err.status === 504) {
         return { ...fail('torrent-failed', true), detail: detailOf(err) };
       }
-      return { ...engineFailure(err, signal), detail: detailOf(err) };
+      return { ...(await this.#engineFailure(engineId, err, signal)), detail: detailOf(err) };
     }
   }
 
@@ -697,8 +786,9 @@ export class ServerGoEngineModule implements EngineModule {
     };
     const drain = async (file: string) => {
       const res = await client.file(state.sid, file, signal);
-      // Read to the end: the engine caches a segment only once its transcode completes.
-      await res.arrayBuffer();
+      // Read to the end, chunk by chunk and kept nowhere: the engine caches a
+      // segment only once its transcode completes.
+      await drainBody(res);
     };
     await Promise.all(
       warmPlaylists(master).map(async (playlist) => {
@@ -759,12 +849,22 @@ export class ServerGoEngineModule implements EngineModule {
   /**
    * Deletes the engine session and its row. When the engine doesn't confirm
    * (unreachable, or an unexpected status), the row is kept as a pending
-   * release for {@link retryReleases} and the error is rethrown.
+   * release for {@link retryReleases} and the error is rethrown. On an engine
+   * the health check sees offline, nothing is sent: the release is pending at
+   * once (and rejects).
    */
   async release(handle: EngineHandle): Promise<void> {
     const key = handleKey(handle.engineId, handle.sid);
     this.#sessions.get(key)?.warm.abort();
     this.#sessions.delete(key);
+    if (this.#o.registry.isOnline(handle.engineId) === false) {
+      await this.#markReleasePending(handle);
+      throw new EngineTransportError(
+        handle.engineId,
+        'network',
+        'engine offline; the release stays pending',
+      );
+    }
     try {
       await this.#deleteOnEngine(handle);
     } catch (err) {
@@ -933,6 +1033,10 @@ export class ServerGoEngineModule implements EngineModule {
 
   #track(promise: Promise<unknown>): void {
     this.#background.add(promise);
-    void promise.finally(() => this.#background.delete(promise));
+    promise
+      .finally(() => this.#background.delete(promise))
+      .catch((err: unknown) => {
+        this.#o.logger.error({ err }, 'engine module background task failed');
+      });
   }
 }

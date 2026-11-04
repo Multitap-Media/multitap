@@ -5527,10 +5527,10 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description `MULTITAP_ENGINE_ADMISSION=reject` only: the engine's resolving and playing sessions already reach its `liveConcurrency` */
+            /** @description With `MULTITAP_ENGINE_ADMISSION=reject`, the engine's resolving and playing sessions already reach its `liveConcurrency`; or Multitap is shutting down */
             503: {
                 headers: {
-                    /** @description Seconds to wait before trying again (`MULTITAP_ENGINE_LOAD_WINDOW_MS`). */
+                    /** @description Seconds to wait before trying again (`MULTITAP_ENGINE_LOAD_WINDOW_MS`); absent while shutting down. */
                     "Retry-After"?: number;
                     [name: string]: unknown;
                 };

@@ -136,9 +136,10 @@ export interface SessionRepository {
   bumpTokenEpoch(id: string, now: number): Promise<number | undefined>;
   /**
    * Sessions not yet released (failed ones included) due for release at
-   * `now`: `max(retainUntil, lastAccess + idleMs) <= now` (okf:architecture/engine-retention).
+   * `now`: `max(retainUntil, lastAccess + idleMs) <= now` (okf:architecture/engine-retention). Their ids,
+   * oldest first: the release reads each row itself.
    */
-  listDueForRelease(now: number, idleMs: number): Promise<PlaybackSessionRecord[]>;
+  listDueForRelease(now: number, idleMs: number): Promise<string[]>;
   /** Session counts by status (the `multitap_sessions_status` gauge). */
   countByStatus(): Promise<Map<string, number>>;
   /** Sessions not yet released (for startup and the gateway's in-memory state). */

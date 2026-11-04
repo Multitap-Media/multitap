@@ -52,19 +52,24 @@ export class SubtitleHintResolver {
     });
   }
 
-  /** The hints known for the session; `{}` when it has no source yet or nothing is known. Never rejects. */
+  /**
+   * The hints known for the session; `{}` when it has no source yet or
+   * nothing is known. Never rejects. Callers share one lookup, bounded by
+   * its own timeout only: `signal` stops this caller's wait (`{}`), not the
+   * lookup, whose result is cached for the next.
+   */
   async resolve(record: PlaybackSessionRecord, signal?: AbortSignal): Promise<SubtitleHints> {
     const cached = this.#found.get(record.id) ?? this.#missed.get(record.id);
     if (cached !== undefined) return cached;
     let pending = this.#inFlight.get(record.id);
     if (pending === undefined) {
-      pending = this.#compute(record, signal).finally(() => this.#inFlight.delete(record.id));
+      pending = this.#compute(record).finally(() => this.#inFlight.delete(record.id));
       this.#inFlight.set(record.id, pending);
     }
-    return pending;
+    return signal === undefined ? pending : untilAborted(pending, signal, {});
   }
 
-  async #compute(record: PlaybackSessionRecord, signal?: AbortSignal): Promise<SubtitleHints> {
+  async #compute(record: PlaybackSessionRecord): Promise<SubtitleHints> {
     const hints: SubtitleHints = {};
     try {
       const hinted = (await this.#o.repo.getStream(record.id))?.behaviorHints;
@@ -90,12 +95,11 @@ export class SubtitleHintResolver {
       // Not ready yet (or no engine support): don't cache, a later list may do better.
       return hints;
     }
+    // The timeout only: no caller's abort ends a lookup others may share, so a
+    // miss cached below is a real one.
     const timeout = AbortSignal.timeout(this.#o.timeoutMs ?? SUBTITLE_HASH_TIMEOUT_MS);
     try {
-      const result = await openSubHash(
-        handle,
-        signal === undefined ? timeout : AbortSignal.any([signal, timeout]),
-      );
+      const result = await openSubHash(handle, timeout);
       if (result !== undefined) {
         hints.videoHash ??= result.hash;
         hints.videoSize ??= result.size;
@@ -112,6 +116,29 @@ export class SubtitleHintResolver {
     this.#missed.set(record.id, hints);
     return hints;
   }
+}
+
+/** `promise`'s value (it never rejects), or `fallback` as soon as `signal` aborts. */
+function untilAborted<T>(promise: Promise<T>, signal: AbortSignal, fallback: T): Promise<T> {
+  if (signal.aborted) return Promise.resolve(fallback);
+  return new Promise<T>((resolve) => {
+    const onAbort = () => {
+      resolve(fallback);
+    };
+    signal.addEventListener('abort', onAbort, { once: true });
+    void promise
+      .then(
+        (value) => {
+          resolve(value);
+        },
+        () => {
+          resolve(fallback);
+        },
+      )
+      .finally(() => {
+        signal.removeEventListener('abort', onAbort);
+      });
+  });
 }
 
 function errorCode(err: unknown): string {

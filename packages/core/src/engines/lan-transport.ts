@@ -100,11 +100,15 @@ export function createLanTransport(
         timeout.fired = true;
         controller.abort();
       }, init.timeoutMs);
-      // The caller's signal keeps aborting the body after the headers arrive.
+      // The caller's signal keeps aborting the body after the headers arrive,
+      // until the body ends (read to its end, cancelled or failed).
       const onAbort = () => {
         controller.abort();
       };
       init.signal?.addEventListener('abort', onAbort, { once: true });
+      const unlisten = () => {
+        init.signal?.removeEventListener('abort', onAbort);
+      };
 
       const requestInit: RequestInit & { dispatcher?: Agent } = {
         method: init.method ?? 'GET',
@@ -119,9 +123,10 @@ export function createLanTransport(
       // A connect timeout fails like a refused connection: `network` below.
       if (dispatcher !== undefined) requestInit.dispatcher = dispatcher;
       try {
-        return await doFetch(base + path, requestInit);
+        const res = await doFetch(base + path, requestInit);
+        return init.signal === undefined ? res : onBodyEnd(res, unlisten);
       } catch (err) {
-        init.signal?.removeEventListener('abort', onAbort);
+        unlisten();
         if (timeout.fired) {
           throw new EngineTransportError(
             engine.id,
@@ -139,6 +144,25 @@ export function createLanTransport(
       }
     },
   };
+}
+
+/**
+ * The response, with `done` called once its body has ended: read to the end,
+ * cancelled or failed (at once when it has none). Status and headers are kept.
+ */
+export function onBodyEnd(res: Response, done: () => void): Response {
+  if (res.body === null) {
+    done();
+    return res;
+  }
+  const body = res.body.pipeThrough(
+    new TransformStream<Uint8Array, Uint8Array>({ flush: done, cancel: done }),
+  );
+  return new Response(body, {
+    status: res.status,
+    statusText: res.statusText,
+    headers: res.headers,
+  });
 }
 
 /** A function, so TypeScript doesn't keep the narrowing from before the await. */

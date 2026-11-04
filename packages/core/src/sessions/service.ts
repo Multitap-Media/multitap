@@ -53,6 +53,8 @@ export type SessionErrorCode =
   | 'not-implemented'
   /** `MULTITAP_ENGINE_ADMISSION=reject` and the engine is at its `liveConcurrency` (okf:architecture/engine-session-lifecycle). */
   | 'engine-busy'
+  /** Multitap is shutting down (after {@link SessionService.stop}): no new sessions. */
+  | 'shutting-down'
   /** The request names a profile that doesn't exist. */
   | 'unknown-profile';
 
@@ -150,7 +152,29 @@ export interface SessionServiceDeps {
 /** Media requests move `lastAccess` at most this often per session. */
 export const TOUCH_INTERVAL_MS = 5_000;
 
+/** Retention releases one sweep runs at a time (each may wait on its engine's `DELETE`). */
+export const SWEEP_RELEASE_CONCURRENCY = 4;
+
+/** Runs `fn` over `items`, at most `limit` at a time. */
+async function forEachLimited<T>(
+  items: readonly T[],
+  limit: number,
+  fn: (item: T) => Promise<void>,
+): Promise<void> {
+  let next = 0;
+  const worker = async () => {
+    while (next < items.length) {
+      const item = items[next] as T;
+      next += 1;
+      await fn(item);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+}
+
 const iso = (ms: number) => new Date(ms).toISOString();
+
+const shuttingDown = () => new Error('Multitap shutting down');
 
 const realSleep = (ms: number, signal: AbortSignal) =>
   new Promise<void>((resolve, reject) => {
@@ -306,6 +330,8 @@ export class SessionService {
   #subtitleHints: SubtitleHintResolver | undefined;
   #timer: NodeJS.Timeout | undefined;
   #sweeping: Promise<{ released: number; purged: number }> | undefined;
+  /** Set by {@link stop}: creates are refused, and none starts resolving. */
+  #stopped = false;
 
   constructor(deps: SessionServiceDeps) {
     this.#o = deps;
@@ -320,6 +346,7 @@ export class SessionService {
    * gateway, sweeps once and then every `MULTITAP_RETENTION_SWEEP_MS`.
    */
   async start(): Promise<void> {
+    this.#stopped = false;
     const now = this.#o.clock();
     for (const record of await this.#o.repo.listOpen()) {
       if (record.status === 'resolving' || record.status === 'preparing') {
@@ -345,12 +372,16 @@ export class SessionService {
     this.#timer.unref();
   }
 
-  /** Stops the sweep timer and aborts resolutions in flight. */
+  /**
+   * Stops the sweep timer and aborts resolutions in flight. Creates from now
+   * on are refused (`shutting-down`, `503`); one already past that check is
+   * aborted before it starts resolving.
+   */
   stop(): void {
+    this.#stopped = true;
     if (this.#timer !== undefined) clearInterval(this.#timer);
     this.#timer = undefined;
-    for (const job of this.#jobs.values())
-      job.controller.abort(new Error('Multitap shutting down'));
+    for (const job of this.#jobs.values()) job.controller.abort(shuttingDown());
   }
 
   /** Resolves when background work (resolutions, sweeps, metrics) has finished. */
@@ -372,10 +403,12 @@ export class SessionService {
    *
    * @throws {SessionError} `not-implemented`, `candidate-expired`,
    *   `candidate-mismatch`, `unknown-engine`, `engine-busy` (admission
-   *   `reject` only; an idempotent match is never refused).
+   *   `reject` only; an idempotent match is never refused), `shutting-down`
+   *   (after {@link stop}).
    */
   async create(request: CreateSession): Promise<{ session: PlaybackSession; created: boolean }> {
     const { config } = this.#o;
+    this.#refuseIfStopped();
     if ((request.mode ?? 'play') !== 'play' || request.readyBy !== undefined) {
       throw new SessionError(
         'not-implemented',
@@ -480,6 +513,7 @@ export class SessionService {
           return { session: this.#view(existing), created: false };
         }
       }
+      this.#refuseIfStopped();
       this.#admit(engine);
       const now = this.#o.clock();
       const record = await this.#o.repo.create(
@@ -527,6 +561,9 @@ export class SessionService {
         audioLanguage: request.audioLanguage ?? state?.audioLanguage ?? undefined,
       };
       this.#jobs.set(record.id, job);
+      // stop() came while the record was written: it resolves nothing (start()
+      // fails it `interrupted` next time).
+      if (this.#stopped) job.controller.abort(shuttingDown());
       this.#emit({
         type: 'session.status',
         data: { sessionId: record.id, status: 'resolving' },
@@ -549,10 +586,12 @@ export class SessionService {
   async get(id: string): Promise<PlaybackSession | undefined> {
     const record = await this.#o.repo.get(id);
     if (record === undefined) return undefined;
-    if (record.status !== 'released') {
-      await this.touch(id);
-    }
-    return this.#view((await this.#o.repo.get(id)) ?? record);
+    if (record.status === 'released') return this.#view(record);
+    const at = await this.#touch(id, 'read');
+    // What the touch wrote (`last_access` only moves forward), without reading the row again.
+    return this.#view(
+      at === undefined || at <= record.lastAccess ? record : { ...record, lastAccess: at },
+    );
   }
 
   /**
@@ -654,22 +693,32 @@ export class SessionService {
    * `max(retainUntil, lastAccess + MULTITAP_RETENTION_IDLE_MS)`, retries engine
    * releases that failed earlier, purges released ones older than
    * `MULTITAP_SESSION_RELEASED_KEEP_MS` and ended token revocations.
+   * Releases run {@link SWEEP_RELEASE_CONCURRENCY} at a time; one that fails
+   * is logged and the pass goes on (the next sweep finds it again).
    */
   sweep(): Promise<{ released: number; purged: number }> {
     this.#sweeping ??= (async () => {
       try {
-        const { repo, config, clock } = this.#o;
+        const { repo, config, clock, logger } = this.#o;
         const now = clock();
         const due = await repo.listDueForRelease(now, config.sessions.retentionIdleMs);
-        for (const record of due) await this.release(record.id, 'retention');
+        let released = 0;
+        await forEachLimited(due, SWEEP_RELEASE_CONCURRENCY, async (id) => {
+          try {
+            await this.release(id, 'retention');
+            released += 1;
+          } catch (err) {
+            logger.error({ err, sessionId: id }, 'retention release failed');
+          }
+        });
         await this.#retryEngineReleases();
         const purged = await repo.purgeReleased(now - config.sessions.releasedKeepMs);
         await repo.purgeRevocations(now);
         if (due.length > 0 || purged > 0) {
-          this.#o.logger.info({ released: due.length, purged }, 'retention sweep');
+          logger.info({ released, purged }, 'retention sweep');
         }
         this.#metrics();
-        return { released: due.length, purged };
+        return { released, purged };
       } catch (err) {
         this.#o.logger.error({ err }, 'retention sweep failed');
         return { released: 0, purged: 0 };
@@ -702,15 +751,22 @@ export class SessionService {
    * its engine's load (okf:architecture/engine-session-lifecycle); reads and playlists don't.
    */
   async touch(id: string, kind: 'read' | 'segment' = 'read'): Promise<void> {
+    await this.#touch(id, kind);
+  }
+
+  /** {@link touch}; resolves with the time written, undefined when nothing was. */
+  async #touch(id: string, kind: 'read' | 'segment'): Promise<number | undefined> {
     const now = this.#o.clock();
     if (kind === 'segment') this.#played.set(id, now);
     const last = this.#touched.get(id);
-    if (last !== undefined && now - last < TOUCH_INTERVAL_MS) return;
+    if (last !== undefined && now - last < TOUCH_INTERVAL_MS) return undefined;
     this.#touched.set(id, now);
     try {
       await this.#o.repo.touch(id, now);
+      return now;
     } catch (err) {
       this.#o.logger.warn({ err, sessionId: id }, 'storing last access failed');
+      return undefined;
     }
   }
 
@@ -796,6 +852,13 @@ export class SessionService {
       fields,
       'engine at its live concurrency: the new session may make playing ones stall',
     );
+  }
+
+  /** Refuses new sessions once {@link stop} ran (`503`, like admission's refusal). */
+  #refuseIfStopped(): void {
+    if (this.#stopped) {
+      throw new SessionError('shutting-down', 'Multitap is shutting down; try again shortly.');
+    }
   }
 
   /** Sets the engine load gauge for one engine. */
@@ -918,11 +981,13 @@ export class SessionService {
       const stream = this.#o.streams.get(candidate.key)?.stream;
       if (stream === undefined) continue;
       const result = await tryOne(candidate, stream);
-      if (aborted()) return;
+      // Ready, even if released meanwhile: #commitReady releases the engine
+      // session then, so it never outlives the playback session.
       if (result.ok) {
         await this.#commitReady(record.id, candidate.key, stream, result, job, candidate);
         return;
       }
+      if (aborted()) return;
       logger.info(
         { sessionId: record.id, attempt: attempts, reason: result.reason },
         'auto-select: candidate failed',
@@ -947,7 +1012,7 @@ export class SessionService {
       if (wait > 0) await this.#sleep(wait, signal);
       if (aborted()) return;
       const result = await tryOne(retry.candidate, retry.stream);
-      if (aborted()) return;
+      // As above: an aborted job's ready result is released by #commitReady.
       if (result.ok) {
         await this.#commitReady(
           record.id,
@@ -959,6 +1024,7 @@ export class SessionService {
         );
         return;
       }
+      if (aborted()) return;
       if (result.reason === 'engine-offline') {
         await this.#commitFailed(record.id, 'engine-offline', attempts, job);
         return;

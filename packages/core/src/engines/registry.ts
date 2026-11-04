@@ -30,6 +30,13 @@ export interface EngineRegistryOptions {
 /** Called with an engine's id whenever one of its requests gets a 2xx response. */
 export type EngineAnsweredListener = (engineId: string) => void;
 
+/**
+ * Serves {@link EngineRegistry.requestCheck} (the health monitor, health.ts):
+ * resolves with whether the engine is online after a fresh or recent check,
+ * undefined when it can't tell.
+ */
+export type EngineCheckHandler = (engineId: string) => Promise<boolean | undefined>;
+
 export interface EngineEntry {
   engine: EngineDescriptor;
   client: ServerGoClient;
@@ -49,6 +56,7 @@ export class EngineRegistry implements EngineHealthView {
   readonly #clients = new Map<string, CachedClient>();
   readonly #health = new Map<string, EngineHealth>();
   readonly #answered = new Set<EngineAnsweredListener>();
+  #checker: EngineCheckHandler | undefined;
 
   constructor(options: EngineRegistryOptions) {
     this.#db = options.db;
@@ -73,6 +81,35 @@ export class EngineRegistry implements EngineHealthView {
     return () => {
       this.#answered.delete(listener);
     };
+  }
+
+  /**
+   * Lets the health monitor serve {@link requestCheck} (one handler; a later
+   * one replaces it). Returns the function that removes it.
+   */
+  onCheckRequested(handler: EngineCheckHandler): () => void {
+    this.#checker = handler;
+    return () => {
+      if (this.#checker === handler) this.#checker = undefined;
+    };
+  }
+
+  /**
+   * Whether the engine is online, by a health check on demand: the engine
+   * module asks before it refuses an engine marked offline, and after a
+   * request to the engine got no answer (okf:architecture/engine-transport-and-health). The monitor
+   * runs the check at once, unless one ran within its re-check gap (then
+   * the latest result counts). Without a monitor, the last known state;
+   * undefined while unknown. Never rejects.
+   */
+  async requestCheck(engineId: string): Promise<boolean | undefined> {
+    const checker = this.#checker;
+    if (checker === undefined) return this.isOnline(engineId);
+    try {
+      return await checker(engineId);
+    } catch {
+      return this.isOnline(engineId);
+    }
   }
 
   /**

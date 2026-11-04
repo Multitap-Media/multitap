@@ -3,7 +3,7 @@ type: Component
 title: "Core subtitles, timing offset, per-item player state and search extras"
 description: "Session subtitle tracks under the media token, the server-side subtitle timing offset (limits, semantics, storage), per-item player state (P1, core 0.1.3), and how search and subtitle extras (videoHash, videoSize, filename) are fanned out."
 tags: [core, api, subtitles, player-state, component]
-generated: { by: "agent/claude-opus-5.5", at: "2026-11-04T12:00:00Z" }
+generated: { by: "agent/claude-opus-5.5", at: "2026-11-04T02:48:21Z" }
 code_refs:
   - "packages/core/src/subtitles/"
   - "packages/core/src/http/"
@@ -71,7 +71,9 @@ Source of truth for core's subtitle, player-state and search behaviour (migrated
   itself, from the playing stream's `behaviorHints` or else the engine's
   `GET /opensubHash?videoUrl=` (the engine reads the start and end of the
   source). That lookup is lazy (first subtitle list of the session), bounded by
-  a timeout, cached per session (a failure for a minute), skipped silently on an
+  a timeout, shared by concurrent lists (one whose request goes away stops
+  waiting; the lookup goes on for the others), cached per session (a failure
+  for a minute; a caller going away is no failure), skipped silently on an
   engine without the endpoint, and never logs the URL.
 
 Related: [[architecture/core-v1-api]], [[architecture/last-source-per-item]], [[architecture/library-and-profiles]], [[architecture/media-gateway]], [[concept/media-tokens]], [[concept/addon-aggregation]].
