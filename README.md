@@ -107,7 +107,15 @@ NODE_ENV=development pnpm --filter @multitap/core dev
 The CLI prints the key once (`--json` prints it as JSON). Multitap listens on
 `MULTITAP_API_PORT` (default 8080) for `/v1` and on `MULTITAP_MEDIA_PORT` (default 8081) for
 media, and keeps its SQLite database in `MULTITAP_DATA_DIR` (default `./data`,
-git-ignored). The CLI also has `api-key list` and `api-key revoke <id>`.
+git-ignored). The CLI also has `api-key list` and `api-key revoke <id>`. It works
+whether or not Multitap is running; run it as the user Multitap runs as. As root
+(`sudo`) on a data folder another user owns it refuses, since the files it would
+write there would belong to root and Multitap could no longer open them.
+
+`SIGTERM` or `SIGINT` shuts Multitap down gracefully (open event streams end, held-back
+watch progress is written, the database closes) within 8 s, inside Docker's default
+10 s stop grace. An uncaught error is logged as `fatal`, followed by the same
+shutdown (bounded to 3 s) and exit code 1.
 
 [Standalone use](#standalone-use-end-to-end) below walks through playing
 something end to end.
@@ -468,13 +476,19 @@ so it works with built-in TLS too.
 
 ## Configuration
 
-Environment variables, validated at startup (`src/config.ts`):
+Environment variables, validated at startup (`src/config.ts`). An invalid one
+stops Multitap with one line per problem; secrets, and any value with an `@` (a
+URL with a user name and password), are never echoed. Unset, empty and blank
+(only spaces) all mean the default. Integer settings (ports, counts, every
+`_MS`) take digits only: `1e3`, `0x10` or `5s` are errors. Multitap warns once at
+startup about `MULTITAP_*` variables it doesn't read, a typo such as
+`MULTITAP_CORS_ORIGIN` (names only, never values).
 
 | Variable | Default | Purpose |
 |---|---|---|
 | `MULTITAP_API_PORT` | `8080` | `/v1` listener |
 | `MULTITAP_API_BIND` | unset (all interfaces) | Address the `/v1` listener binds (IP or host name), e.g. `127.0.0.1` when nothing else on the host needs the API. Never expose it to the outside. Leave unset in Docker: the image's health check calls `127.0.0.1` |
-| `MULTITAP_DATA_DIR` | `./data` | SQLite database |
+| `MULTITAP_DATA_DIR` | `./data` | SQLite database. One Multitap per folder: a second one on the same folder stops at startup, before it touches anything (the lock is `multitap.lock`, held by the operating system, so a crash never leaves it stale). Created `0700`, the database `0600`, where the platform has modes |
 | `NODE_ENV` | `production` | `development` enables pretty logs and `/dev` |
 | `MULTITAP_LOG_LEVEL` | `info` | pino level |
 | `MULTITAP_LOG_DIR` | unset | Also write JSON logs to rotating files `multitap.<date>.<n>.log` in this directory (pino-roll): daily, and by size. Unset = stdout only. Redaction is the same as on stdout; at `debug`/`trace` the files contain credentials too |
@@ -508,7 +522,7 @@ Sessions, media and engines:
 | `MULTITAP_MEDIA_TOKEN_TTL_MS` / `MULTITAP_MEDIA_TOKEN_MAX_TTL_MS` | 8 h / 7 days | Default and longest media token lifetime |
 | `MULTITAP_MEDIA_PUBLIC_BASE` | unset | Absolute base for `mediaUrl` (e.g. `https://media.example.org`); set it whenever the media listener is public |
 | `MULTITAP_CORS_ORIGINS` | empty | Exact browser origins, comma-separated; empty = no CORS headers |
-| `MULTITAP_TLS_CERT_FILE` / `MULTITAP_TLS_KEY_FILE` | unset | Built-in TLS on both listeners; set both or neither. Basic (self-signed in mind, no ACME, no file watcher): `SIGHUP` re-reads both files for new connections, and a failed reload keeps the old pair and logs a warning. Windows has no `SIGHUP`: restart Multitap there |
+| `MULTITAP_TLS_CERT_FILE` / `MULTITAP_TLS_KEY_FILE` | unset | Built-in TLS on both listeners; set both or neither. Basic (self-signed in mind, no ACME, no file watcher): `SIGHUP` re-reads both files for new connections, and a failed reload keeps the old pair and logs a warning (without TLS, `SIGHUP` is logged and ignored). Windows has no `SIGHUP`: restart Multitap there |
 | `MULTITAP_SESSION_MAX_BITRATE` | `20M` | Ceiling for a session's `quality.bitrate` (`20M`, `800k` or bits per second), and for a derived one. A plain ceiling: raise it (e.g. `50M`) when the upload allows |
 | `MULTITAP_SESSION_BITRATE_BY_HEIGHT` | `240=600k,360=1M,480=1.5M,576=2M,720=3M,1080=6M,1440=10M,2160=16M` | The bitrate Multitap sends for a `quality` with `maxHeight` and no `bitrate`: the first rung at or above the (capped) height, else the top one, at most `MULTITAP_SESSION_MAX_BITRATE` and the engine's `defaultBitrate`. `off` sends none, so the engine's own bitrate applies at every height |
 | `MULTITAP_RETENTION_IDLE_MS` | 1 h | A session is kept until max(retainUntil, last access + this) |
@@ -586,7 +600,8 @@ Logs go to stdout. With `MULTITAP_LOG_DIR` they are also written as JSON to rota
 files (`multitap.<yyyy-MM-dd>.<n>.log`, a new file daily and when one reaches
 `MULTITAP_LOG_FILE_MAX_SIZE`, `MULTITAP_LOG_FILE_KEEP` rotated files kept) by
 [pino-roll](https://github.com/mcollina/pino-roll); `MULTITAP_LOG_STDOUT=false` turns
-stdout off. The files carry exactly what stdout would, redaction included.
+stdout off. The files carry exactly what stdout would, redaction included. The
+directory is created `0700` and the files `0600`, where the platform has modes.
 
 At `info` and above Multitap redacts secrets from its logs: API keys, addon manifest
 URLs, stream URLs, raw streams, engine `mediaURL`s and media tokens. At `debug`
@@ -607,7 +622,9 @@ record `mediaURL`s, debrid tokens included (Rivulet Engine's does, with
 
 The database is in WAL mode, so copying `multitap.sqlite` while Multitap runs is unsafe.
 Use the admin API, which takes a consistent online backup, verifies it with
-`PRAGMA integrity_check` and prunes beyond `MULTITAP_BACKUP_KEEP`:
+`PRAGMA quick_check` and prunes beyond `MULTITAP_BACKUP_KEEP` (never the backup it
+just wrote). The backup Multitap and the CLI take before migrating gets the full
+`PRAGMA integrity_check`:
 
 ```bash
 curl -X POST -H "Authorization: Bearer $ADMIN_KEY" http://localhost:8080/v1/admin/backups
