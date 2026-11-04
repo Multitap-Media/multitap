@@ -3,7 +3,7 @@ type: Process
 title: Upstream asks for stremio-server-go and maintainer answers
 description: "The engine asks tracked in upstream issue rivulet-kodi/rivulet-engine#43: merged items, maintainer answers from 2026-10-05, the 2026-10-13 re-check, the 2026-10-15 and 2026-10-16 reviews (#49–#53 and #57–#61 merged; #54 changes requested; post-merge nits), and the open asks in priority order."
 tags: [engine, upstream, issue-43, process]
-generated: { by: "agent/claude-opus-5.5", at: "2026-11-01T12:00:00Z" }
+generated: { by: "agent/claude-opus-5.5", at: "2026-11-03T12:00:00Z" }
 status: stable
 ---
 
@@ -35,7 +35,7 @@ Still true: stage engine paths explicitly, never `git add -A`; `GOOS=android go 
 3. Private-host allowlist for HLS `mediaURL`s (item 3). Done: `STREMIO_HLS_PRIVATE_ALLOW` (#49); `/proxy` has upstream's `STREMIO_PROXY_PRIVATE_ALLOW`.
 4. `BANDWIDTH` reflects the real peak (item 4). Done: #50, #59; README rewrap pending.
 5. Header/index cache for HTTP sources (item 7).
-6. **Engine-side preparation, `POST /hlsv2/{id}/prepare` with per-segment cache status, pinned against the cache cap. The one ask phase 4 needs.**
+6. Engine-side preparation, `POST /hlsv2/{id}/prepare` with per-segment cache status (the one ask phase 4 needs). Done: #73 (merged 2026-11-03, Rivulet Engine v0.30.0), #75.
 7. Transcode-ahead window (item 8).
 8. YouTube through DASH formats (item 9).
 9. Hardware decode (item 10, accepted). Hardware tone mapping also an ask.

@@ -3,7 +3,7 @@ type: Architecture
 title: "Engine ABR ladder: one decode, many encodes (scoping, design)"
 description: "Scoping of an upstream ABR ladder for stremio-server-go: why one per-segment ffmpeg run can decode once and emit every rung, why long-running ffmpeg is rejected for live, where chunked runs belong (preparation), the maintainer's 2026-10-01 direction, per-request rungs and the three production policies."
 tags: [abr, ladder, engine, architecture, scoping]
-generated: { by: agent/mcp, at: "2026-10-09T15:24:16Z" }
+generated: { by: "agent/claude-opus-5.5", at: "2026-11-03T12:00:00Z" }
 status: stable
 ---
 
@@ -11,7 +11,7 @@ Source: the engine ABR ladder scoping write-up, not published (code references a
 
 **Summary.**
 - The ladder fits the per-segment model. One ffmpeg run per segment index can decode once, `split` the video and write one `.ts` per rung. Each rung starts on the same frame, so keyframes and boundaries line up after seeks too.
-- Preparation is where a longer-running ffmpeg pays off: a chunked run (segments n…n+k in one process) removes per-segment start-up, pre-roll and the range requests against debrid hosts. It belongs with engine-side preparation, already first on the engine track.
+- Preparation is where a longer-running ffmpeg pays off: a chunked run (segments n…n+k in one process) removes per-segment start-up, pre-roll and the range requests against debrid hosts. It belongs with engine-side preparation, which merged upstream as #73 (2026-11-03) as a per-index walk; a chunked run is not part of it.
 - The default output can stay byte-identical. The ladder is a new, gated session shape with its own file names.
 - Size: L overall, in 3–4 PRs. Open an issue for discussion first, as with #30.
 

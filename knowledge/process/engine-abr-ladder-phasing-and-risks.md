@@ -3,7 +3,7 @@ type: Process
 title: "Engine ABR ladder: open questions, phasing, size and risks"
 description: "The eight questions for the upstream maintainer, the L size estimate in 3–4 PRs with the issue-first phasing, the core-side work, the risks (maintainer appetite, untested QSV multi-encode, CPU headroom, the silent fallback, mixed chunked segments, ABR oscillation), and the HEVC and ABR-player notes that are still untested."
 tags: [abr, ladder, phasing, risks, process]
-generated: { by: agent/mcp, at: "2026-10-09T15:22:47Z" }
+generated: { by: "agent/claude-opus-5.5", at: "2026-11-03T12:00:00Z" }
 status: stable
 ---
 
@@ -26,7 +26,7 @@ Open question: how a request names the policy (`lazy`, `hybrid`, `all`), and whe
 **Phasing.**
 0. Issue first: describe the shape, the defaults guarantee and the questions; get direction before code, as with #30.
 1. PR 1 (M): ladder sessions on the per-segment model. The `rungs` override with parsing and validation; per-rung playlists and names; the master ladder branch; the multi-output `filter_complex` run for missing rungs; per-index lock; per-output segcheck and install; demuxed audio; persistence fields and fingerprint suffix; software `split` and `scale` with the existing encoders. Tests: argv goldens, master goldens, persistence round-trip, override validation, lock behaviour, all offline without ffmpeg. Real-ffmpeg checks outside the repo: frame alignment across rungs, and hls.js switching mid-stream.
-2. PR 2 (M): engine-side preparation (`POST /hlsv2/{id}/prepare`), ladder-aware from the start. First as a per-index walk; then the chunked multi-segment run, once the interchangeability check passes.
+2. PR 2 (M): engine-side preparation (`POST /hlsv2/{id}/prepare`). Done as #73 (2026-11-03): a per-index walk over one session shape, not yet ladder-aware; the ladder adds its rungs to the plan. The chunked multi-segment run waits for the interchangeability check.
 3. PR 3 (M–L): GPU decoding with the ladder graph (D3D11VA to QSV split and `vpp_qsv` per rung, tone map once at the top rung). It can come before PR 1, so the ladder builds on hardware frames from the start.
 4. PR 4 (S, optional): weighted slot accounting and the transcode-ahead window across rungs.
 

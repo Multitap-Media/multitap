@@ -1,3 +1,6 @@
+## 2026-11-03
+* **Update**: Engine-side preparation merged upstream as rivulet-engine#73 (Rivulet Engine v0.30.0, `RIVULET_HLS_PREPARE`). Updated `architecture/engine-prepare-ahead.md`, `process/engine-upstream-prs.md`, `process/upstream-engine-asks.md`, `process/upstream-engine-asks-table.md`, `process/build-plan.md`, `architecture/engine-abr-ladder-design.md` and `process/engine-abr-ladder-phasing-and-risks.md`, and the `process/index.md` entry.
+
 ## 2026-11-01
 * **Update**: Updated concepts `architecture/engine-endpoints-core-uses.md` and `architecture/engine-prepare-stream.md` (the all-zero info hash is refused as `unsupported` and never reaches an engine).
 * **Update**: Updated concepts `fact/engine-baseline.md` (upstream is now Rivulet Engine: the project renamed at v0.26.0, `RIVULET_*` settings from v0.27.0 with `STREMIO_*` silently ignored), `architecture/overview.md`, `architecture/goals-and-non-goals.md` and `process/upstream-engine-asks.md` (the new name and tracker URL), and their `fact/index.md`, `architecture/index.md` and `process/index.md` entries.

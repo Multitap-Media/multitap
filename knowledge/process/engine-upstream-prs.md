@@ -1,9 +1,9 @@
 ---
 type: Process
 title: "Engine upstream PRs: what merged and what each adds"
-description: "The stremio-server-go PRs by Multitap's maintainer (#24 to #36 and #49, #52, #57), merge dates and releases, what each gives core, the #33 pre-roll design, and the rule that every design falls back on an engine without them."
+description: "The stremio-server-go PRs by Multitap's maintainer (#24 to #36, #49, #52, #57 and #73), merge dates and releases, what each gives core, the #33 pre-roll design, and the rule that every design falls back on an engine without them."
 tags: [engine, upstream, prs, process]
-generated: { by: "agent/claude-sonnet-5.5", at: "2026-10-17T01:46:11Z" }
+generated: { by: "agent/claude-opus-5.5", at: "2026-11-03T12:00:00Z" }
 code_refs:
   - "packages/core/src/engines/"
 status: stable
@@ -27,6 +27,7 @@ Every PR was one commit, opt-in or bug-fix only, with defaults unchanged. Each w
 | #34 (v0.18.1) | Persisted sessions are restored by the TTL the reaper applies | With TTL `0` or a per-session `ttl`, v0.18.0 discarded sessions on restart; this makes #26 work with core's retention (R6) |
 | #35 (v0.18.1) | Closes disk piece storage on `Close`; the engine's test suite passes on Windows | Engine changes can be checked on the dev machine's Windows too (Verification setup for engine PRs) |
 | #36 | A `windows-latest` job in upstream's CI (merged after v0.18.1) | Windows regressions in the engine show up in CI |
+| #73 (v0.30.0, 2026-11-03) | Opt-in engine-side preparation (`RIVULET_HLS_PREPARE`): `POST`/`GET`/`DELETE /hlsv2/{id}/prepare`, a low-priority background job, prepared segments pinned outside the per-session cap, a per-segment status map, resume with #26. The maintainer's follow-ups are #75 | Phase 4's preparation runs in the engine with exact verification ([[architecture/engine-prepare-ahead]]) |
 
 No engine PR of ours is open (the former design document as of its last edit; later upstream review notes are in [[process/upstream-engine-asks]]).
 

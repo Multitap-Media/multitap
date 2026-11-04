@@ -3,7 +3,7 @@ type: Process
 title: "Build history and plan: Multitap's phases"
 description: "The phases Multitap was built in (0 spike, 1 addon layer, 2 sessions, gateway and library, the per-item state of phase 3) and the planned ones (4 preparation and live, 5 remote engines), the engine track, direct play and remux, and the optional segments module; phase numbers in code comments refer to this table."
 tags: [plan, phases, status, process]
-generated: { by: "agent/claude-opus-5.5", at: "2026-10-26T12:00:00Z" }
+generated: { by: "agent/claude-opus-5.5", at: "2026-11-03T12:00:00Z" }
 status: stable
 ---
 
@@ -18,7 +18,7 @@ Multitap was built in phases, first inside a larger project whose apps are its f
 | **4. Preparation and live** | `readyBy` prepare jobs that drive the engine's preparation, verification and `prepare.*` events; `mode: 'full'`; live HLS (Twitch) through proxy mode ([[architecture/engine-prepare-ahead]]). Needs engine-side preparation (the engine track). | Planned |
 | **5. Remote engines** | A helper app, the `tunnel` transport, pairing, capability reporting and local-content affinity ([[architecture/future-remote-engines]]). | Planned |
 
-**Engine track** (in parallel, [[process/engine-upstream-prs]]): before phase 4, engine-side preparation (`POST /hlsv2/{id}/prepare`, a background job, per-segment cache status); after it, the ABR ladder ([[decision/abr-ladder]], [[process/abr-ladder-core-checklist]]).
+**Engine track** (in parallel, [[process/engine-upstream-prs]]): before phase 4, engine-side preparation (`POST /hlsv2/{id}/prepare`, a background job, per-segment cache status; done: upstream #73, v0.30.0); after it, the ABR ladder ([[decision/abr-ladder]], [[process/abr-ladder-core-checklist]]).
 
 **Direct play and remux** (later): `player` capabilities and the delivery choice ([[concept/delivery-modes]]), the gateway's byte-range path with direct play first, then a remux output in the engine and Multitap's `remux` delivery.
 
