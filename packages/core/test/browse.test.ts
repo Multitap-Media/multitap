@@ -725,6 +725,43 @@ describe('GET /v1/subtitles', () => {
     expect((unreadable.json() as { detail: string }).detail).toMatch(/no supported format/);
     expect(t.bodies.join('\n')).not.toContain(t.subs.fake.origin);
   });
+
+  it('serves a failed file from its failure for 30 s instead of refetching it', async () => {
+    const t = await subtitlesSetup();
+    t.subs.fake.set({ subtitleFiles: { 'gone.srt': { lang: 'eng', body: '' } } });
+    const list = SubtitleListSchema.parse((await t.get('/v1/subtitles/movie/tt1375666')).json());
+    const url = list.subtitles[0]?.url ?? '';
+    const fetches = () => t.subs.fake.requests.filter((path) => path === '/subs/gone.srt').length;
+    for (let i = 0; i < 3; i++) expect((await t.get(url)).status).toBe(502);
+    expect((await t.get(`${url}?offsetMs=500`)).status).toBe(502);
+    expect(fetches()).toBe(1);
+
+    t.subs.fake.set({ subtitleFiles: { 'gone.srt': { lang: 'eng', body: SRT } } });
+    t.clock.advance(29_999);
+    expect((await t.get(url)).status).toBe(502);
+    t.clock.advance(1);
+    expect((await t.get(url)).status).toBe(200);
+    expect(fetches()).toBe(2);
+  });
+
+  it('serves each offset of a file shifted by that offset, from one fetch', async () => {
+    const t = await subtitlesSetup();
+    const list = SubtitleListSchema.parse((await t.get('/v1/subtitles/movie/tt1375666')).json());
+    const url = list.subtitles[0]?.url ?? '';
+    const cue = (start: string, end: string) =>
+      `WEBVTT\n\n${start} --> ${end}\n<i>Hello</i> there\n`;
+    for (const [offset, expected] of [
+      ['500', cue('00:00:01.500', '00:00:03.000')],
+      ['-500', cue('00:00:00.500', '00:00:02.000')],
+      ['500', cue('00:00:01.500', '00:00:03.000')],
+      ['0', cue('00:00:01.000', '00:00:02.500')],
+      ['-500', cue('00:00:00.500', '00:00:02.000')],
+    ] as const) {
+      const res = await t.get(`${url}?offsetMs=${offset}`);
+      expect(res.text, offset).toBe(expected);
+    }
+    expect(t.subs.fake.requests.filter((path) => path === '/subs/eng.srt')).toHaveLength(1);
+  });
 });
 
 describe('browse routes in the OpenAPI document', () => {
