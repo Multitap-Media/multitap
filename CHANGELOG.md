@@ -47,6 +47,41 @@ repository; their tags are not part of this repository's history.
 - **Marking a long series' season watched takes linear time.** Each video
   lookup scanned the video list, so 40 000 videos took seconds. A stored
   watched bitfield also inflates to at most 1 MiB.
+- **Session subtitles keep every session's tracks.** Two sessions of one item
+  no longer drop each other's listed files. A file asked for after a restart
+  or the 6 h expiry is listed again with the session's own hints, so
+  hash-matched tracks no longer answer `404`, and a listed file the subtitle
+  service forgot is listed again once before a `404`
+  (okf:architecture/core-subtitles-and-player-state).
+- **Browser clients can read `X-Events-Replay`, `Retry-After`, `Allow`,
+  `Content-Disposition` and `X-Request-Id`:** `/v1` CORS exposes them
+  (okf:architecture/core-deployment).
+- **`.` and `..` are refused where a URL path would drop them.** Minting a
+  token for subject `.` or `..` is a `400` (`DELETE …/tokens/..` used to reach
+  `DELETE /v1/sessions/{id}`), and `createMultitapClient` throws a `TypeError`
+  instead of sending a request whose path parameter is `.` or `..`
+  (okf:concept/media-tokens).
+- **Revoked media tokens can't come back through a stale read.** A session's
+  token epoch only goes up and a release sticks. Revoke-all on a session
+  deleted meanwhile is a `404`, not a `500`, and a subject revocation that
+  can't be stored stays in force and answers a documented `503`
+  (okf:concept/media-tokens, okf:architecture/media-gateway-proxy).
+- **A busy database no longer fails authenticated requests.** The API key's
+  `last_used` write isn't awaited, and is written at most once a minute per key
+  (okf:architecture/core-api-keys-security).
+- **`/v1/events` is bounded.** A reader more than 10 000 events behind is ended
+  and resumes with `Last-Event-ID`, a large replay no longer risks a
+  `RangeError`, and more than ten open streams no longer trigger Node's
+  `MaxListeners` warning (okf:architecture/core-events-sse).
+- **The media listener's `500` carries `Cache-Control: no-store`, `nosniff`
+  and `no-referrer`.**
+
+### Changed
+
+- **Fewer database reads and less serialising.** `/v1/events` re-checks a key
+  at most once a second, shared by its streams; each event is serialised once;
+  the replay buffer is a ring. A token for a deleted session reads the
+  database at most every 5 s, and `/v1/whoami` answers without a second read.
 
 ## 0.2.1 (2026-11-02)
 
