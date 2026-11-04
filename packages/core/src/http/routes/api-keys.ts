@@ -2,7 +2,6 @@ import { createRoute, z, type OpenAPIHono } from '@hono/zod-openapi';
 import {
   API_KEY_SCOPES,
   createApiKey,
-  getApiKey,
   listApiKeys,
   revokeApiKey,
   type ApiKeyRecord,
@@ -155,11 +154,12 @@ const revokeRoute = createRoute({
  * `/v1/admin/api-keys` (the caller mounts the admin-scope middleware).
  */
 export function registerApiKeyRoutes(app: OpenAPIHono<AppEnv>, deps: AppDeps): void {
-  app.openapi(whoamiRoute, async (c) => {
-    const record = await getApiKey(deps.db, c.get('apiKey').id);
-    // The key was verified moments ago; it can only be gone if revoked/deleted since.
-    if (record?.revokedAt !== null) throw new ProblemError(404);
-    const { id, scope, label, createdAt, lastUsed } = toApi(record);
+  app.openapi(whoamiRoute, (c) => {
+    // The key as verified for this request: no second read.
+    const { id, scope, label, createdAt, lastUsed } = toApi({
+      ...c.get('apiKey'),
+      revokedAt: null,
+    });
     return c.json({ id, scope, label, createdAt, lastUsed }, 200);
   });
 
