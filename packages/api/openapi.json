@@ -9140,7 +9140,7 @@
       "get": {
         "operationId": "search",
         "summary": "Search every search-capable catalog",
-        "description": "Asks every enabled addon catalog that declares the `search` extra, all at once, through the same aggregation as the other browse routes (timeouts, circuit breaker, response cache). A catalog that also requires another extra (e.g. `genre`) is not searched, as in Stremio. Results are grouped per catalog, in collection order, each with its addon's status: a failing addon is reported, never fatal. `skip` pages every catalog that declares `skip` (the others only answer `skip=0`); for the next page ask again with `skip` plus the page length. `type`/`types` limit the content types searched.",
+        "description": "Asks every enabled addon catalog that declares the `search` extra, through the same aggregation as the other browse routes (timeouts, circuit breaker, response cache): addons at once, at most 20 catalogs per addon (the first in its manifest), at most 4 of them at a time. A catalog that also requires another extra (e.g. `genre`) is not searched, as in Stremio. Results are grouped per catalog, in collection order, each with its addon's status: a failing addon is reported, never fatal. `skip` pages every catalog that declares `skip` (the others only answer `skip=0`); for the next page ask again with `skip` plus the page length. `type`/`types` limit the content types searched.",
         "tags": [
           "browse"
         ],

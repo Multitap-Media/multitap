@@ -58,7 +58,11 @@ Source of truth for core's subtitle, player-state and search behaviour (migrated
 - **Search and subtitle extras:** `GET /v1/search` fans one query out to every
   enabled catalog that declares the `search` extra (and no other required one,
   as stremio-core's `catalogs_with_extra` does) through the normal aggregation,
-  so timeouts, the circuit breaker and the response cache apply; results are
+  so timeouts, the circuit breaker and the response cache apply. Addons are
+  asked at once, but at most 20 catalogs of one addon (the first in its
+  manifest; `SEARCH_MAX_CATALOGS_PER_ADDON`) and at most 4 of them at a time
+  (`SEARCH_ADDON_CONCURRENCY`), so one manifest can't fan a search out
+  without bound; results are
   grouped per catalog with each addon's status, and `skip` pages the catalogs
   that declare it. Addons that use `videoHash`, `videoSize` and `filename` to
   match subtitles (OpenSubtitles) get them: `/v1/subtitles/…` takes them as
