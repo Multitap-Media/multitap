@@ -2,7 +2,13 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_FAILURE_THRESHOLD, DEFAULT_RESET_MS } from '../src/addons/circuit-breaker.ts';
 import { MANIFEST_TIMEOUT_MS } from '../src/addons/collection.ts';
-import { ConfigError, DEFAULT_BITRATE_BY_HEIGHT, loadConfig } from '../src/config.ts';
+import {
+  ConfigError,
+  DEFAULT_BITRATE_BY_HEIGHT,
+  KNOWN_VARIABLES,
+  loadConfig,
+  unknownVariables,
+} from '../src/config.ts';
 import { STREAM_STORE_TTL_MS } from '../src/selection/stream-store.ts';
 import { SUBTITLE_FETCH_TIMEOUT_MS, SUBTITLE_MAX_BYTES } from '../src/subtitles/index.ts';
 
@@ -473,6 +479,70 @@ describe('loadConfig', () => {
       /MULTITAP_BACKUP_INTERVAL_MS/,
     );
     expect(() => loadConfig({ MULTITAP_BACKUP_KEEP: '0' })).toThrow(/MULTITAP_BACKUP_KEEP/);
+  });
+
+  it('treats blank (whitespace-only) variables as unset', () => {
+    const config = loadConfig({
+      MULTITAP_API_PORT: '   ',
+      MULTITAP_ADDON_TIMEOUT_META_MS: ' ',
+      MULTITAP_AUTO_SELECT_ATTEMPT_TIMEOUT_MS: '\t',
+      MULTITAP_DATA_DIR: ' ',
+    });
+    expect(config.apiPort).toBe(8080);
+    expect(config.addons.timeoutsMs.meta).toBe(5_000);
+    // Not 0, which would have turned the limit off.
+    expect(config.selection.autoAttemptTimeoutMs).toBe(45_000);
+    expect(config.dataDir).toBe(resolve('./data'));
+  });
+
+  it('reads integer settings as digits only, spaces around them allowed', () => {
+    expect(loadConfig({ MULTITAP_API_PORT: ' 9090 ' }).apiPort).toBe(9090);
+    for (const value of ['1e4', '0x1F90', '+9090', '9090ms', '9 090']) {
+      let message = '';
+      try {
+        loadConfig({ MULTITAP_API_PORT: value });
+      } catch (err) {
+        message = (err as Error).message;
+      }
+      expect(message, value).toContain('MULTITAP_API_PORT: Expected a whole number (digits only)');
+    }
+  });
+
+  it('lists unknown MULTITAP_ variables from the schema, names only', () => {
+    expect(KNOWN_VARIABLES.has('MULTITAP_API_PORT')).toBe(true);
+    expect(KNOWN_VARIABLES.has('MULTITAP_EVENTS_HEARTBEAT_MS')).toBe(true);
+    expect(
+      unknownVariables({
+        MULTITAP_CORS_ORIGIN: 'https://app.example.org',
+        MULTITAP_API_PORT: '8080',
+        MULTITAP_MEDIA_PUBLIC_URL: 'x',
+        API_PORT: '1',
+        PATH: '/usr/bin',
+      }),
+    ).toEqual(['MULTITAP_CORS_ORIGIN', 'MULTITAP_MEDIA_PUBLIC_URL']);
+    expect(unknownVariables({})).toEqual([]);
+  });
+
+  it('never echoes a URL with credentials in an error', () => {
+    for (const value of [
+      'https://user:fake-pass@media.example.org/?x=1',
+      'ftp://user:fake-pass@media.example.org',
+      'user:fake-pass@media.example.org',
+    ]) {
+      let message = '';
+      try {
+        loadConfig({ MULTITAP_MEDIA_PUBLIC_BASE: value });
+      } catch (err) {
+        message = (err as Error).message;
+      }
+      expect(message).toContain('MULTITAP_MEDIA_PUBLIC_BASE');
+      expect(message).not.toContain('fake-pass');
+      expect(message).not.toContain('user:');
+      expect(message).toContain('value not shown');
+    }
+    expect(() =>
+      loadConfig({ MULTITAP_MEDIA_PUBLIC_BASE: 'https://user:fake-pass@media.example.org' }),
+    ).toThrow(/without a user name, password/);
   });
 
   it('never echoes a secret in an error', () => {
