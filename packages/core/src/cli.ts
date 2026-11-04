@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { destination } from 'pino';
@@ -39,6 +39,8 @@ export interface CliIo {
   clock?: Clock;
   /** Reads a password file (a test seam); one trailing newline is dropped. */
   readFile?: (path: string) => string;
+  /** The effective user id (a test seam); default `process.geteuid()`, `null` where there is none (Windows). */
+  uid?: number | null;
 }
 
 class UsageError extends Error {}
@@ -203,6 +205,35 @@ async function engineCommand(db: Db, args: string[], io: CliIo): Promise<number>
   return 0;
 }
 
+/**
+ * Why the CLI won't run as root, or `undefined`: running it with `sudo` on a
+ * bare host where the data folder (or the backup folder) belongs to the
+ * service user would leave root-owned files there (the database's `-wal` and
+ * `-shm`, a backup before migrating in a 0700 folder) that Multitap, running
+ * as that user, then can't open, so it refuses to start. Root may still run
+ * it on folders root owns (a container's own user, a root service).
+ */
+function rootRefusal(uid: number, config: { dataDir: string; backup: { dir: string } }) {
+  if (uid !== 0) return undefined;
+  for (const dir of [config.dataDir, config.backup.dir]) {
+    let owner: number;
+    try {
+      owner = statSync(dir).uid;
+    } catch {
+      continue; // Not there yet.
+    }
+    if (owner !== 0) {
+      return (
+        `Refusing to run as root: ${dir} belongs to user ${String(owner)}, and files the CLI ` +
+        'writes there (the database journal, a backup before migrating) would belong to root, ' +
+        `which Multitap running as that user can't open. Run it as that user instead, for ` +
+        `example: sudo -u '#${String(owner)}' multitap …\n`
+      );
+    }
+  }
+  return undefined;
+}
+
 /** Runs the CLI and returns its exit code: 0 ok, 1 failure, 2 usage error. */
 export async function runCli(argv: string[], io: CliIo): Promise<number> {
   const [group, ...rest] = argv;
@@ -229,7 +260,15 @@ export async function runCli(argv: string[], io: CliIo): Promise<number> {
     destination: destination({ dest: 2, sync: true }),
   });
 
-  mkdirSync(config.dataDir, { recursive: true });
+  // POSIX only: Windows has no user ids (geteuid is undefined there).
+  const uid = io.uid === undefined ? (process.geteuid?.() ?? null) : io.uid;
+  const refusal = uid === null ? undefined : rootRefusal(uid, config);
+  if (refusal !== undefined) {
+    io.stderr(refusal);
+    return 1;
+  }
+
+  mkdirSync(config.dataDir, { recursive: true, mode: 0o700 });
   const db = openDatabase(join(config.dataDir, DB_FILE));
   try {
     // The CLI may be the first to open the database after an upgrade, so it

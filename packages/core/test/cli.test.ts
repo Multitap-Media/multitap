@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process';
-import { writeFileSync } from 'node:fs';
+import { chownSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
@@ -68,6 +68,38 @@ describe('cli', () => {
     expect(list.stdout).toContain('bootstrap');
     expect(list.stdout).not.toContain(key);
   });
+
+  it.skipIf(process.platform === 'win32')(
+    'refuses to run as root on a data folder that belongs to another user',
+    async () => {
+      const dataDir = scratch();
+      // Owned by a non-root user: as the test user, or handed over when the tests run as root.
+      if (statSync(dataDir).uid === 0) chownSync(dataDir, 1000, 1000);
+      const owner = statSync(dataDir).uid;
+      const err: string[] = [];
+      const code = await runCli(['api-key', 'list'], {
+        env: { MULTITAP_DATA_DIR: dataDir },
+        stdout: () => undefined,
+        stderr: (text) => err.push(text),
+        uid: 0,
+      });
+      expect(code).toBe(1);
+      expect(err.join('')).toContain(
+        `Refusing to run as root: ${dataDir} belongs to user ${String(owner)}`,
+      );
+      // Nothing was written.
+      expect(readdirSync(dataDir)).toEqual([]);
+
+      // Not root, or root on its own folder: runs.
+      const asOwner = await runCli(['api-key', 'list'], {
+        env: { MULTITAP_DATA_DIR: dataDir },
+        stdout: () => undefined,
+        stderr: () => undefined,
+        uid: owner,
+      });
+      expect(asOwner).toBe(0);
+    },
+  );
 
   it('a key it creates authenticates against a running Multitap', async () => {
     const dataDir = scratch();
