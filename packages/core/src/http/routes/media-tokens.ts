@@ -108,6 +108,9 @@ const revokeSubjectRoute = createRoute({
     ...validationResponse,
     ...authResponses,
     404: problemContent(noSession),
+    503: problemContent(
+      'The revocation is in force but could not be stored, so it would end if Multitap restarted: revoke again',
+    ),
   },
 });
 

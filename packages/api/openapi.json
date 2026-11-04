@@ -10338,6 +10338,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "The revocation is in force but could not be stored, so it would end if Multitap restarted: revoke again",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
           }
         }
       }
