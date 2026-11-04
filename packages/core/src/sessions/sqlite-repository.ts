@@ -237,15 +237,17 @@ export class SqliteSessionRepository implements SessionRepository {
   /**
    * Sessions not yet released whose retention ended: `max(retainUntil,
    * lastAccess + idleMs) <= now` (okf:architecture/engine-retention). Failed sessions are included, so they
-   * too end as `released` and are purged later.
+   * too end as `released` and are purged later. Only the ids are read.
    */
-  async listDueForRelease(now: number, idleMs: number): Promise<PlaybackSessionRecord[]> {
-    const rows = await this.#select()
+  async listDueForRelease(now: number, idleMs: number): Promise<string[]> {
+    const rows = await this.#db
+      .selectFrom('playback_sessions')
+      .select('id')
       .where('status', '!=', 'released')
       .where(sql<number>`max(coalesce(retain_until, 0), last_access + ${idleMs})`, '<=', now)
       .orderBy('created_at')
       .execute();
-    return rows.map(fromRow);
+    return rows.map((row) => row.id);
   }
 
   async listOpen(): Promise<PlaybackSessionRecord[]> {

@@ -3,7 +3,7 @@ type: Component
 title: "Engine session retention: policy, release and pending-release retries"
 description: "Retention policy in core (max of retainUntil and lastAccess plus idle), how upstream #24 and #25 change enforcement, the sweep as built, release racing a resolution, retried pending releases (R27), and the optional per-session ttl."
 tags: [core, engine, retention, component]
-generated: { by: "agent/claude-sonnet-5.5", at: "2026-10-17T02:10:23Z" }
+generated: { by: "agent/claude-opus-5.5", at: "2026-11-04T02:45:00Z" }
 code_refs:
   - "packages/core/src/engines/"
   - "packages/core/src/sessions/"
@@ -40,7 +40,10 @@ Source of truth for engine session retention  Interface and overview: [[architec
   `max(retainUntil, lastAccess + MULTITAP_RETENTION_IDLE_MS)`, `failed` ones included,
   and deletes released sessions `MULTITAP_SESSION_RELEASED_KEEP_MS` after release; until
   then their media answers `410`, afterwards `404`. `lastAccess` moves on media
-  requests and session reads, written at most every 5 s per session.
+  requests and session reads, written at most every 5 s per session. Releases
+  run four at a time (each may wait for its engine's `DELETE`); one that fails
+  is logged and the sweep goes on with the others, the pending-release retries
+  and the purges (the next sweep finds it again).
 - Release aborts a resolution in flight, then calls the engine module's
   `release()`: `DELETE /hlsv2/{sid}` where the engine has it ([[architecture/engine-endpoints-core-uses]]), then it
   deletes the `engine_sessions` row. A release racing a resolution never leaves
@@ -52,6 +55,8 @@ Source of truth for engine session retention  Interface and overview: [[architec
   `release_attempts`, `release_next_at`). Every sweep retries the due ones,
   skipping engines the health check sees offline, with a backoff that starts
   at `MULTITAP_RETENTION_SWEEP_MS` and doubles up to `MULTITAP_ENGINE_HEALTH_MAX_BACKOFF_MS`.
+  A release on an engine the health check sees offline sends nothing (no
+  `DELETE`, no capability probe) and is pending at once.
   `204` and `404` (already gone, e.g. after an engine restart without
   persistence) both end it, as do an engine without `DELETE` and a removed
   engine; only then is the row (and its `mediaURL`) deleted. Pending releases

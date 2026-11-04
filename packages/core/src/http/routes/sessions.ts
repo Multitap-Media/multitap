@@ -84,6 +84,7 @@ const STATUS: Record<SessionErrorCode, ContentfulStatusCode> = {
   'unknown-engine': 400,
   'not-implemented': 501,
   'engine-busy': 503,
+  'shutting-down': 503,
   'unknown-profile': 400,
 };
 
@@ -144,11 +145,12 @@ const createSessionRoute = createRoute({
     ),
     503: {
       ...problemContent(
-        "`MULTITAP_ENGINE_ADMISSION=reject` only: the engine's resolving and playing sessions already reach its `liveConcurrency`",
+        "With `MULTITAP_ENGINE_ADMISSION=reject`, the engine's resolving and playing sessions already reach its `liveConcurrency`; or Multitap is shutting down",
       ),
       headers: {
         'Retry-After': {
-          description: 'Seconds to wait before trying again (`MULTITAP_ENGINE_LOAD_WINDOW_MS`).',
+          description:
+            'Seconds to wait before trying again (`MULTITAP_ENGINE_LOAD_WINDOW_MS`); absent while shutting down.',
           schema: { type: 'integer', minimum: 1 },
         },
       },

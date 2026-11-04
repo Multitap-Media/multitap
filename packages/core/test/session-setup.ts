@@ -21,6 +21,7 @@ import { defaultEngineId, getEngine, putEngine } from '../src/engines/index.ts';
 import { HOME_ENGINE, PUBLIC_DNS_GUARD } from './engine-fixture.ts';
 import { createLanTransport } from '../src/engines/lan-transport.ts';
 import { EngineRegistry } from '../src/engines/registry.ts';
+import type { EngineTransport } from '../src/engines/transport.ts';
 import { MemoryEventBus } from '../src/events/memory-bus.ts';
 import { createApp, type AppDeps } from '../src/http/app.ts';
 import { sequentialIds } from '../src/lib/ids.ts';
@@ -51,6 +52,8 @@ export interface RigOptions {
   env?: Record<string, string>;
   /** Reach the fake engine over real HTTP (the `lan` transport) instead of in-process. */
   realEngine?: boolean;
+  /** Wraps the engine transport (to fail or stall chosen requests). */
+  transport?: (inner: EngineTransport) => EngineTransport;
 }
 
 export interface Rig {
@@ -63,6 +66,7 @@ export interface Rig {
   events: MultitapEvent[];
   repo: SqliteSessionRepository;
   module: ServerGoEngineModule;
+  registry: EngineRegistry;
   service: SessionService;
   metrics: MetricsRegistry;
   log: ReturnType<typeof memoryLogger>;
@@ -113,9 +117,11 @@ export async function sessionRig(options: RigOptions = {}): Promise<Rig> {
     db,
     timeouts: { control: 2_000, prepare: 2_000, media: 2_000 },
     transportFactory: () =>
-      engineBase === undefined
-        ? fake.transport('home')
-        : createLanTransport({ id: 'home', address: engineBase }),
+      (options.transport ?? ((inner) => inner))(
+        engineBase === undefined
+          ? fake.transport('home')
+          : createLanTransport({ id: 'home', address: engineBase }),
+      ),
   });
   const module = new ServerGoEngineModule({
     db,
@@ -248,6 +254,7 @@ export async function sessionRig(options: RigOptions = {}): Promise<Rig> {
     events,
     repo,
     module,
+    registry,
     service,
     metrics,
     log,
