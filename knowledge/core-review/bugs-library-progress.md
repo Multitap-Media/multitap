@@ -28,7 +28,7 @@ Done (2026-10-20). 8 medium findings (all confirmed with `it.fails` PoCs), 15 lo
 - [One player model per profile corrupts watched state when two devices play](bugs-library-one-player-per-profile.md): medium, confirmed.
 - [A playback never stopped is never unloaded](bugs-library-no-idle-unload.md): medium, confirmed.
 - [Marking the playing episode watched is undone by the next report](bugs-library-mark-playing-watched-undone.md): medium, confirmed.
-- [Incremental source lists drop early partials and never signal completion](bugs-library-incremental-partials.md): medium, confirmed.
+- [Incremental source lists drop early partials and never signal completion](bugs-library-incremental-partials.md): medium, confirmed. Fixed 2026-11-04.
 - [Torrent candidate keys ignore the file choice, so pack episodes share a key](bugs-library-torrent-key-file-choice.md): medium, partly holds after verification; not a release blocker (a pick by key fails safely; only auto-select can race).
 - ["DV 5.1" parsed as Dolby Vision profile 5](bugs-library-dv-channel-layout.md): medium, confirmed.
 - [Subtitle tags counted as audio languages](bugs-library-subtitle-tags-as-audio.md): medium, confirmed.

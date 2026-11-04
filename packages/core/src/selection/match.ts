@@ -22,9 +22,9 @@
  * don't state exactly the requested episode (an addon that found `S01E01`
  * by id under a translated name, like `Juego de Tronos`, is believed).
  */
-import { parseTorrentTitle } from '@viren070/parse-torrent-title';
 import type { SourceCandidate } from '@multitap/api';
 import { releaseLines } from './parse/extractors.ts';
+import { parseTitle, splitContainer } from './parse/name.ts';
 
 export interface MatchTarget {
   /** The item's name, from its meta. Empty: no title check. */
@@ -49,8 +49,23 @@ export function compactTitle(text: string): string {
     .replace(/[^\p{L}\p{N}]/gu, '');
 }
 
+let lastName: string | undefined;
+let lastForms: readonly string[] = [];
+
+/**
+ * {@link computeNameForms}, remembered for the last name: a list asks for the
+ * same item's name once per candidate.
+ */
+function nameForms(name: string): readonly string[] {
+  if (name !== lastName) {
+    lastForms = computeNameForms(name);
+    lastName = name;
+  }
+  return lastForms;
+}
+
 /** The forms of the item's name to look for: compacted, without a leading article or trailing year. */
-function nameForms(name: string): string[] {
+function computeNameForms(name: string): string[] {
   // No `\s*` before the year or the colon: on a long run of spaces it is quadratic.
   const trimmed = name
     .trim()
@@ -82,13 +97,13 @@ function statesYear(lines: readonly string[], year: number): boolean {
 
 type EpisodeVerdict = 'exact' | 'contains' | 'other' | 'unknown';
 
-function safeParse(line: string): { seasons: number[]; episodes: number[] } {
-  try {
-    const r = parseTorrentTitle(line);
-    return { seasons: r.seasons ?? [], episodes: r.episodes ?? [] };
-  } catch {
-    return { seasons: [], episodes: [] };
-  }
+/** Seasons and episodes of a line, from the parse `parseStream` already made of it when it can. */
+function seasonsAndEpisodes(line: string): {
+  seasons: readonly number[];
+  episodes: readonly number[];
+} {
+  const parsed = parseTitle(splitContainer(line).stem);
+  return { seasons: parsed.seasons ?? [], episodes: parsed.episodes ?? [] };
 }
 
 /**
@@ -104,7 +119,7 @@ function baseName(line: string): string {
 
 function episodeVerdict(lines: readonly string[], season: number, episode: number): EpisodeVerdict {
   for (const line of lines) {
-    const { seasons, episodes } = safeParse(baseName(line));
+    const { seasons, episodes } = seasonsAndEpisodes(baseName(line));
     if (seasons.length > 0 && episodes.length > 0) {
       if (!seasons.includes(season) || !episodes.includes(episode)) return 'other';
       return seasons.length === 1 && episodes.length === 1 ? 'exact' : 'contains';

@@ -696,7 +696,12 @@ export function registerBrowseRoutes(app: OpenAPIHono<AppEnv>, deps: AppDeps): v
     if (engine === undefined) throw new ProblemError(400, `Unknown engine '${engineId}'.`);
     const highRes = query.highRes ?? deps.config.selection.defaultHighRes;
     const sort = query.sort ?? 'addon';
-    const sourceDeps = { addons: deps.addons, streams: deps.streams, meta: itemMetaLookup(deps) };
+    const sourceDeps = {
+      addons: deps.addons,
+      streams: deps.streams,
+      meta: itemMetaLookup(deps),
+      logger: deps.logger,
+    };
     const profile = await profileSelection(deps, query.profileId, videoId);
     const request = {
       type,

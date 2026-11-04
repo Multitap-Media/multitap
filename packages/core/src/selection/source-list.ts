@@ -26,6 +26,7 @@ import {
   type AddonOutcome,
   type AddonService,
 } from '../addons/index.ts';
+import type { Logger } from '../log.ts';
 import { toCandidates, type CandidateWithStream } from './candidates.ts';
 import { splitVideoId, type ItemInfo, type ItemMetaLookup } from './item-meta.ts';
 import { annotate, type RankEngine } from './rank.ts';
@@ -56,6 +57,8 @@ export interface SourceListDeps {
   streams: StreamStore;
   /** The item's meta for mismatch scoring and the runtime; without it neither applies. */
   meta?: Pick<ItemMetaLookup, 'lookup'> | undefined;
+  /** Where a failing `onPartial` listener is reported (at `debug`). */
+  logger?: Logger | undefined;
 }
 
 export interface SourceListResult {
@@ -97,7 +100,8 @@ export interface StartedSourceList {
 
 interface BuiltAddon {
   status: AddonStatus;
-  candidates: SourceCandidate[];
+  /** The addon's candidates with their streams, in its order, not yet annotated or stored. */
+  made: CandidateWithStream[];
 }
 
 /**
@@ -126,6 +130,29 @@ export async function startSourceList(
   const setup = new Promise<void>((resolve) => {
     setupDone = resolve;
   });
+  // Partials go out one at a time, in answer order. Declared before the addons
+  // are asked: an answer can arrive while the meta lookup below is awaited.
+  let partials: Promise<void> = Promise.resolve();
+  let synthetic = false;
+  const emit = (outcome: AddonOutcome<'stream'>, remaining: number, own = false): void => {
+    if (onPartial === undefined) return;
+    partials = partials.then(async () => {
+      await setup;
+      const item = await itemPromise;
+      const one = build(outcome);
+      try {
+        onPartial({
+          addon: one.status,
+          candidates: annotateOnce(outcome.addonId, one, item),
+          // The synthetic part answers last, so every stream addon's count includes it.
+          remaining: remaining + (synthetic && !own ? 1 : 0),
+        });
+      } catch (err) {
+        // A failing listener doesn't fail the list.
+        deps.logger?.debug({ err, addonId: outcome.addonId }, 'source list listener failed');
+      }
+    });
+  };
   const asking = deps.addons.aggregate('stream', type, videoId, [], {
     onOutcome: (outcome, remaining) => {
       emit(outcome, remaining);
@@ -146,10 +173,8 @@ export async function startSourceList(
         ? undefined
         : index.match({ resource: 'meta', type, id: videoId }).find((a) => !needsConfiguration(a));
   const extraStreams: Stream[] = embedded?.streams ?? (derived === undefined ? [] : [derived]);
-  const synthetic =
-    extraOwner !== undefined && !streamAddons.some((addon) => addon.id === extraOwner.id);
+  synthetic = extraOwner !== undefined && !streamAddons.some((addon) => addon.id === extraOwner.id);
   const asked = streamAddons.length + (synthetic ? 1 : 0);
-  setupDone();
 
   const { lastSource, settings } = request.rank;
   // The item is flagged by its meta's name, or by the video's or item's id.
@@ -161,79 +186,81 @@ export async function startSourceList(
   if (itemId !== videoId && !itemReasons.some((r) => r.rule === 'safety.idPrefixes')) {
     itemReasons.push(...itemFlagReasons({ id: itemId }, settings.safety));
   }
-  const annotateFor = (candidates: SourceCandidate[], item: ItemInfo | undefined) =>
-    annotate(candidates, request.engine, request.highRes, {
-      ...request.rank,
-      runtimeSec: item?.runtimeSec,
-      target: item?.target,
-      itemFlagReasons: itemReasons,
-    }).map((c): SourceCandidate => {
-      if (c.flags !== undefined) {
-        const stored = deps.streams.get(c.key);
-        if (stored !== undefined) deps.streams.put(c.key, { ...stored, flags: c.flags });
-      }
-      return c.key === lastSource ? { ...c, lastUsed: true } : c;
-    });
 
   const built = new Map<string, BuiltAddon>();
-  const build = (outcome: AddonOutcome<'stream'>): BuiltAddon => {
+  function build(outcome: AddonOutcome<'stream'>): BuiltAddon {
     const cached = built.get(outcome.addonId);
     if (cached !== undefined) return cached;
     const addon = { id: outcome.addonId, name: outcome.addonName };
     let made = toCandidates(addon, outcome.items, { type });
     const invalid = outcome.items.length - made.length;
     if (extraOwner?.id === outcome.addonId) {
-      const fresh = toCandidates(addon, extraStreams, { type }).filter(
-        (own, i, all) =>
-          !made.some((b) => b.candidate.key === own.candidate.key) &&
-          all.findIndex((o) => o.candidate.key === own.candidate.key) === i,
-      );
+      const keys = new Set(made.map((b) => b.candidate.key));
+      const fresh = toCandidates(addon, extraStreams, { type }).filter((own) => {
+        if (keys.has(own.candidate.key)) return false;
+        keys.add(own.candidate.key);
+        return true;
+      });
       // The derived stream leads (as it always has); the meta's own follow the addon's.
       made = embedded === undefined ? [...fresh, ...made] : [...made, ...fresh];
     }
-    const candidates: SourceCandidate[] = [];
-    for (const { candidate, stream } of made satisfies CandidateWithStream[]) {
-      deps.streams.put(candidate.key, {
-        addonId: outcome.addonId,
-        addonName: outcome.addonName,
-        type,
-        videoId,
-        stream,
-        requiresEngine: candidate.requiresEngine,
-      });
-      candidates.push(candidate);
-    }
     // Streams without a usable source can't be keyed or played; they count as dropped.
-    const result = { status: addonStatus(outcome, made.length, invalid), candidates };
+    const result = { status: addonStatus(outcome, made.length, invalid), made };
     built.set(outcome.addonId, result);
     return result;
-  };
-
-  // Partials go out one at a time, in answer order.
-  let partials: Promise<void> = Promise.resolve();
-  function emit(outcome: AddonOutcome<'stream'>, remaining: number): void {
-    if (onPartial === undefined) return;
-    partials = partials.then(async () => {
-      await setup;
-      const item = await itemPromise;
-      const { status, candidates } = build(outcome);
-      try {
-        onPartial({
-          addon: status,
-          candidates: annotateFor(candidates, item),
-          remaining: remaining + (synthetic ? 1 : 0),
-        });
-      } catch {
-        // A failing listener doesn't fail the list.
-      }
-    });
   }
+
+  // Each addon's part is annotated once, for its partial or the full list,
+  // whichever comes first (annotation is per candidate, so the parts add up to
+  // the whole), and its streams are stored then, flags included.
+  const annotated = new Map<string, SourceCandidate[]>();
+  function annotateOnce(
+    addonId: string,
+    one: BuiltAddon,
+    item: ItemInfo | undefined,
+  ): SourceCandidate[] {
+    const done = annotated.get(addonId);
+    if (done !== undefined) return done;
+    const byKey = new Map(one.made.map((m) => [m.candidate.key, m]));
+    const out = annotate(
+      one.made.map((m) => m.candidate),
+      request.engine,
+      request.highRes,
+      {
+        ...request.rank,
+        runtimeSec: item?.runtimeSec,
+        target: item?.target,
+        itemFlagReasons: itemReasons,
+      },
+    ).map((c): SourceCandidate => {
+      const made = byKey.get(c.key);
+      if (made !== undefined) {
+        deps.streams.put(c.key, {
+          addonId,
+          addonName: made.candidate.addonName,
+          type,
+          videoId,
+          stream: made.stream,
+          requiresEngine: made.candidate.requiresEngine,
+          ...(c.flags === undefined ? {} : { flags: c.flags }),
+        });
+      }
+      return c.key === lastSource ? { ...c, lastUsed: true } : c;
+    });
+    annotated.set(addonId, out);
+    return out;
+  }
+  setupDone();
 
   const done = (async (): Promise<SourceListResult> => {
     const result = await asking;
     const item = await itemPromise;
     const outcomes: AddonOutcome<'stream'>[] = [...result.addons];
-    if (synthetic && !outcomes.some((o) => o.addonId === extraOwner.id)) {
+    if (
+      synthetic &&
+      extraOwner !== undefined &&
+      !outcomes.some((o) => o.addonId === extraOwner.id)
+    ) {
       const own: AddonOutcome<'stream'> = {
         addonId: extraOwner.id,
         addonName: extraOwner.manifest.name,
@@ -241,7 +268,7 @@ export async function startSourceList(
         items: [],
         dropped: 0,
       };
-      emit(own, 0);
+      emit(own, 0, true);
       outcomes.push(own);
       const order = new Map((await deps.addons.collection.list()).map((r, i) => [r.id, i]));
       const position = (id: string) => order.get(id) ?? Number.MAX_SAFE_INTEGER;
@@ -252,10 +279,10 @@ export async function startSourceList(
     const candidates: SourceCandidate[] = [];
     const addons = outcomes.map((outcome) => {
       const one = build(outcome);
-      candidates.push(...one.candidates);
+      candidates.push(...annotateOnce(outcome.addonId, one, item));
       return one.status;
     });
-    return { candidates: annotateFor(candidates, item), addons, item };
+    return { candidates, addons, item };
   })();
   return { asked, done };
 }

@@ -173,21 +173,53 @@ function languagesOf(tokens: readonly string[], name: string): string[] | undefi
   return out.length > 0 ? out : undefined;
 }
 
-/** Parses one release or file name. Never throws; unknown fields are left out. */
-export function parseReleaseName(raw: string): NameInfo {
-  const name = raw.trim();
-  if (name === '') return {};
-  const ext = CONTAINER_EXT.exec(name);
-  const container = ext?.[1]?.toLowerCase();
-  // Strip the extension first: the library would read `.ts` as TeleSync.
-  const stem = ext ? name.slice(0, ext.index) : name;
+export type ParsedTitle = Readonly<ReturnType<typeof parseTorrentTitle>>;
 
-  let lib: ReturnType<typeof parseTorrentTitle>;
+/** Most library parses remembered, and the longest name remembered (real ones are well under). */
+const TITLE_CACHE_ENTRIES = 1_024;
+const TITLE_CACHE_KEY_MAX = 512;
+const titles = new Map<string, ParsedTitle>();
+
+/**
+ * The library's parse of a name without its container extension, remembered:
+ * ranking reads a candidate's release lines again (the mismatch check, every
+ * time a list is annotated) after `parseStream` read them, and the library is
+ * the expensive part. Never throws. The result is shared: don't change it.
+ */
+export function parseTitle(stem: string): ParsedTitle {
+  const known = titles.get(stem);
+  if (known !== undefined) return known;
+  let lib: ParsedTitle;
   try {
     lib = parseTorrentTitle(stem);
   } catch {
     lib = {};
   }
+  if (stem.length <= TITLE_CACHE_KEY_MAX) {
+    // Oldest first out: enough for the lists being ranked right now.
+    if (titles.size >= TITLE_CACHE_ENTRIES) titles.delete(titles.keys().next().value ?? '');
+    titles.set(stem, lib);
+  }
+  return lib;
+}
+
+/** A trimmed name split into its stem and container extension (`mts` read as `m2ts`). */
+export function splitContainer(raw: string): { stem: string; container: string | undefined } {
+  const name = raw.trim();
+  const ext = CONTAINER_EXT.exec(name);
+  const container = ext?.[1]?.toLowerCase();
+  // Strip the extension first: the library would read `.ts` as TeleSync.
+  return {
+    stem: ext ? name.slice(0, ext.index) : name,
+    container: container === 'mts' ? 'm2ts' : container,
+  };
+}
+
+/** Parses one release or file name. Never throws; unknown fields are left out. */
+export function parseReleaseName(raw: string): NameInfo {
+  if (raw.trim() === '') return {};
+  const { stem, container } = splitContainer(raw);
+  const lib = parseTitle(stem);
 
   const hdr = hdrOf(lib.hdr ?? [], stem);
   // Hi10P is 10-bit H.264 (common in anime); the library doesn't know the P form.
@@ -200,7 +232,7 @@ export function parseReleaseName(raw: string): NameInfo {
     codec: codecOf(lib.codec, stem) ?? (hi10p ? 'h264' : undefined),
     bitDepth: bitDepthOf(lib.bitDepth ?? (hi10p ? '10bit' : undefined), hdr),
     audio: audioOf(lib.audio ?? [], source, stem),
-    container: container === 'mts' ? 'm2ts' : container,
+    container,
     source,
     languages: languagesOf(lib.languages ?? [], stem),
   };

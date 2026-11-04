@@ -67,7 +67,7 @@ Since 2026-10-25 these are tracked as items in `ROADMAP.md` (Next, "Core review 
   - [One player per profile](bugs-library-one-player-per-profile.md).
   - [A playback never stopped is never unloaded](bugs-library-no-idle-unload.md).
   - [Marking the playing episode watched is undone](bugs-library-mark-playing-watched-undone.md).
-  - [Incremental source lists drop early partials](bugs-library-incremental-partials.md).
+  - [Incremental source lists drop early partials](bugs-library-incremental-partials.md). **Fixed 2026-11-04:** answers that overtake the meta lookup are queued, and the synthetic part is the one partial with `remaining: 0`.
   - [Torrent keys ignore the file choice](bugs-library-torrent-key-file-choice.md).
   - [Session identity ignores the engine and highRes](bugs-playback-identity-ignores-engine-highres.md).
   - [Orphaned engine sessions](bugs-playback-orphaned-engine-sessions.md).
