@@ -450,7 +450,9 @@ in [SECURITY.md](SECURITY.md).
 ### Docker
 
 The image is `ghcr.io/multitap-media/multitap`, for amd64 and arm64, tagged
-`X.Y.Z`, `X.Y` and `latest` on every release. For a deployment you keep, pin
+`X.Y.Z` on every release, `X.Y` when it is the highest release of `X.Y`, and
+`latest` when it is the highest release of all (a patch to an older line never
+moves them back). For a deployment you keep, pin
 `X.Y.Z` (or `X.Y` to follow its patch releases) rather than `latest`:
 
 ```bash
