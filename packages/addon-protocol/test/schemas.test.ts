@@ -407,7 +407,7 @@ describe('parseResourceResponse', () => {
     expect(parseLenientList(SubtitlesSchema, {}).success).toBe(false);
     expect(parseLenientList(SubtitlesSchema, undefined)).toEqual({
       success: true,
-      data: { items: [], dropped: [] },
+      data: { items: [], dropped: [], truncated: 0 },
     });
   });
 });

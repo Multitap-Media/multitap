@@ -3,6 +3,7 @@ export const packageName = '@multitap/addon-protocol';
 
 export * from './client.ts';
 export * from './errors.ts';
+export * from './limits.ts';
 export * from './manifest.ts';
 export * from './meta.ts';
 export * from './private-hosts.ts';

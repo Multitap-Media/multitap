@@ -27,6 +27,27 @@ repository; their tags are not part of this repository's history.
 
 ## Unreleased
 
+### Fixed
+
+- **One hostile addon response can no longer freeze Multitap.** The 8 MiB
+  response cap bounded an addon's bytes, not the work they cost: hundreds of
+  thousands of tiny streams, one object with half a million keys, or a
+  description of thousands of lines each blocked the event loop (every route
+  and the media gateway) for seconds to tens of seconds. Responses are now
+  parsed within a budget (okf:architecture/addon-response-budget): list
+  responses keep their first items up to a per-resource count (1 000 streams,
+  500 subtitles, 1 000 catalog items), items nested deeper than 32 levels or
+  with more than 256 keys on one object are dropped, metas keep their first
+  20 000 videos, manifests their first 500 catalogs, and a stream
+  description's first 16 lines are read for release names.
+- **A full cache no longer scans every entry on each write.** The stream store,
+  item metas, subtitles and tokens drop their least recently used entry in
+  constant time; expired entries are swept at most once a minute. A flood of
+  streams used to stall Multitap and push out other clients' candidate keys.
+- **Marking a long series' season watched takes linear time.** Each video
+  lookup scanned the video list, so 40 000 videos took seconds. A stored
+  watched bitfield also inflates to at most 1 MiB.
+
 ## 0.2.1 (2026-11-02)
 
 ### Fixed

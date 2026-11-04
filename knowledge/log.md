@@ -1,3 +1,6 @@
+## 2026-11-04
+* **Creation**: Documented concept `architecture/addon-response-budget.md` (list responses keep their first items up to a per-resource count, a nesting depth and a key count per object, the video and catalog caps, the 16 description lines read, and the linear costs behind them), with its `architecture/index.md` entry.
+
 ## 2026-11-03
 * **Update**: Engine-side preparation merged upstream as rivulet-engine#73 (Rivulet Engine v0.30.0, `RIVULET_HLS_PREPARE`). Updated `architecture/engine-prepare-ahead.md`, `process/engine-upstream-prs.md`, `process/upstream-engine-asks.md`, `process/upstream-engine-asks-table.md`, `process/build-plan.md`, `architecture/engine-abr-ladder-design.md` and `process/engine-abr-ladder-phasing-and-risks.md`, and the `process/index.md` entry.
 

@@ -6,6 +6,26 @@
  */
 import { deflateSync, inflateSync } from 'node:zlib';
 
+/**
+ * Largest decompressed bitfield accepted, in bytes: 8M videos, far past any
+ * meta (the addon response budget keeps 20 000), so a stored or submitted
+ * field can't inflate into a huge buffer.
+ */
+export const MAX_BITFIELD_BYTES = 1024 * 1024;
+
+/** Video id → its first position, built once per video list (lookups were a scan each). */
+const positionsByList = new WeakMap<readonly string[], Map<string, number>>();
+
+function positionOf(videoIds: readonly string[], videoId: string): number {
+  let positions = positionsByList.get(videoIds);
+  if (positions === undefined) {
+    positions = new Map();
+    for (const [i, id] of videoIds.entries()) if (!positions.has(id)) positions.set(id, i);
+    positionsByList.set(videoIds, positions);
+  }
+  return positions.get(videoId) ?? -1;
+}
+
 /** `BitField8`: bit `i` is bit `i % 8` of byte `i / 8`. */
 export class BitField8 {
   length: number;
@@ -35,7 +55,15 @@ export class BitField8 {
     if (!/^[A-Za-z0-9+/]*={0,2}$/.test(encoded) || encoded.length % 4 !== 0) {
       throw new Error('Invalid base64 in watched bitfield');
     }
-    const values = inflateSync(Buffer.from(encoded, 'base64'));
+    let values: Buffer;
+    try {
+      values = inflateSync(Buffer.from(encoded, 'base64'), { maxOutputLength: MAX_BITFIELD_BYTES });
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code === 'ERR_BUFFER_TOO_LARGE') {
+        throw new Error('Watched bitfield is too large', { cause: err });
+      }
+      throw err;
+    }
     return BitField8.fromValues(new Uint8Array(values), length);
   }
 
@@ -113,7 +141,7 @@ export class WatchedBitField {
    * marks. An anchor no longer in the list gives an empty field.
    */
   static constructWithVideos(field: WatchedField, videoIds: readonly string[]): WatchedBitField {
-    const anchorIdx = videoIds.indexOf(field.anchorVideo);
+    const anchorIdx = positionOf(videoIds, field.anchorVideo);
     if (anchorIdx === -1) return new WatchedBitField(new BitField8(videoIds.length), videoIds);
     const offset = field.anchorLength - anchorIdx - 1;
     const bitfield = BitField8.fromValues(field.bitfield.values, videoIds.length);
@@ -135,7 +163,7 @@ export class WatchedBitField {
   }
 
   getVideo(videoId: string): boolean {
-    const pos = this.videoIds.indexOf(videoId);
+    const pos = positionOf(this.videoIds, videoId);
     return pos === -1 ? false : this.bitfield.get(pos);
   }
 
@@ -144,7 +172,7 @@ export class WatchedBitField {
   }
 
   setVideo(videoId: string, v: boolean): void {
-    const pos = this.videoIds.indexOf(videoId);
+    const pos = positionOf(this.videoIds, videoId);
     if (pos !== -1) this.bitfield.set(pos, v);
   }
 

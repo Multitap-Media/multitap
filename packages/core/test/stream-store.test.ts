@@ -49,6 +49,21 @@ describe('TtlCache', () => {
   });
 });
 
+describe('TtlCache in a full cache', () => {
+  it('writes in constant time, still dropping expired entries first', () => {
+    const clock = manualClock();
+    const cache = new TtlCache<number>({ clock, ttlMs: 6 * 3_600_000, maxEntries: 10_000 });
+    // Every write into a full cache used to scan all its entries for expired
+    // ones: 100 000 writes were a billion steps.
+    const started = performance.now();
+    for (let i = 0; i < 100_000; i++) cache.set(`k${String(i)}`, i);
+    expect(performance.now() - started).toBeLessThan(2_000);
+    expect(cache.size).toBe(10_000);
+    expect(cache.get('k99999')).toBe(99_999);
+    expect(cache.get('k0')).toBeUndefined();
+  });
+});
+
 describe('StreamStore', () => {
   it('keeps streams by candidate key, for 6 hours by default and up to its bound', () => {
     const clock = manualClock();

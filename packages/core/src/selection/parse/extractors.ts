@@ -56,13 +56,21 @@ export function parseSize(text: string): number | undefined {
 const META_LINE = /^[\p{Extended_Pictographic}\p{Regional_Indicator}]/u;
 
 /**
+ * Lines of a description read for release names. Real descriptions have a
+ * handful; an addon's text is otherwise bounded only by its response size, and
+ * every line is parsed (okf:architecture/addon-response-budget).
+ */
+export const MAX_DESCRIPTION_LINES = 16;
+
+/**
  * Release-name candidates from the description, best first: the last plain
  * line is the file when a pack name precedes it (Torrentio), else the only one.
+ * Only the first `MAX_DESCRIPTION_LINES` lines are read.
  */
 export function releaseLines(text: string | undefined): string[] {
   if (text === undefined) return [];
   return text
-    .split('\n')
+    .split('\n', MAX_DESCRIPTION_LINES)
     .map((line) => line.trim())
     .filter((line) => line !== '' && !META_LINE.test(line))
     .reverse();

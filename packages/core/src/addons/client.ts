@@ -218,6 +218,17 @@ export class AddonClients {
           'addon response items failed validation and were dropped',
         );
       }
+      if (data.truncated > 0) {
+        this.#logger.info(
+          {
+            addonId: addon.id,
+            host: addon.host,
+            resource: path.resource,
+            truncated: data.truncated,
+          },
+          'addon response had more items than the response budget keeps; the rest were left out',
+        );
+      }
       // Only a current breaker's cache is written: forget() may have run meanwhile.
       if (this.#breakers.get(addon.id) === breaker) this.#cache.set(key, data, data.cache);
       return { status: 'ok', data, cache: 'miss' };

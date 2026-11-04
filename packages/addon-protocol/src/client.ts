@@ -24,6 +24,7 @@ import {
   AddonUnsupportedTransportError,
   AddonValidationError,
 } from './errors.ts';
+import { checkJsonShape } from './limits.ts';
 import { ManifestSchema, type Manifest } from './manifest.ts';
 import { defaultPrivateHostGuard, type PrivateHostGuard } from './private-hosts.ts';
 import { buildResourceUrl, isManifestUrl, type ResourcePathInput } from './request.ts';
@@ -154,6 +155,9 @@ export async function fetchManifest(
 ): Promise<Manifest> {
   const url = parseTransportUrl(transportUrl);
   const body = await fetchJson(url, options);
+  const refused = checkJsonShape(body);
+  if (refused !== undefined)
+    throw new AddonValidationError(url.host, `invalid manifest: ${refused}`);
   const result = ManifestSchema.safeParse(body);
   if (!result.success) {
     throw new AddonValidationError(url.host, 'invalid manifest', result.error.issues);

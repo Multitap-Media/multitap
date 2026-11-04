@@ -18,10 +18,15 @@ interface Entry<V> {
   weight: number;
 }
 
+/** Longest wait between two scans for expired entries. */
+const MAX_SWEEP_INTERVAL_MS = 60_000;
+
 /**
  * A small in-memory map with a time to live and a size bound, least recently
- * used first out. Expired entries are dropped when they're read or when the
- * cache is over its bounds.
+ * used first out. Expired entries are dropped when they're read, and when the
+ * cache is over its bounds: a scan for them runs at most once per sweep
+ * interval (the TTL, at most a minute), and otherwise the least recently used
+ * go, so a write into a full cache costs O(1), not a scan of every entry.
  */
 export class TtlCache<V> {
   readonly #clock: Clock;
@@ -30,7 +35,9 @@ export class TtlCache<V> {
   readonly #maxWeight: number;
   readonly #weigh: (value: V) => number;
   readonly #entries = new Map<string, Entry<V>>();
+  readonly #sweepIntervalMs: number;
   #weight = 0;
+  #lastSweep = Number.NEGATIVE_INFINITY;
 
   constructor(options: TtlCacheOptions<V>) {
     this.#clock = options.clock;
@@ -38,6 +45,7 @@ export class TtlCache<V> {
     this.#maxEntries = options.maxEntries;
     this.#maxWeight = options.maxWeight ?? Number.POSITIVE_INFINITY;
     this.#weigh = options.weigh ?? (() => 1);
+    this.#sweepIntervalMs = Math.min(Math.max(options.ttlMs, 0), MAX_SWEEP_INTERVAL_MS);
   }
 
   get size(): number {
@@ -82,10 +90,13 @@ export class TtlCache<V> {
 
   #evict(): void {
     if (this.#entries.size <= this.#maxEntries && this.#weight <= this.#maxWeight) return;
-    // Expired entries first, then the least recently used.
+    // Expired entries first (when a scan is due), then the least recently used.
     const now = this.#clock();
-    for (const [key, entry] of this.#entries) {
-      if (entry.expiresAt <= now) this.delete(key);
+    if (now - this.#lastSweep >= this.#sweepIntervalMs) {
+      this.#lastSweep = now;
+      for (const [key, entry] of this.#entries) {
+        if (entry.expiresAt <= now) this.delete(key);
+      }
     }
     for (const key of this.#entries.keys()) {
       if (this.#entries.size <= this.#maxEntries && this.#weight <= this.#maxWeight) break;

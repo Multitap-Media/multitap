@@ -2,6 +2,7 @@
  * Meta items. Ported from stremio-core's `types/resource/meta_item.rs`.
  */
 import { z } from 'zod';
+import { DEFAULT_MAX_META_VIDEOS } from './limits.ts';
 import {
   defaultOnNull,
   lenientUrl,
@@ -156,7 +157,8 @@ function compareVideos(a: Video, b: Video, isSeries: boolean): number {
 /**
  * `DefaultOnNull<SortedVec<UniqueVec<…>>>` for `videos`: deduplicated by id
  * (first wins), then stably sorted. Unlike stremio-core, an invalid video is
- * skipped instead of failing the whole meta item.
+ * skipped instead of failing the whole meta item, and only the first
+ * `DEFAULT_MAX_META_VIDEOS` are read (okf:architecture/addon-response-budget).
  */
 const videoList = z
   .array(z.unknown())
@@ -164,7 +166,7 @@ const videoList = z
   .transform((items): Video[] => {
     const seen = new Set<string>();
     const videos: Video[] = [];
-    for (const item of items ?? []) {
+    for (const item of (items ?? []).slice(0, DEFAULT_MAX_META_VIDEOS)) {
       const result = VideoSchema.safeParse(item);
       if (!result.success || seen.has(result.data.id)) continue;
       seen.add(result.data.id);

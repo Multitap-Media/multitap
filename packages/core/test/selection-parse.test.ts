@@ -7,6 +7,7 @@ import {
   debridCached,
   easynewsInfo,
   parseSize,
+  MAX_DESCRIPTION_LINES,
   releaseLines,
   torrentioInfo,
 } from '../src/selection/parse/extractors.ts';
@@ -185,6 +186,11 @@ describe('extractors', () => {
       'File.Name.avi',
       'Pack Name',
     ]);
+  });
+
+  it('reads at most MAX_DESCRIPTION_LINES lines of a description', () => {
+    const lines = releaseLines('a\n'.repeat(2_048));
+    expect(lines).toHaveLength(MAX_DESCRIPTION_LINES);
   });
 
   it('normalizes languages', () => {
