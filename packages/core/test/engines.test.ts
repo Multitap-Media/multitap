@@ -173,6 +173,24 @@ describe('/v1/admin/engines', () => {
     expect(again.status).toBe(404);
   });
 
+  it('DELETE drops the engine’s metric series', async () => {
+    const { app, admin, json, metrics } = await setup();
+    await app.request('/v1/admin/engines/alex-pc', { method: 'PUT', ...json(input) });
+    metrics.updateEngineHealth('alex-pc', true);
+    metrics.updateEngineLoad('alex-pc', 1, 2);
+    metrics.updateEngineHealth('home', true);
+    expect(await metrics.metrics()).toContain('multitap_engine_health{engine_id="alex-pc"} 1');
+
+    const deleted = await app.request('/v1/admin/engines/alex-pc', {
+      method: 'DELETE',
+      headers: admin,
+    });
+    expect(deleted.status).toBe(204);
+    const text = await metrics.metrics();
+    expect(text).not.toContain('engine_id="alex-pc"');
+    expect(text).toContain('multitap_engine_health{engine_id="home"} 1');
+  });
+
   it('a fresh install has no engine, and says how to add one', async () => {
     const t = await testApp();
     const client = { ...bearer(await t.keyFor('client')), 'Content-Type': 'application/json' };
