@@ -113,6 +113,20 @@ async function discard(res: Response): Promise<void> {
   }
 }
 
+/** A short body's text (at most the first 1 KiB is kept); empty when unreadable. */
+async function readBodyText(res: Response): Promise<string> {
+  try {
+    return (await res.text()).slice(0, 1_024);
+  } catch {
+    return '';
+  }
+}
+
+/** Go's `net/http` answer to a path no route serves (`http.NotFound`). */
+export function isRouteNotFound(body: string): boolean {
+  return body.trim() === '404 page not found';
+}
+
 async function readJson(res: Response, endpoint: string): Promise<unknown> {
   try {
     return await res.json();
@@ -363,10 +377,16 @@ export function createServerGoClient(options: ServerGoClientOptions): ServerGoCl
         timeoutMs: timeouts.prepare,
         signal,
       });
-      if (res.status === 404 || res.status === 405) {
-        // An engine without the endpoint routes it to its generic 404.
+      if (res.status === 405) {
         await discard(res);
         openSubHashSupported = false;
+        return undefined;
+      }
+      if (res.status === 404) {
+        // An engine without the endpoint routes it to Go's generic 404 (as for
+        // the DELETE probe, the route's own answers differ); any other 404 is
+        // about this file and turns nothing off.
+        if (isRouteNotFound(await readBodyText(res))) openSubHashSupported = false;
         return undefined;
       }
       if (res.status !== 200) throw await unexpected(res, 'opensubHash');
