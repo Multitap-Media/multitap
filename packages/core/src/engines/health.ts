@@ -267,7 +267,11 @@ export class EngineHealthMonitor {
         },
       });
     }
-    this.#o.metrics?.updateEngineHealth(engineId, ok);
+    // A check in flight when its engine was deleted must not bring back the
+    // gauge the delete route removed: report it only while the engine exists.
+    if (this.#o.metrics !== undefined && (await registry.get(engineId)) !== undefined) {
+      this.#o.metrics.updateEngineHealth(engineId, ok);
+    }
     return ok;
   }
 

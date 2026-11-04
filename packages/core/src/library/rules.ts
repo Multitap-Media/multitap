@@ -296,13 +296,16 @@ export interface TimeUpdate {
 
 /**
  * `ActionPlayer::TimeChanged` on the player's library item. `watched` is the
- * player's bitfield (`watched_update`), present when the meta was loaded.
- * Returns whether the video just crossed the watched threshold.
+ * player's bitfield (`watched_update`), present when the meta was loaded; it
+ * may be given as a function, called only when the video crosses the watched
+ * threshold (building it sorts the videos and inflates the stored field, so a
+ * caller can skip that on every other report). Returns whether the video just
+ * crossed the watched threshold.
  */
 export function timeChanged(
   item: LibraryItem,
   update: TimeUpdate,
-  watched: WatchedBitField | undefined,
+  watched: WatchedBitField | (() => WatchedBitField) | undefined,
   now: number,
 ): boolean {
   const { time, duration } = update;
@@ -334,8 +337,9 @@ export function timeChanged(
   ) {
     state.flaggedWatched = 1;
     state.timesWatched += 1;
-    if (watched !== undefined) {
-      const next = watched.clone();
+    const field = typeof watched === 'function' ? watched() : watched;
+    if (field !== undefined) {
+      const next = field.clone();
       next.setVideo(videoId, true);
       state.watched = next.toString();
     }

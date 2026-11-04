@@ -253,6 +253,21 @@ describe('TimeChanged (player.rs)', () => {
     expect(item.state.timesWatched).toBe(1);
   });
 
+  it('calls a bitfield factory only when the watched threshold is crossed', () => {
+    const item = libraryItem('tt123456:1:1');
+    let built = 0;
+    const factory = () => {
+      built += 1;
+      return watchedBitfield(item.state, s1.videos);
+    };
+    const update = { videoId: 'tt123456:1:1', duration: HOUR };
+    timeChanged(item, { ...update, time: 0.3 * HOUR }, factory, NOW);
+    expect(built).toBe(0);
+    expect(timeChanged(item, { ...update, time: 0.75 * HOUR }, factory, NOW)).toBe(true);
+    expect(built).toBe(1);
+    expect(watchedBitfield(item.state, s1.videos).getVideo('tt123456:1:1')).toBe(true);
+  });
+
   it('time_changed_without_duration_does_not_flag_watched', () => {
     const item = libraryItem('tt123456:1:1');
     timeChanged(item, { videoId: 'tt123456:1:1', time: 600_000, duration: 0 }, undefined, NOW);

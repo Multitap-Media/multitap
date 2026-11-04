@@ -67,7 +67,6 @@ import {
   videoToPlay,
   watchedBitfield,
 } from './rules.ts';
-import type { WatchedBitField } from './watched-bitfield.ts';
 
 /** Looks a meta item up; undefined when no addon has it. */
 export type MetaSource = (type: string, id: string) => Promise<MetaDetail | undefined>;
@@ -270,30 +269,6 @@ function itemFromRow(row: LibraryItemRow): LibraryItem | undefined {
     state,
     behaviorHints,
   };
-}
-
-/**
- * `watchedBitfield`, built only when first used: `timeChanged` needs it only
- * when a report crosses the watched threshold, and sorting the videos and
- * inflating the stored field on every progress report is wasted otherwise.
- * It reads `state.watched` when first used, which `timeChanged` changes only
- * after using it.
- */
-function lazyWatchedBitfield(
-  state: LibraryItemState,
-  videos: Parameters<typeof watchedBitfield>[1],
-): WatchedBitField {
-  let field: WatchedBitField | undefined;
-  const real = () => (field ??= watchedBitfield(state, videos));
-  return new Proxy({} as WatchedBitField, {
-    get(_target, prop) {
-      const target = real();
-      const value: unknown = Reflect.get(target, prop, target);
-      return typeof value === 'function'
-        ? (value as (...a: unknown[]) => unknown).bind(target)
-        : value;
-    },
-  });
 }
 
 export class LibraryService {
@@ -714,7 +689,7 @@ export class LibraryService {
         const videos = playback.meta?.videos;
         const watched =
           videos !== undefined && videos.length > 0
-            ? lazyWatchedBitfield(item.state, videos)
+            ? () => watchedBitfield(item.state, videos)
             : undefined;
         const crossed = timeChanged(
           item,

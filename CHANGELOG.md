@@ -97,6 +97,35 @@ repository; their tags are not part of this repository's history.
 - **`/opensubHash` stays on after a per-file `404`**; only a missing route
   turns it off. A subtitle list that goes away no longer ends the shared hash
   lookup or caches it as a miss.
+- **A second Multitap on the same data folder stops at startup** instead of
+  failing the running one's sessions and migrating under it: startup holds a
+  lock on `multitap.lock` in the data folder, which the operating system
+  releases if the process dies (okf:architecture/core-persistence).
+- **Signals and crashes shut down cleanly.** SIGHUP without TLS no longer kills
+  Multitap (it is logged and ignored); an uncaught error or rejection logs,
+  flushes the library and logs, and exits 1; a forced shutdown comes after 8 s,
+  inside Docker's 10 s grace; a listener that fails to bind no longer closes
+  the database under a running sweep (okf:architecture/core-deployment).
+- **Configuration is read strictly.** A value of only spaces means unset (it
+  used to become 0, turning time limits off), integer settings take digits
+  only, an error never echoes a value containing `@` (a URL's credentials),
+  and unknown `MULTITAP_*` variables are warned about by name
+  (okf:architecture/configuration).
+- **Backups can't be silently empty or cut short.** Each copy is written to a
+  partial file of its own and only stale partials are removed; verification
+  refuses a missing or empty copy or one without the schema; the backup just
+  written is never pruned; files with impossible dates are skipped; a download
+  survives a concurrent prune. Routine backups use `quick_check`; the
+  pre-migration backup keeps the full check.
+- **A deleted engine's metric series are removed**, and a health check in
+  flight during the delete doesn't bring them back.
+- **The CLI refuses to run as root on another user's data folder**, which left
+  backups the server couldn't read; a failed pre-migration backup names the
+  folder and the cause.
+- **A slow addon no longer stalls a profile's progress and edits:** the meta
+  lookup runs before the profile's queue. Unreadable library rows are skipped
+  with a warning instead of failing the profile's library, and the watched
+  bitfield is built only when a report crosses the watched threshold.
 
 ### Changed
 
@@ -108,6 +137,9 @@ repository; their tags are not part of this repository's history.
   contacting it, and the sweep releases up to four sessions at a time.
 - Multitap warns when an engine address isn't on port 11470: engine-local URLs
   (torrents, YouTube, proxied sources) assume the engine listens there itself.
+- New database files are created `0600`, data and log folders `0700`, log
+  files `0600` (existing files keep their modes), and SQLite runs with
+  `synchronous = NORMAL` under WAL.
 
 ## 0.2.1 (2026-11-02)
 

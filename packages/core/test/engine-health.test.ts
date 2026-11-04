@@ -10,7 +10,7 @@ import {
   RECHECK_MIN_GAP_MS,
   type Timers,
 } from '../src/engines/health.ts';
-import { getEngineView, putEngine } from '../src/engines/index.ts';
+import { deleteEngine, getEngineView, putEngine } from '../src/engines/index.ts';
 import { HOME_ENGINE } from './engine-fixture.ts';
 import { EngineRegistry } from '../src/engines/registry.ts';
 import { ServerGoEngineModule } from '../src/engines/engine-module.ts';
@@ -443,5 +443,50 @@ describe('engine health', () => {
     expect(nonDefaultEnginePort('http://engine.test:18080/')).toBe(18080);
     expect(nonDefaultEnginePort('http://engine.test')).toBe(80);
     expect(nonDefaultEnginePort('https://engine.test')).toBe(443);
+  });
+});
+
+describe('engine health metrics', () => {
+  it('a check in flight when its engine is deleted does not bring its gauge back', async () => {
+    const db = await migratedMemoryDb();
+    dbs.push(db);
+    await putEngine(db, 'home', { ...HOME_ENGINE, address: 'http://engine.test:11470' });
+    let answer: () => void = () => undefined;
+    const answered = new Promise<void>((resolve) => {
+      answer = resolve;
+    });
+    const registry = new EngineRegistry({
+      db,
+      timeouts: { control: 1_000, prepare: 1_000, media: 1_000 },
+      transportFactory: () => ({
+        kind: 'lan',
+        async request() {
+          await answered;
+          return new Response('', { status: 200 });
+        },
+      }),
+    });
+    const updates: string[] = [];
+    const monitor = new EngineHealthMonitor({
+      db,
+      registry,
+      logger: memoryLogger().logger,
+      clock: manualClock(),
+      intervalMs: 30_000,
+      timeoutMs: 1_000,
+      maxBackoffMs: 300_000,
+      timers: manualTimers(),
+      metrics: {
+        updateEngineHealth(engineId) {
+          updates.push(engineId);
+        },
+      },
+    });
+    const check = monitor.check('home');
+    await Promise.resolve();
+    expect(await deleteEngine(db, 'home')).toBe(true);
+    answer();
+    await check;
+    expect(updates).toEqual([]);
   });
 });
