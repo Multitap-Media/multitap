@@ -196,8 +196,8 @@ A request that names no engine uses `MULTITAP_SELECTION_DEFAULT_ENGINE`, or, whe
 unset, the only engine there is; with several engines and no default it must
 name one. The engine `MULTITAP_SELECTION_DEFAULT_ENGINE` names can't be deleted. Multitap
 health-checks every engine with an address (`ENGINE_HEALTH_*`), and re-checks
-an offline engine as soon as it answers any request; `GET /v1/admin/engines`
-shows `online` and `lastSeen`.
+an offline engine as soon as it answers any request, and before refusing a new
+session on it; `GET /v1/admin/engines` shows `online` and `lastSeen`.
 
 **The engine's proxy password.** Sources with `proxyHeaders` play through the
 engine's `/proxy/stream`. On an engine that sets `RIVULET_PROXY_PASSWORD`
@@ -517,7 +517,7 @@ Sessions, media and engines:
 | `MULTITAP_AUTO_SELECT_ATTEMPT_TIMEOUT_MS` | 45000 | Auto-select: a candidate not ready by then is abandoned (its engine calls aborted) and the next one tried; `0` = no limit, else at least 5000. A picked source keeps the engine timeouts |
 | `MULTITAP_ENGINE_ADMISSION` | `warn` | A new session on an engine whose resolving and playing sessions already reach its `liveConcurrency`: `off`, `warn` (log a warning, go ahead) or `reject` (`503` with `Retry-After`) |
 | `MULTITAP_ENGINE_LOAD_WINDOW_MS` | 60000 | A ready session counts as playing for this long after its last segment request (engine load, the `multitap_engine_load_sessions` gauge) |
-| `MULTITAP_ENGINE_HEALTH_INTERVAL_MS` / `_TIMEOUT_MS` / `_MAX_BACKOFF_MS` | 30000 / 5000 / 60000 | Engine health checks: interval while online, timeout, longest backoff while offline (also caps the retry of failed engine deletes). An offline engine that answers any request is re-checked at once |
+| `MULTITAP_ENGINE_HEALTH_INTERVAL_MS` / `_TIMEOUT_MS` / `_MAX_BACKOFF_MS` | 30000 / 5000 / 60000 | Engine health checks: interval while online, timeout, longest backoff while offline (also caps the retry of failed engine deletes). An offline engine that answers any request, or that a new session would use, is re-checked at once (at most every 5 s) |
 | `MULTITAP_ENGINE_CONNECT_TIMEOUT_MS` | 3000 | Connect timeout (TCP and TLS) of engine requests, 100–60000: a stopped engine host that drops connections fails fast (`engine-offline`) instead of after 10 s. The per-call timeouts below still apply |
 | `MULTITAP_ENGINE_SESSION_TTL_MS` | unset | Per-session engine `ttl` sent to engines with `sessionOverrides`, a safety net for sessions Multitap never manages to delete (e.g. `172800000`, 48 h). 60 s–30 d and at least `MULTITAP_RETENTION_IDLE_MS`; unset sends none. Failed engine deletes are retried by the retention sweep either way |
 | `MULTITAP_ENGINE_TIMEOUT_CONTROL_MS` / `_PREPARE_MS` / `_MEDIA_MS` | 10000 / 150000 / 200000 | Engine calls: stats and deletes; create, probe and the creating master request; playlists and segments (keep it above the engine's segment timeout, Rivulet Engine's `RIVULET_HLS_SEGMENT_TIMEOUT`) |

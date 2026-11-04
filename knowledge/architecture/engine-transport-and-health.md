@@ -1,9 +1,9 @@
 ---
 type: Component
 title: "Engine transport, health checks and re-check on an answer"
-description: "How core talks to an engine: the lan transport (timeouts, connect timeout, no Origin, no redirects), the future tunnel, health checks with exponential backoff, the immediate re-check when an offline engine answers (2026-10-05), and why core polls."
+description: "How core talks to an engine: the lan transport (timeouts, connect timeout, no Origin, no redirects), the future tunnel, health checks with exponential backoff, the immediate re-check when an offline engine answers (2026-10-05), checks on demand from the engine module (2026-11-04), and why core polls."
 tags: [core, engine, transport, health, component]
-generated: { by: "agent/claude-sonnet-5.5", at: "2026-10-17T02:10:23Z" }
+generated: { by: "agent/claude-opus-5.5", at: "2026-11-04T02:45:00Z" }
 code_refs:
   - "packages/core/src/engines/"
 status: stable
@@ -20,7 +20,9 @@ interface EngineTransport { request(path: string, init?: RequestInit): Promise<R
   address; a timeout per call, up to the response headers (control `10s`,
   prepare `150s`, media `200s`, [[architecture/configuration]]); never an `Origin` header (server-go
   refuses disallowed origins, [[architecture/engine-security-posture]]); redirects aren't followed; errors never
-  carry the URL, which can hold a `mediaURL`. A connect timeout
+  carry the URL, which can hold a `mediaURL`. The caller's signal aborts the
+  body too, until the body ends (read, cancelled or failed), when the
+  transport stops listening to it. A connect timeout
   (`MULTITAP_ENGINE_CONNECT_TIMEOUT_MS`, default `3s`, TCP and TLS) sits under the
   per-call ones: a stopped engine host's firewall drops connections to the
   closed port silently, and undici's default 10 s connect timeout made every
@@ -42,8 +44,9 @@ success sets `online` and
 `lastSeen` (stored in `engines.last_seen`); each change of `online` publishes
 `engine.status`, and coming back online forgets the engine's detected features
 (it may have been upgraded). A prepare on an
-engine whose last check failed fails at once with `engine-offline`; one whose
-health isn't known yet is tried.
+engine whose last check failed asks for a check on demand (below) and fails
+with `engine-offline` only when that fails too; one whose health isn't known
+yet is tried.
 
 **Re-check on an answer** (as built, 2026-10-05). In a reference-engine restart test
 the engine came back while core still saw it offline: segment requests through
@@ -60,6 +63,20 @@ engine; answers in between are coalesced into one re-check at the end of the
 gap. Only `2xx` counts: a `5xx` may come from something in front of the
 engine.
 
-**Polling.** The engine has no push channel, so core polls it: this health check, torrent stats while a session is preparing or ready ([[architecture/engine-prepare-stream]]), and, planned, the preparation status ([[architecture/engine-prepare-ahead]]). The delay in noticing an engine restart is the health interval, or the next segment `404` that self-heal handles ([[architecture/engine-session-lifecycle]]); noticing that an offline engine is back takes the next request it answers (a re-check, above) or the next scheduled check, at most `MULTITAP_ENGINE_HEALTH_MAX_BACKOFF_MS`. An engine event stream is listed as a possible upstream ask ([[process/upstream-engine-asks]]).
+**Checks on demand** (as built, 2026-11-04). The engine module asks the
+health monitor for a check (through the registry) in two cases: before it
+refuses a prepare on an engine marked offline, and after a request to the
+engine got no answer (timed out, reset, refused). The check runs at once
+unless a re-check ran within the 5 s gap above (then its result counts), and
+a check already running is joined. Without it, an engine that restarted was
+refused until its scheduled check (up to `MULTITAP_ENGINE_HEALTH_MAX_BACKOFF_MS`),
+and one slow or reset request ended a whole auto-select as `engine-offline`
+although the engine was fine. Now a request with no answer is `engine-offline`
+only when the check fails too; otherwise that source failed (`engine-error`,
+[[architecture/engine-prepare-stream]]). Without a monitor (tests), the last
+known state counts, and unknown is taken as offline. A release on an engine
+marked offline sends nothing and is pending at once ([[architecture/engine-retention]]).
+
+**Polling.** The engine has no push channel, so core polls it: this health check, torrent stats while a session is preparing or ready ([[architecture/engine-prepare-stream]]), and, planned, the preparation status ([[architecture/engine-prepare-ahead]]). The delay in noticing an engine restart is the health interval, or the next segment `404` that self-heal handles ([[architecture/engine-session-lifecycle]]); noticing that an offline engine is back takes the next request it answers (a re-check, above), the next prepare on it (a check on demand), or the next scheduled check, at most `MULTITAP_ENGINE_HEALTH_MAX_BACKOFF_MS`. An engine event stream is listed as a possible upstream ask ([[process/upstream-engine-asks]]).
 
 Related: [[architecture/engine-module]], [[concept/engine-descriptor]], [[architecture/engine-hls-model]], [[architecture/engine-endpoints-core-uses]].

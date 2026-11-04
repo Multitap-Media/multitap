@@ -4,7 +4,7 @@
  * release and self-heal. No ffmpeg, no network.
  */
 import type { EngineCapabilities, EngineStatus } from '@multitap/api';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Db } from '../src/db/index.ts';
 import {
   engineModuleConfig,
@@ -18,6 +18,7 @@ import { putEngine } from '../src/engines/index.ts';
 import { HOME_ENGINE, PUBLIC_DNS_GUARD } from './engine-fixture.ts';
 import type { PrepareRequest } from '../src/engines/module.ts';
 import { EngineRegistry } from '../src/engines/registry.ts';
+import { EngineTransportError, type EngineTransport } from '../src/engines/transport.ts';
 import { loadConfig, type LogLevel } from '../src/config.ts';
 import { sequentialIds } from '../src/lib/ids.ts';
 import { FakeEngine, type FakeEngineOptions } from './fakes/engine.ts';
@@ -42,6 +43,8 @@ interface SetupOptions {
   /** The engine descriptor's proxy password (stored like `PUT` does). */
   proxyPassword?: string;
   logLevel?: LogLevel;
+  /** Wraps the fake engine's transport (to fail or stall chosen requests). */
+  transport?: (inner: EngineTransport) => EngineTransport;
 }
 
 const dbs: Db[] = [];
@@ -75,7 +78,7 @@ async function setup(options: SetupOptions = {}) {
   const registry = new EngineRegistry({
     db,
     timeouts: { control: 2_000, prepare: 2_000, media: 2_000 },
-    transportFactory: () => fake.transport('home'),
+    transportFactory: () => (options.transport ?? ((t) => t))(fake.transport('home')),
   });
   const log = memoryLogger(options.logLevel ?? 'info');
   const clock = manualClock();
@@ -102,6 +105,56 @@ async function setup(options: SetupOptions = {}) {
       ...extra,
     });
   return { db, fake, registry, module, make, prepare, log, clock };
+}
+
+/** Fails the requests `matches` picks as if they got no answer (`code`). */
+const noAnswer =
+  (matches: (path: string) => boolean, code: 'timeout' | 'network') =>
+  (inner: EngineTransport): EngineTransport => ({
+    kind: inner.kind,
+    request: (path, init) =>
+      matches(path)
+        ? Promise.reject(new EngineTransportError('home', code, 'no answer'))
+        : inner.request(path, init),
+  });
+
+/** Rejects a request as soon as its signal aborts, like the lan transport (the fake engine doesn't). */
+const abortable = (inner: EngineTransport): EngineTransport => ({
+  kind: inner.kind,
+  request: (path, init) => {
+    const signal = init.signal;
+    if (signal === undefined) return inner.request(path, init);
+    return new Promise<Response>((resolve, reject) => {
+      const onAbort = () => {
+        reject(new EngineTransportError('home', 'aborted', 'engine request aborted'));
+      };
+      if (signal.aborted) {
+        onAbort();
+        return;
+      }
+      signal.addEventListener('abort', onAbort, { once: true });
+      inner.request(path, init).then(resolve, reject);
+    });
+  },
+});
+
+/** A hold on the fake engine's master requests; `release()` lets them answer. */
+function holdMasters(fake: FakeEngine) {
+  let release!: () => void;
+  fake.masterHold = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const reached = (n: number) =>
+    vi.waitFor(() => {
+      expect(fake.requests.filter((r) => r.path.endsWith('/master.m3u8'))).toHaveLength(n);
+    });
+  return {
+    reached,
+    release: () => {
+      fake.masterHold = undefined;
+      release();
+    },
+  };
 }
 
 describe('resolution matrix', () => {
@@ -240,6 +293,14 @@ describe('resolution matrix', () => {
     });
     expect(fake.masterRequests[0]?.mediaURL).toBe(MOVIE);
     expect(fake.requests.find((r) => r.path === '/hlsv2/probe')?.query.mediaURL).toBe(MOVIE);
+  });
+
+  it('direct URL: sent in the parsed form the loopback check saw', async () => {
+    const { fake, prepare } = await setup();
+    expect((await prepare({ url: 'https://MEDIA.example./a movie.mkv' })).ok).toBe(true);
+    const sent = 'https://media.example./a%20movie.mkv';
+    expect(fake.requests.find((r) => r.path === '/hlsv2/probe')?.query.mediaURL).toBe(sent);
+    expect(fake.masterRequests[0]?.mediaURL).toBe(sent);
   });
 
   it('URL with proxyHeaders: wrapped in /proxy/stream with h_ and r_ parameters', async () => {
@@ -410,6 +471,64 @@ describe('engine availability', () => {
     expect(fake.requests).toEqual([]);
   });
 
+  it('an engine marked offline is checked on demand first: one that is back plays', async () => {
+    const { registry, prepare } = await setup();
+    registry.recordHealth('home', { online: false, lastSeen: null, checkedAt: 1 });
+    const asked: string[] = [];
+    registry.onCheckRequested((engineId) => {
+      asked.push(engineId);
+      registry.recordHealth(engineId, { online: true, lastSeen: 2, checkedAt: 2 });
+      return Promise.resolve(true);
+    });
+    expect(await prepare({ url: MOVIE })).toMatchObject({ ok: true });
+    expect(asked).toEqual(['home']);
+  });
+
+  it('an engine marked offline that the check on demand still finds offline fails without a request', async () => {
+    const { fake, registry, prepare } = await setup();
+    registry.recordHealth('home', { online: false, lastSeen: null, checkedAt: 1 });
+    registry.onCheckRequested(() => Promise.resolve(false));
+    expect(await prepare({ url: MOVIE })).toEqual({
+      ok: false,
+      reason: 'engine-offline',
+      retryable: true,
+    });
+    expect(fake.requests).toEqual([]);
+  });
+
+  it.each([
+    ['a probe that timed out', '/hlsv2/probe', 'timeout', { url: MOVIE }],
+    ['a torrent create that was reset', `/${IH}/create`, 'network', { infoHash: IH, fileIdx: 1 }],
+    ['a master request that timed out', '/master.m3u8', 'timeout', { url: MOVIE }],
+  ] as const)(
+    '%s on an engine a fresh check finds online → engine-error, retryable (not engine-offline)',
+    async (_name, part, code, stream) => {
+      const { registry, prepare, log } = await setup({
+        transport: noAnswer((path) => path.includes(part), code),
+      });
+      const asked: string[] = [];
+      registry.onCheckRequested((engineId) => {
+        asked.push(engineId);
+        return Promise.resolve(true);
+      });
+      expect(await prepare(stream)).toEqual({ ok: false, reason: 'engine-error', retryable: true });
+      expect(asked).toEqual(['home']);
+      expect(log.text()).toContain(`"transportError":"${code}"`);
+    },
+  );
+
+  it('a request that got no answer is engine-offline when the fresh check fails too', async () => {
+    const { registry, prepare } = await setup({
+      transport: noAnswer((path) => path.startsWith('/hlsv2/probe'), 'network'),
+    });
+    registry.onCheckRequested(() => Promise.resolve(false));
+    expect(await prepare({ url: MOVIE })).toEqual({
+      ok: false,
+      reason: 'engine-offline',
+      retryable: true,
+    });
+  });
+
   it('an unknown engine → engine-offline, not retryable', async () => {
     const { module } = await setup();
     expect(
@@ -503,6 +622,34 @@ describe('engine session identity and quality', () => {
     const [a, b] = await Promise.all([prepare({ url: MOVIE }), prepare({ url: MOVIE })]);
     expect(a).toEqual(b);
     expect(fake.masterRequests).toHaveLength(1);
+  });
+
+  it('a prepare never joins a run its caller aborted', async () => {
+    const { fake, prepare } = await setup({ transport: abortable, warmSegments: 0 });
+    const hold = holdMasters(fake);
+    const first = new AbortController();
+    const a = prepare({ url: MOVIE }, { signal: first.signal });
+    await hold.reached(1);
+    first.abort(new Error('attempt timed out'));
+    const b = prepare({ url: MOVIE }, { signal: new AbortController().signal });
+    await expect(a).rejects.toBeDefined();
+    await hold.reached(2);
+    hold.release();
+    expect(await b).toMatchObject({ ok: true });
+  });
+
+  it('a caller that joined a run its first caller then aborts gets a run of its own', async () => {
+    const { fake, prepare } = await setup({ transport: abortable, warmSegments: 0 });
+    const hold = holdMasters(fake);
+    const first = new AbortController();
+    const a = prepare({ url: MOVIE }, { signal: first.signal });
+    await hold.reached(1);
+    const b = prepare({ url: MOVIE }, { signal: new AbortController().signal });
+    first.abort(new Error('session released'));
+    await expect(a).rejects.toBeDefined();
+    await hold.reached(2);
+    hold.release();
+    expect(await b).toMatchObject({ ok: true });
   });
 });
 
@@ -615,6 +762,20 @@ describe('release', () => {
     if (!result.ok) throw new Error('prepare failed');
     fake.online = false;
     await expect(module.release(result.handle)).rejects.toThrow();
+    const rows = await db.selectFrom('engine_sessions').selectAll().execute();
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ release_attempts: 1 });
+    expect(rows[0]?.release_pending_since).not.toBeNull();
+  });
+
+  it('on an engine the health check sees offline, sends nothing: the release is pending at once', async () => {
+    const { db, fake, registry, module, prepare } = await setup({ warmSegments: 0 });
+    const result = await prepare({ url: MOVIE });
+    if (!result.ok) throw new Error('prepare failed');
+    const before = fake.requests.length;
+    registry.recordHealth('home', { online: false, lastSeen: null, checkedAt: 1 });
+    await expect(module.release(result.handle)).rejects.toThrow(/pending/);
+    expect(fake.requests).toHaveLength(before);
     const rows = await db.selectFrom('engine_sessions').selectAll().execute();
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ release_attempts: 1 });

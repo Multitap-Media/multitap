@@ -90,7 +90,8 @@ export function planStream(stream: Stream | Record<string, unknown>): StreamPlan
           responseHeaders,
         };
       }
-      return { kind: 'url', url: s.url as string, hls: looksLikePlaylist(url) };
+      // The parsed form: what the engine gets is what pointsAtEngine checked.
+      return { kind: 'url', url: url.href, hls: looksLikePlaylist(url) };
     }
     case 'youTube': {
       const ytId = (s.ytId as string).trim();

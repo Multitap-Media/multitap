@@ -77,6 +77,12 @@ describe('addon url streams that point at the engine are refused', () => {
     `http://0.0.0.0:11470/proxy/stream?d=${LAN_TARGET}`,
     `http://engine.test:11470/proxy/stream?d=${LAN_TARGET}`,
     'http://127.0.0.1:9/movie.mkv',
+    // A trailing dot (the DNS root) or other case names the same host.
+    `http://localhost.:11470/proxy/stream?d=${LAN_TARGET}`,
+    `http://LOCALHOST./proxy/stream?d=${LAN_TARGET}`,
+    'http://media.localhost./movie.mkv',
+    `http://engine.test.:11470/proxy/stream?d=${LAN_TARGET}`,
+    `http://ENGINE.Test../proxy/stream?d=${LAN_TARGET}`,
   ])('%s', async (url) => {
     const { prepare, probed } = await setup();
     const result = await prepare({ url });

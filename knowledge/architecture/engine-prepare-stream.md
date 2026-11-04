@@ -3,7 +3,7 @@ type: Component
 title: "Preparing a stream for playback: steps, unplayable reasons and the resolution matrix"
 description: "The five prepare steps (engine session id, resolve mediaURL, probe, create the session, warm the start), the probe-caching hazard, the table of unplayable reasons with retryability, and the matrix mapping a raw Stream to a mediaURL."
 tags: [core, engine, prepare, component]
-generated: { by: "agent/claude-opus-5.5", at: "2026-11-01T12:00:00Z" }
+generated: { by: "agent/claude-opus-5.5", at: "2026-11-04T02:45:00Z" }
 code_refs:
   - "packages/core/src/engines/"
 status: stable
@@ -23,6 +23,9 @@ Source of truth for preparing a stream for playback  Interface and overview: [[a
    - Playback sessions don't share engine sessions. Seeking doesn't require
      that, since segments are independent ([[architecture/engine-hls-model]]). The reason is **lifecycle**:
      each playback session is prepared and retained on its own schedule.
+   - As built: concurrent identical prepares share one run. A run its caller
+     aborted is never joined (it's dropped at the abort), and a caller that
+     joined a run its first caller then aborts starts its own.
 2. **Resolve `mediaURL`** (matrix below). Torrents call `POST /{ih}/create`
    first, also when the stream has a `fileIdx` (to add the torrent and wait for
    its metadata).
@@ -40,14 +43,16 @@ Source of truth for preparing a stream for playback  Interface and overview: [[a
    quality overrides on an engine with `sessionOverrides`), and store
    `{sid, engineId, sessionKey, streamHash, quality, mediaURL}`. Any status
    but `200` is unplayable (`engine-error`); a `400` there means an override
-   the engine refused.
+   the engine refused. A master request aborted or timed out may still have
+   made the session on the engine, so core releases it (best effort).
 5. **Warm the start.** On an engine with a transcode-ahead window ([[process/engine-upstream-prs]]), ask
    for it on the master request and let the engine read ahead. Otherwise core
    fetches `seg0`–`seg2` (or the video-only and default-audio equivalents) in the
    background and discards them. As built: from the master, every variant
    playlist and the default audio rendition, then the first three segments of
-   each, read to the end (the engine caches a segment only once its transcode
-   completes); failures are logged at `debug` and ignored.
+   each, read to the end chunk by chunk and kept nowhere (the engine caches a
+   segment only once its transcode completes); failures are logged at `debug`
+   and ignored.
 
 **Probe caching hazard.** The engine caches a successful probe per URL. If the
 host answers the first request with something else (a debrid or addon
@@ -67,8 +72,8 @@ retries only torrents.
 | `needs-prepare` | The probed height is above `liveMaxHeight` in mode `play` | no |
 | `probe-failed` | The probe failed, or found zero duration for VOD | torrents only (peers may still arrive) |
 | `torrent-failed` | No metadata within `STREMIO_CREATE_METADATA_TIMEOUT` (`504`, retryable), or no usable file index (not retryable) | see left |
-| `engine-offline` | The engine is unknown, its last health check failed (an answer to any other request re-checks it at once, [[architecture/engine-transport-and-health]]), or it didn't answer (refused, timed out, no connection within `ENGINE_CONNECT_TIMEOUT_MS`) | yes (not for an unknown engine), but auto-select stops |
-| `engine-error` | The engine answered with an unexpected status | yes, except a `4xx` on the master |
+| `engine-offline` | The engine is unknown, or a health check finds it down: its last check failed and the check on demand before refusing it fails too, or a request got no answer (refused, timed out, reset, no connection within `ENGINE_CONNECT_TIMEOUT_MS`) and the fresh check after it fails (checks on demand, [[architecture/engine-transport-and-health]]) | yes (not for an unknown engine), but auto-select stops |
+| `engine-error` | The engine answered with an unexpected status, or a request got no answer while the fresh check finds the engine answering (this source failed, not the engine; the `stream unplayable` line has `transportError`) | yes, except a `4xx` on the master |
 | `engine-busy` | The torrent create got `503` (the engine is at `STREMIO_MAX_ENGINES`, default 20, with no idle torrent to evict), and again after waiting its `Retry-After` once (capped at 10 s) | yes, but auto-select skips the remaining torrents and tries only non-torrent sources; the session fails `engine-busy` if none plays |
 
 Core adds `no-candidates`, `attempts-exhausted` and `candidates-exhausted`
@@ -81,7 +86,7 @@ engine's own point of view, with the port from its `address`, [[architecture/eng
 | Stream | mediaURL |
 |---|---|
 | `infoHash` (+ `fileIdx`, `sources`) | `POST /{ih}/create` with `peerSearch.sources` (`announce` entries, bare tracker URLs prefixed `tracker:`) and, if `fileIdx` is missing, `guessFileIdx`/`fileMustInclude` (the stream's own, else from `behaviorHints.filename`) → `http://127.0.0.1:11470/{ih}/{idx}?tr=…` (one `tr` per tracker source, [[architecture/engine-endpoints-core-uses]]) |
-| `url`, direct file (debrid, HTTP) | The URL itself (must resolve to a public IP). All fetches come from the engine's IP, which suits debrid providers. |
+| `url`, direct file (debrid, HTTP) | The URL itself, in its parsed form (what the loopback check compared, [[core-review/sec-input-engine-proxy-password]]); it must resolve to a public IP. All fetches come from the engine's IP, which suits debrid providers. |
 | `url` + `behaviorHints.proxyHeaders` | `http://127.0.0.1:11470/proxy/stream?d=<b64url>&h_…=…&r_…=…`, plus `&api_password=…` when the descriptor has a `proxyPassword` ([[architecture/secrets-policy]]). The password is added on the way out (probe and master requests), not stored with the `mediaURL`. |
 | `url` VOD HLS (`.m3u8`, probe has a duration) | The URL itself |
 | `url` live HLS (probe duration 0) | Live mode ([[architecture/media-gateway]], phase 4). Until then → unplayable. |
