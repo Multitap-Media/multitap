@@ -1,6 +1,7 @@
 // The addon HTTP client against a local node:http server.
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import type { AddressInfo } from 'node:net';
+import { gzipSync } from 'node:zlib';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { AddonError } from '../src/index.ts';
 import {
@@ -100,6 +101,25 @@ function handle(req: IncomingMessage, res: ServerResponse) {
         clearInterval(timer);
       });
       return;
+    }
+    case '/stream/movie/split-utf8.json': {
+      // A multi-byte character split across two chunks must decode whole.
+      const bytes = Buffer.from(JSON.stringify({ streams: [{ url: 'https://a.io/1', name: 'Ü€😀' }] }));
+      const cut = bytes.indexOf(0xf0) + 2; // inside the 4-byte emoji
+      res.writeHead(200, { 'content-type': 'application/json' });
+      res.write(bytes.subarray(0, cut));
+      setTimeout(() => res.end(bytes.subarray(cut)), 20);
+      return;
+    }
+    case '/stream/movie/gzip-bomb.json': {
+      // Small on the wire, large once decompressed: the cap counts decompressed bytes.
+      const body = gzipSync(JSON.stringify({ streams: [], pad: 'x'.repeat(64 * 1024) }));
+      res.writeHead(200, {
+        'content-type': 'application/json',
+        'content-encoding': 'gzip',
+        'content-length': body.length,
+      });
+      return res.end(body);
     }
     default: {
       json(res, 404, {});
@@ -287,6 +307,18 @@ describe('fetchResource', () => {
         fetchResource(transport(), stream('big-chunked'), { maxBytes: 16 * 1024, timeoutMs: 5000 }),
       AddonResponseTooLargeError,
     );
+  });
+
+  it('counts decompressed bytes against the size cap', async () => {
+    await expectAddonError(
+      () => fetchResource(transport(), stream('gzip-bomb'), { maxBytes: 16 * 1024 }),
+      AddonResponseTooLargeError,
+    );
+  });
+
+  it('decodes a character split across chunks', async () => {
+    const result = await fetchResource(transport(), stream('split-utf8'));
+    expect(result.response).toMatchObject({ streams: [{ name: 'Ü€😀' }] });
   });
 
   it('reports network failures with only the host', async () => {

@@ -76,15 +76,21 @@ function systemErrorCode(error: unknown): string | undefined {
   return undefined;
 }
 
-async function readBody(response: Response, host: string, maxBytes: number): Promise<Uint8Array> {
+/**
+ * Reads the body as UTF-8 text, decoding each chunk as it arrives so the
+ * bytes aren't held next to the text. The cap counts the decoded
+ * (decompressed) bytes the stream yields, not the ones on the wire.
+ */
+async function readText(response: Response, host: string, maxBytes: number): Promise<string> {
   const declared = Number(response.headers.get('content-length') ?? NaN);
   if (Number.isFinite(declared) && declared > maxBytes) {
     await response.body?.cancel().catch(() => undefined);
     throw new AddonResponseTooLargeError(host, maxBytes);
   }
-  if (response.body === null) return new Uint8Array();
+  if (response.body === null) return '';
   const reader: ReadableStreamDefaultReader<Uint8Array> = response.body.getReader();
-  const chunks: Uint8Array[] = [];
+  const decoder = new TextDecoder();
+  let text = '';
   let total = 0;
   for (;;) {
     const { done, value } = await reader.read();
@@ -94,15 +100,9 @@ async function readBody(response: Response, host: string, maxBytes: number): Pro
       await reader.cancel().catch(() => undefined);
       throw new AddonResponseTooLargeError(host, maxBytes);
     }
-    chunks.push(value);
+    text += decoder.decode(value, { stream: true });
   }
-  const body = new Uint8Array(total);
-  let offset = 0;
-  for (const chunk of chunks) {
-    body.set(chunk, offset);
-    offset += chunk.byteLength;
-  }
-  return body;
+  return text + decoder.decode();
 }
 
 /** GETs a URL and returns its parsed JSON body. */
@@ -119,7 +119,7 @@ async function fetchJson(url: URL, options: AddonRequestOptions): Promise<unknow
   const abortError = () =>
     callerSignal?.aborted ? new AddonAbortedError(host) : new AddonTimeoutError(host, timeoutMs);
 
-  let body: Uint8Array;
+  let body: string;
   try {
     const response = await guard.fetch(
       url,
@@ -132,7 +132,7 @@ async function fetchJson(url: URL, options: AddonRequestOptions): Promise<unknow
       await response.body?.cancel().catch(() => undefined);
       throw new AddonHttpStatusError(host, response.status);
     }
-    body = await readBody(response, host, maxBytes);
+    body = await readText(response, host, maxBytes);
   } catch (error) {
     if (error instanceof AddonHttpStatusError || error instanceof AddonResponseTooLargeError) {
       throw error;
@@ -142,7 +142,7 @@ async function fetchJson(url: URL, options: AddonRequestOptions): Promise<unknow
   }
 
   try {
-    return JSON.parse(new TextDecoder().decode(body)) as unknown;
+    return JSON.parse(body) as unknown;
   } catch {
     throw new AddonInvalidJsonError(host);
   }

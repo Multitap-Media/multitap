@@ -138,14 +138,27 @@ const NON_PUBLIC = [
   '224.0.0.0/4', // multicast
   '240.0.0.0/4', // reserved, broadcast
   '::/96', // unspecified, loopback, IPv4-compatible
+  '::ffff:0:0:0/96', // IPv4-translated (SIIT)
   '64:ff9b:1::/48', // local-use NAT64
   '100::/64', // discard
-  '2001:db8::/32',
+  '2001::/32', // Teredo: the IPv4 it tunnels to is obfuscated, so it is never judged public
+  '2001:2::/48', // benchmarking
+  '2001:10::/28', // ORCHID
+  '2001:20::/28', // ORCHIDv2
+  '2001:db8::/32', // documentation
+  '3fff::/20', // documentation
   'fc00::/7', // unique local
   'fe80::/10', // link-local
   'fec0::/10', // site-local
   'ff00::/8', // multicast
 ].map(cidr);
+
+/**
+ * Global unicast, the only IPv6 space with public addresses: anything outside
+ * it (`::/8` and the other IETF-reserved blocks) is never public. NAT64 sits in
+ * `::/8` and is judged by the address it embeds, before this applies.
+ */
+const GLOBAL_UNICAST_V6 = cidr('2000::/3');
 
 /** IPv6 prefixes that embed an IPv4 address, which decides for them: [prefix, offset]. */
 const EMBEDS_IPV4: [Cidr, number][] = [
@@ -166,7 +179,7 @@ export function isNonPublicAddress(bytes: Bytes): boolean {
   for (const [range, offset] of EMBEDS_IPV4) {
     if (inCidr(bytes, range)) return isNonPublicAddress(bytes.slice(offset, offset + 4));
   }
-  return false;
+  return bytes.length === 16 && !inCidr(bytes, GLOBAL_UNICAST_V6);
 }
 
 function isMetadataAddress(bytes: Bytes): boolean {
