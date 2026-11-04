@@ -247,6 +247,33 @@ describe('parseStream on real addon responses', () => {
     }
   });
 
+  it('keeps only whole numbers the published schema accepts', () => {
+    const hostile = StreamSchema.parse({
+      name: 'Addon\n0000p',
+      description: `Some.Name.0000p\n👤 ${'9'.repeat(400)} 💾 ${'9'.repeat(15)} TiB\n🕛 0m:0s`,
+      url: 'https://example.invalid/x',
+      behaviorHints: { filename: 'Name.000x000.99bit.mkv', videoSize: 0 },
+    });
+    const parsed = parseStream(hostile);
+    expect(ParsedSourceSchema.safeParse(parsed).success).toBe(true);
+    for (const field of ['height', 'seeders', 'sizeBytes', 'durationSec', 'bitDepth'] as const) {
+      expect(parsed[field], field).toBeUndefined();
+    }
+    expect(parseReleaseName('Name.0000p.mkv').height).toBeUndefined();
+    expect(parseReleaseName('Name.0x1080.mkv').height).toBeUndefined();
+    expect(easynewsInfo('🕛 0h:0m:0s').durationSec).toBeUndefined();
+    expect(torrentioInfo(`👤 ${'1'.repeat(400)}`).seeders).toBeUndefined();
+    expect(torrentioInfo('👤 0 💾 1 GB').seeders).toBe(0);
+    expect(parseSize(`${'9'.repeat(15)} TiB`)).toBeUndefined();
+    // A later source still fills a field an earlier one got wrong.
+    const later = StreamSchema.parse({
+      name: 'Addon\n1080p',
+      url: 'https://example.invalid/x',
+      behaviorHints: { filename: 'Name.0000p.mkv' },
+    });
+    expect(parseStream(later).height).toBe(1080);
+  });
+
   it('uses videoSize and the label when names say nothing', () => {
     const s = StreamSchema.parse({
       name: 'Easynews++\n1920 x 1080',

@@ -70,7 +70,14 @@ and the request's `highRes` policy:
    sessions. Long keyframe intervals make seeks land late (Pre-roll cost per segment, and timestamps verified fine); #29 repairs
    this with a second ffmpeg run per affected segment. That doesn't matter when
    prepared. Otherwise prefer MKV/MP4 at equal quality.
-6. Size sanity for the runtime, and language preference.
+6. Size sanity for the runtime, and language preference. The runtime is the
+   stream's own duration when it states a positive one, else the item's (a
+   `0m:0s` duration says nothing). `explain` names a match of the first
+   preferred language `language` and one of the others `languageSecondary`,
+   whatever the two bonuses are set to. Parsed numbers are kept only when the
+   published `ParsedSource` schema accepts them (safe integers; positive, except
+   `seeders`; `bitDepth` 8 to 16), digit runs are bounded, and a value an
+   earlier source got wrong is left for a later one to fill.
 7. **Mismatches score very low, but stay listed** (an addon may be wrong, or a
    person may want it anyway). For an episode request: a season or complete
    pack containing the episode is fine (the addon points at the right file); a
