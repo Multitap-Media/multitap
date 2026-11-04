@@ -46,6 +46,18 @@ describe('isNonPublicAddress', () => {
     'fe80::1',
     'ff02::1',
     '[::1]', // as a URL hostname
+    '::ffff:0:7f00:1', // IPv4-translated loopback
+    '::ffff:0:808:808', // IPv4-translated, even of a public address
+    '0:0:1::1', // ::/8, reserved
+    '1::1', // ::/8, reserved
+    '400::1', // reserved, outside global unicast
+    '4000::1', // reserved, outside global unicast
+    'e000::1', // reserved, outside global unicast
+    '2001::1', // Teredo
+    '2001:0:4136:e378:8000:63bf:3fff:fdd2', // Teredo, a real-looking one
+    '2001:2::1', // benchmarking
+    '2001:20::1', // ORCHIDv2
+    '3fff::1', // documentation
   ])('refuses %s', (address) => {
     expect(nonPublic(address)).toBe(true);
   });
@@ -56,7 +68,10 @@ describe('isNonPublicAddress', () => {
     '172.32.0.1',
     '100.128.0.1',
     '2606:4700::1111',
-    '64:ff9b::808:808',
+    '2a00:1450:4001::1',
+    '64:ff9b::808:808', // NAT64 of a public address, inside ::/8
+    '2002:808:808::1', // 6to4 of a public address
+    '2001:4860:4860::8888', // in 2001::/16 but outside the reserved blocks
   ])('allows %s', (address) => {
     expect(nonPublic(address)).toBe(false);
   });

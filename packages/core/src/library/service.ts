@@ -240,7 +240,22 @@ function playerStateView(row: ItemPlayerStateRow): ItemPlayerState {
   };
 }
 
-function itemFromRow(row: LibraryItemRow): LibraryItem {
+/**
+ * The stored item, or `undefined` when its JSON columns don't parse (a
+ * hand-edited or partly restored database): one unreadable row must not fail
+ * the whole library. Callers log it and carry on without the item.
+ */
+function itemFromRow(row: LibraryItemRow): LibraryItem | undefined {
+  let state: LibraryItemState;
+  let behaviorHints: LibraryItemBehaviorHints;
+  try {
+    state = JSON.parse(row.state_json) as LibraryItemState;
+    behaviorHints = JSON.parse(row.behavior_hints_json) as LibraryItemBehaviorHints;
+  } catch {
+    return undefined;
+  }
+  const isObject = (value: unknown) => typeof value === 'object' && value !== null;
+  if (!isObject(state) || !isObject(behaviorHints)) return undefined;
   return {
     _id: row.item_id,
     name: row.name,
@@ -251,8 +266,8 @@ function itemFromRow(row: LibraryItemRow): LibraryItem {
     temp: row.temp === 1,
     _ctime: row.ctime === null ? null : iso(row.ctime),
     _mtime: iso(row.mtime),
-    state: JSON.parse(row.state_json) as LibraryItemState,
-    behaviorHints: JSON.parse(row.behavior_hints_json) as LibraryItemBehaviorHints,
+    state,
+    behaviorHints,
   };
 }
 
@@ -264,6 +279,10 @@ export class LibraryService {
   readonly #ids: IdGenerator;
   readonly #playbacks = new Map<string, Playback>();
   readonly #locks = new Map<string, Promise<void>>();
+  /** Meta lookups in flight, by type and id. */
+  readonly #lookups = new Map<string, Promise<MetaDetail | undefined>>();
+  /** A report's meta lookup for the item it loads, by profile, type and id, until that report is done. */
+  readonly #loadLookups = new Map<string, Promise<MetaDetail | undefined>>();
 
   constructor(deps: LibraryServiceDeps) {
     this.#db = deps.db;
@@ -472,14 +491,17 @@ export class LibraryService {
       .where('profile_id', '=', profileId)
       .execute();
     const stateByItem = new Map(playerStates.map((row) => [row.item_id, playerStateView(row)]));
-    return rows.map((row) => {
-      const item = itemFromRow(row);
+    const items: LibraryItem[] = [];
+    for (const row of rows) {
+      const item = this.#itemFromRow(row);
+      if (item === undefined) continue;
       const lastSource = byItem.get(item._id);
       if (lastSource !== undefined) item.lastSource = lastSource;
       const playerState = stateByItem.get(item._id);
       if (playerState !== undefined) item.playerState = playerState;
-      return item;
-    });
+      items.push(item);
+    }
+    return items;
   }
 
   async continueWatching(profileId: string): Promise<LibraryItem[] | undefined> {
@@ -505,8 +527,8 @@ export class LibraryService {
 
   /** `AddToLibrary`: the item from the addons' meta (or the stored item when none answers), in the library. */
   async addToLibrary(profileId: string, type: string, id: string): Promise<WriteResult> {
-    return this.#edit(profileId, id, async (base, now) => {
-      const meta = await this.#lookUp(type, id);
+    const meta = await this.#prefetch(profileId, type, id);
+    return this.#edit(profileId, id, (base, now) => {
       let item: LibraryItem;
       if (meta !== undefined) {
         item = base !== undefined ? refreshFromMeta(meta, base) : newLibraryItem(meta, now);
@@ -549,11 +571,15 @@ export class LibraryService {
     id: string,
     watched: boolean,
   ): Promise<WriteResult> {
+    // The meta is only needed to create an item that isn't stored.
+    const prefetched = watched && !(await this.#hasItem(profileId, id));
+    const early = prefetched ? await this.#prefetch(profileId, type, id) : undefined;
     return this.#edit(profileId, id, async (base, now) => {
       let item = base;
       if (item === undefined) {
         if (!watched) return 'no-item';
-        const meta = await this.#lookUp(type, id);
+        // Removed meanwhile (rare): looked up here after all.
+        const meta = prefetched ? early : await this.#lookUp(type, id);
         if (meta === undefined) return 'no-meta';
         item = newLibraryItem(meta, now);
       }
@@ -570,8 +596,8 @@ export class LibraryService {
     videoId: string,
     watched: boolean,
   ): Promise<WriteResult> {
-    return this.#edit(profileId, id, async (base, now) => {
-      const meta = await this.#lookUp(type, id);
+    const meta = await this.#prefetch(profileId, type, id);
+    return this.#edit(profileId, id, (base, now) => {
       if (meta === undefined) return 'no-meta';
       const video = meta.videos.find((v) => v.id === videoId);
       if (video === undefined) return 'no-video';
@@ -590,8 +616,8 @@ export class LibraryService {
     season: number,
     watched: boolean,
   ): Promise<WriteResult> {
-    return this.#edit(profileId, id, async (base, now) => {
-      const meta = await this.#lookUp(type, id);
+    const meta = await this.#prefetch(profileId, type, id);
+    return this.#edit(profileId, id, (base, now) => {
       if (meta === undefined) return 'no-meta';
       const item = base ?? (watched ? newLibraryItem(meta, now) : undefined);
       if (item === undefined) return 'no-item';
@@ -607,6 +633,34 @@ export class LibraryService {
    * unknown profile.
    */
   async report(profileId: string, report: ProgressReport): Promise<LibraryItem | undefined> {
+    // A report that loads an item needs its meta: looked up before the
+    // profile's queue, so a slow addon holds up neither the profile's other
+    // reports nor its edits. Checked again in the queue (another report may
+    // have loaded or unloaded meanwhile); #load looks it up itself if needed.
+    // Reports that arrive together before the item is loaded share one lookup.
+    let key: string | undefined;
+    let lookup: Promise<MetaDetail | undefined> | undefined;
+    if (this.#wouldLoad(profileId, report)) {
+      key = `${profileId}\u0000${report.item.type}\u0000${report.item.id}`;
+      lookup = this.#loadLookups.get(key);
+      if (lookup === undefined) {
+        lookup = this.#prefetch(profileId, report.item.type, report.item.id);
+        this.#loadLookups.set(key, lookup);
+      }
+    }
+    try {
+      const prefetched = lookup === undefined ? undefined : { meta: await lookup };
+      return await this.#reportQueued(profileId, report, prefetched);
+    } finally {
+      if (key !== undefined && this.#loadLookups.get(key) === lookup) this.#loadLookups.delete(key);
+    }
+  }
+
+  async #reportQueued(
+    profileId: string,
+    report: ProgressReport,
+    prefetched: { meta: MetaDetail | undefined } | undefined,
+  ): Promise<LibraryItem | undefined> {
     return this.#exclusive(profileId, async () => {
       if ((await this.getProfile(profileId)) === undefined) {
         this.#playbacks.delete(profileId);
@@ -626,15 +680,16 @@ export class LibraryService {
         await this.#unload(profileId, playback, now);
         playback = undefined;
       }
-      playback ??= await this.#load(profileId, report, now);
+      playback ??= await this.#load(profileId, report, now, prefetched);
 
       const { item } = playback;
       if (event === 'seek') {
         seek(item, report.time, report.duration, now);
       } else {
+        const videos = playback.meta?.videos;
         const watched =
-          playback.meta !== undefined && playback.meta.videos.length > 0
-            ? watchedBitfield(item.state, playback.meta.videos)
+          videos !== undefined && videos.length > 0
+            ? () => watchedBitfield(item.state, videos)
             : undefined;
         const crossed = timeChanged(
           item,
@@ -684,10 +739,33 @@ export class LibraryService {
     return report.videoId ?? meta?.behaviorHints.defaultVideoId ?? report.item.id;
   }
 
-  /** `Action::Load`: `library_item_update`, then `library_item_state_update`. */
-  async #load(profileId: string, report: ProgressReport, now: number): Promise<Playback> {
+  /**
+   * Whether `report` would load an item (none loaded, or another item or
+   * video): read outside the queue, so only a hint for prefetching the meta.
+   */
+  #wouldLoad(profileId: string, report: ProgressReport): boolean {
+    const playback = this.#playbacks.get(profileId);
+    if (playback === undefined) return true;
+    return (
+      playback.itemId !== report.item.id ||
+      playback.type !== report.item.type ||
+      playback.videoId !== this.#videoIdFor(report, playback.item, playback.meta)
+    );
+  }
+
+  /**
+   * `Action::Load`: `library_item_update`, then `library_item_state_update`.
+   * `prefetched` is the report's meta, looked up before the queue; without it
+   * the lookup happens here.
+   */
+  async #load(
+    profileId: string,
+    report: ProgressReport,
+    now: number,
+    prefetched?: { meta: MetaDetail | undefined },
+  ): Promise<Playback> {
     const { type, id } = report.item;
-    const meta = await this.#lookUp(type, id);
+    const meta = prefetched !== undefined ? prefetched.meta : await this.#lookUp(type, id);
     const stored = await this.#readItem(profileId, id);
     let item: LibraryItem;
     if (meta !== undefined) {
@@ -793,17 +871,62 @@ export class LibraryService {
       .where('profile_id', '=', profileId)
       .where('item_id', '=', itemId)
       .executeTakeFirst();
-    return row === undefined ? undefined : itemFromRow(row);
+    return row === undefined ? undefined : this.#itemFromRow(row);
   }
 
-  /** Best effort: an addon failure leaves the item without meta. */
-  async #lookUp(type: string, id: string): Promise<MetaDetail | undefined> {
-    try {
-      return await this.#meta(type, id);
-    } catch (err) {
-      this.#logger.warn({ err, type, id }, 'meta lookup for the library failed');
-      return undefined;
+  /** {@link itemFromRow}, logging an unreadable row (ids only). */
+  #itemFromRow(row: LibraryItemRow): LibraryItem | undefined {
+    const item = itemFromRow(row);
+    if (item === undefined) {
+      this.#logger.warn(
+        { profileId: row.profile_id, itemId: row.item_id },
+        'skipping a library item whose stored state is unreadable',
+      );
     }
+    return item;
+  }
+
+  /**
+   * Best effort: an addon failure leaves the item without meta. Concurrent
+   * lookups of the same item share one request.
+   */
+  #lookUp(type: string, id: string): Promise<MetaDetail | undefined> {
+    const key = `${type}\u0000${id}`;
+    const running = this.#lookups.get(key);
+    if (running !== undefined) return running;
+    const lookup = (async () => {
+      try {
+        return await this.#meta(type, id);
+      } catch (err) {
+        this.#logger.warn({ err, type, id }, 'meta lookup for the library failed');
+        return undefined;
+      } finally {
+        this.#lookups.delete(key);
+      }
+    })();
+    this.#lookups.set(key, lookup);
+    return lookup;
+  }
+
+  /**
+   * The meta, looked up before taking the profile's queue (an addon request
+   * can take seconds); nothing is looked up for an unknown profile.
+   */
+  async #prefetch(profileId: string, type: string, id: string): Promise<MetaDetail | undefined> {
+    if ((await this.getProfile(profileId)) === undefined) return undefined;
+    return this.#lookUp(type, id);
+  }
+
+  /** Whether the profile has the item, loaded or stored. */
+  async #hasItem(profileId: string, itemId: string): Promise<boolean> {
+    if (this.#playbacks.get(profileId)?.itemId === itemId) return true;
+    const row = await this.#db
+      .selectFrom('library_items')
+      .select('item_id')
+      .where('profile_id', '=', profileId)
+      .where('item_id', '=', itemId)
+      .executeTakeFirst();
+    return row !== undefined;
   }
 
   /** Runs `fn` after every earlier call for the same profile has finished. */

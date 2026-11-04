@@ -17,6 +17,7 @@ import {
   type SessionService,
 } from '../src/sessions/service.ts';
 import { SqliteSessionRepository } from '../src/sessions/sqlite-repository.ts';
+import { EngineTransportError, type EngineTransport } from '../src/engines/transport.ts';
 import { bearer, migratedMemoryDb } from './helpers.ts';
 import {
   httpStream,
@@ -141,7 +142,7 @@ describe('retention (okf:architecture/engine-retention)', () => {
       );
     }
     const due = await repo.listDueForRelease(now, HOUR);
-    expect(due.map((r) => r.id).sort()).toEqual(
+    expect([...due].sort()).toEqual(
       cases
         .map((c, i) => (c.due ? `ps_${String(i)}` : undefined))
         .filter((id) => id !== undefined)
@@ -487,6 +488,52 @@ describe('auto-select (okf:decision/auto-select-and-fallback)', () => {
       failureReason: 'engine-offline',
     });
     expect(ofType(r.events, 'session.failed')[0]?.data.attempts).toBe(1);
+  });
+});
+
+describe('auto-select on a healthy engine (okf:decision/auto-select-and-fallback)', () => {
+  /** The probe of `name`'s URL gets no answer (timed out); everything else goes through. */
+  const probeTimesOut =
+    (name: string) =>
+    (inner: EngineTransport): EngineTransport => ({
+      kind: inner.kind,
+      request: (path, init) =>
+        path.startsWith('/hlsv2/probe') && path.includes(encodeURIComponent(`/${name}.mkv`))
+          ? Promise.reject(new EngineTransportError('home', 'timeout', 'engine did not answer'))
+          : inner.request(path, init),
+    });
+
+  it('a candidate whose request timed out fails alone when the engine answers its health check', async () => {
+    const r = await rig({ transport: probeTimesOut('slow') });
+    r.registry.recordHealth('home', { online: true, lastSeen: r.clock(), checkedAt: r.clock() });
+    const [, good] = r.auto(httpStream('slow'), httpStream('good'));
+    const { session } = await r.service.create({ item: MOVIE, source: { auto: true } });
+    await r.settle();
+    expect(await r.service.get(session.id)).toMatchObject({ status: 'ready', chosen: good?.key });
+    expect(r.log.text()).toContain('"reason":"engine-error"');
+  });
+
+  it('a session released while its candidate got ready leaves no engine session behind', async () => {
+    const r = await rig();
+    let open: () => void = () => undefined;
+    r.fake.masterHold = new Promise<void>((resolve) => {
+      open = resolve;
+    });
+    r.auto(httpStream('a'));
+    const { session } = await r.service.create({ item: MOVIE, source: { auto: true } });
+    await vi.waitFor(() => {
+      expect(r.fake.requests.some((q) => q.path.endsWith('/master.m3u8'))).toBe(true);
+    });
+    // Released while the engine creates the session; the fake answers anyway.
+    await r.service.release(session.id, 'request');
+    r.fake.masterHold = undefined;
+    open();
+    await r.settle();
+    expect(await r.service.get(session.id)).toMatchObject({ status: 'released' });
+    expect(ofType(r.events, 'session.ready')).toHaveLength(0);
+    expect(r.fake.deletes).toHaveLength(1);
+    expect(r.fake.sessions.size).toBe(0);
+    expect(await r.db.selectFrom('engine_sessions').selectAll().execute()).toEqual([]);
   });
 });
 
@@ -910,6 +957,99 @@ describe('release and retention (okf:architecture/engine-retention)', () => {
     const cleared = await r.service.update(session.id, { retainUntil: null });
     expect(cleared.retainUntil).toBeUndefined();
     expect((await r.service.sweep()).released).toBe(1);
+  });
+
+  it('a read stores the access and shows it, reading the session once', async () => {
+    const r = await rig();
+    const key = r.list(httpStream('good'));
+    const { session } = await r.service.create({ item: MOVIE, source: { key } });
+    await r.settle();
+    r.clock.advance(10_000);
+    const reads = vi.spyOn(r.repo, 'get');
+    const view = await r.service.get(session.id);
+    expect(reads).toHaveBeenCalledTimes(1);
+    expect(view?.lastAccess).toBe(new Date(r.clock()).toISOString());
+    expect((await r.repo.get(session.id))?.lastAccess).toBe(r.clock());
+    // Throttled: nothing written, the stored access shown.
+    r.clock.advance(1_000);
+    expect((await r.service.get(session.id))?.lastAccess).toBe(
+      new Date(r.clock() - 1_000).toISOString(),
+    );
+  });
+
+  it('one failing release does not stop the sweep: the others are released', async () => {
+    const r = await rig();
+    const key = r.list(httpStream('good'));
+    const a = await r.service.create({ item: MOVIE, source: { key } });
+    const b = await r.service.create({ item: MOVIE, source: { key } });
+    await r.settle();
+    const update = r.repo.update.bind(r.repo);
+    const failing = vi
+      .spyOn(r.repo, 'update')
+      .mockImplementation((id, patch, now) =>
+        id === a.session.id && patch.status === 'released'
+          ? Promise.reject(new Error('disk full'))
+          : update(id, patch, now),
+      );
+    r.clock.advance(HOUR + MIN);
+    expect(await r.service.sweep()).toEqual({ released: 1, purged: 0 });
+    expect((await r.service.getRecord(b.session.id))?.status).toBe('released');
+    expect((await r.service.getRecord(a.session.id))?.status).toBe('ready');
+    expect(r.log.text()).toContain('retention release failed');
+    // The next sweep tries it again.
+    failing.mockRestore();
+    expect((await r.service.sweep()).released).toBe(1);
+  });
+
+  it('a sweep releases at most four sessions at a time', async () => {
+    let active = 0;
+    let most = 0;
+    const r = await rig({
+      transport: (inner) => ({
+        kind: inner.kind,
+        request: async (path, init) => {
+          if (init.method !== 'DELETE' || path.includes('capability-probe')) {
+            return inner.request(path, init);
+          }
+          active += 1;
+          most = Math.max(most, active);
+          await new Promise((resolve) => setTimeout(resolve, 10));
+          active -= 1;
+          return inner.request(path, init);
+        },
+      }),
+    });
+    const key = r.list(httpStream('good'));
+    for (let i = 0; i < 7; i += 1) await r.service.create({ item: MOVIE, source: { key } });
+    await r.settle();
+    r.clock.advance(HOUR + MIN);
+    expect((await r.service.sweep()).released).toBe(7);
+    expect(r.fake.deletes).toHaveLength(7);
+    expect(most).toBe(4);
+  });
+
+  it('after stop(), creates are refused with 503, including one already under way', async () => {
+    const r = await rig();
+    const key = r.list(httpStream('good'));
+    const underWay = r.service.create({ item: MOVIE, source: { key } });
+    r.service.stop();
+    await expectSessionError(underWay, 'shutting-down');
+    await expectSessionError(
+      r.service.create({ item: MOVIE, source: { auto: true } }),
+      'shutting-down',
+    );
+    const res = await r.app.request('/v1/sessions', {
+      method: 'POST',
+      headers: { ...bearer(await r.keyFor('client')), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ item: MOVIE, source: { key } }),
+    });
+    expect(res.status).toBe(503);
+    expect(res.headers.get('content-type')).toContain('application/problem+json');
+    await r.settle();
+    expect(r.fake.masterRequests).toEqual([]);
+    // start() takes creates again.
+    await r.service.start();
+    expect((await r.service.create({ item: MOVIE, source: { key } })).created).toBe(true);
   });
 
   it('touch is throttled', async () => {

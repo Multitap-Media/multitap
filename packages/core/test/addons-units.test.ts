@@ -3,7 +3,11 @@ import { join } from 'node:path';
 import { ManifestSchema, type Manifest } from '@multitap/addon-protocol';
 import { describe, expect, it } from 'vitest';
 import { CapabilityIndex } from '../src/addons/capabilities.ts';
-import { CircuitBreaker } from '../src/addons/circuit-breaker.ts';
+import {
+  CircuitBreaker,
+  MAX_RETRY_AFTER_MS,
+  type CircuitTicket,
+} from '../src/addons/circuit-breaker.ts';
 import { normalizeManifestUrl } from '../src/addons/collection.ts';
 import { ResponseCache } from '../src/addons/response-cache.ts';
 import { FIXTURES_DIR, type FakeFixture } from './fakes/addon.ts';
@@ -16,67 +20,140 @@ function manifestOf(fixture: FakeFixture): Manifest {
 }
 
 describe('CircuitBreaker', () => {
+  /** Acquires a ticket, failing the test when refused. */
+  const acquire = (breaker: CircuitBreaker): CircuitTicket => {
+    const ticket = breaker.tryAcquire();
+    if (ticket === undefined) throw new Error('the breaker refused a request');
+    return ticket;
+  };
+  const failTimes = (breaker: CircuitBreaker, n: number) => {
+    for (let i = 0; i < n; i++) breaker.failure(acquire(breaker));
+  };
+
   it('opens after 5 consecutive failures and refuses requests', () => {
     const clock = manualClock();
     const breaker = new CircuitBreaker(clock);
     for (let i = 0; i < 4; i++) {
-      expect(breaker.tryAcquire()).toBe(true);
-      breaker.failure();
+      breaker.failure(acquire(breaker));
       expect(breaker.state).toBe('closed');
     }
-    expect(breaker.tryAcquire()).toBe(true);
-    breaker.failure();
+    breaker.failure(acquire(breaker));
     expect(breaker.state).toBe('open');
-    expect(breaker.tryAcquire()).toBe(false);
+    expect(breaker.tryAcquire()).toBeUndefined();
   });
 
   it('counts only consecutive failures', () => {
     const breaker = new CircuitBreaker(manualClock());
-    for (let i = 0; i < 4; i++) breaker.failure();
-    breaker.success();
-    for (let i = 0; i < 4; i++) breaker.failure();
+    failTimes(breaker, 4);
+    breaker.success(acquire(breaker));
+    failTimes(breaker, 4);
     expect(breaker.state).toBe('closed');
   });
 
   it('lets exactly one trial through after 60 s, and closes on its success', () => {
     const clock = manualClock();
     const breaker = new CircuitBreaker(clock);
-    for (let i = 0; i < 5; i++) breaker.failure();
+    failTimes(breaker, 5);
     clock.advance(59_999);
     expect(breaker.state).toBe('open');
-    expect(breaker.tryAcquire()).toBe(false);
+    expect(breaker.tryAcquire()).toBeUndefined();
     clock.advance(1);
     expect(breaker.state).toBe('half-open');
-    expect(breaker.tryAcquire()).toBe(true);
-    expect(breaker.tryAcquire()).toBe(false);
-    breaker.success();
+    const trial = acquire(breaker);
+    expect(breaker.tryAcquire()).toBeUndefined();
+    breaker.success(trial);
     expect(breaker.state).toBe('closed');
-    expect(breaker.tryAcquire()).toBe(true);
+    expect(breaker.tryAcquire()).toBeDefined();
   });
 
   it('reopens for another 60 s when the trial fails', () => {
     const clock = manualClock();
     const breaker = new CircuitBreaker(clock);
-    for (let i = 0; i < 5; i++) breaker.failure();
+    failTimes(breaker, 5);
     clock.advance(60_000);
-    expect(breaker.tryAcquire()).toBe(true);
-    breaker.failure();
+    breaker.failure(acquire(breaker));
     expect(breaker.state).toBe('open');
     clock.advance(59_999);
-    expect(breaker.tryAcquire()).toBe(false);
+    expect(breaker.tryAcquire()).toBeUndefined();
     clock.advance(1);
-    expect(breaker.tryAcquire()).toBe(true);
+    expect(breaker.tryAcquire()).toBeDefined();
   });
 
   it('frees the trial slot when the trial is cancelled', () => {
     const clock = manualClock();
     const breaker = new CircuitBreaker(clock, { failureThreshold: 1, resetMs: 10 });
-    breaker.failure();
+    breaker.failure(acquire(breaker));
     clock.advance(10);
-    expect(breaker.tryAcquire()).toBe(true);
-    breaker.cancel();
+    const trial = acquire(breaker);
+    breaker.cancel(trial);
     expect(breaker.state).toBe('half-open');
-    expect(breaker.tryAcquire()).toBe(true);
+    const next = acquire(breaker);
+    // The cancelled trial's late answer decides nothing; the new trial does.
+    breaker.success(trial);
+    expect(breaker.state).toBe('half-open');
+    breaker.success(next);
+    expect(breaker.state).toBe('closed');
+  });
+
+  it('lets only the trial decide a half-open circuit', () => {
+    const clock = manualClock();
+    const breaker = new CircuitBreaker(clock, { failureThreshold: 1, resetMs: 10 });
+    const early = acquire(breaker); // still in flight when the circuit opens
+    const late = acquire(breaker);
+    breaker.failure(acquire(breaker));
+    clock.advance(10);
+    const trial = acquire(breaker);
+    // A failure from before the trial neither reopens it nor frees a second trial.
+    breaker.failure(early);
+    expect(breaker.state).toBe('half-open');
+    expect(breaker.tryAcquire()).toBeUndefined();
+    // Nor does a stale success close it.
+    breaker.success(late);
+    expect(breaker.state).toBe('half-open');
+    breaker.failure(trial);
+    expect(breaker.state).toBe('open');
+  });
+
+  it('keeps the open window when stale requests answer', () => {
+    const clock = manualClock();
+    const breaker = new CircuitBreaker(clock, { failureThreshold: 1, resetMs: 100 });
+    const failing = acquire(breaker);
+    const succeeding = acquire(breaker);
+    breaker.failure(acquire(breaker));
+    clock.advance(60);
+    breaker.failure(failing); // would have restarted the 100 ms
+    expect(breaker.state).toBe('open');
+    breaker.success(succeeding); // would have closed it
+    expect(breaker.state).toBe('open');
+    clock.advance(40);
+    expect(breaker.state).toBe('half-open');
+  });
+
+  it('opens at once for a Retry-After, bounded', () => {
+    const clock = manualClock();
+    const breaker = new CircuitBreaker(clock);
+    breaker.failure(acquire(breaker), 5_000);
+    expect(breaker.state).toBe('open');
+    clock.advance(4_999);
+    expect(breaker.tryAcquire()).toBeUndefined();
+    clock.advance(1);
+    expect(breaker.state).toBe('half-open');
+    // A trial failing with a long Retry-After keeps it open that long, at most 15 minutes.
+    breaker.failure(acquire(breaker), 24 * 3_600_000);
+    clock.advance(MAX_RETRY_AFTER_MS - 1);
+    expect(breaker.state).toBe('open');
+    clock.advance(1);
+    expect(breaker.state).toBe('half-open');
+  });
+
+  it('keeps the reset time when the threshold opens it with a shorter Retry-After', () => {
+    const clock = manualClock();
+    const breaker = new CircuitBreaker(clock, { failureThreshold: 1 });
+    breaker.failure(acquire(breaker), 1_000);
+    clock.advance(1_000);
+    expect(breaker.state).toBe('open');
+    clock.advance(59_000);
+    expect(breaker.state).toBe('half-open');
   });
 });
 

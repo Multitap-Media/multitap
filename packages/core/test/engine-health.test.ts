@@ -6,12 +6,16 @@ import type { Db } from '../src/db/index.ts';
 import {
   EngineHealthMonitor,
   healthDelay,
+  nonDefaultEnginePort,
   RECHECK_MIN_GAP_MS,
   type Timers,
 } from '../src/engines/health.ts';
-import { getEngineView, putEngine } from '../src/engines/index.ts';
+import { deleteEngine, getEngineView, putEngine } from '../src/engines/index.ts';
 import { HOME_ENGINE } from './engine-fixture.ts';
 import { EngineRegistry } from '../src/engines/registry.ts';
+import { ServerGoEngineModule } from '../src/engines/engine-module.ts';
+import type { PrepareRequest } from '../src/engines/module.ts';
+import { sequentialIds } from '../src/lib/ids.ts';
 import { FakeEngine } from './fakes/engine.ts';
 import { manualClock, memoryLogger, migratedMemoryDb } from './helpers.ts';
 
@@ -340,5 +344,149 @@ describe('engine health', () => {
     expect(fake.online).toBe(true);
     monitor.stop();
     expect(timers.pending()).toBe(0);
+  });
+
+  it('a check on demand runs at once, is joined while it runs, and waits out the re-check gap', async () => {
+    const { fake, probe, timers, monitor, registry } = await setup();
+    // Without a running monitor: the last known state, no request.
+    expect(await registry.requestCheck('home')).toBeUndefined();
+    expect(probe.metricsRequests).toBe(0);
+
+    monitor.start();
+    await monitor.idle();
+    timers.advance(0);
+    await monitor.idle();
+    expect(probe.metricsRequests).toBe(1);
+
+    fake.online = false;
+    const [a, b] = await Promise.all([
+      registry.requestCheck('home'),
+      registry.requestCheck('home'),
+    ]);
+    expect([a, b]).toEqual([false, false]);
+    expect(probe.metricsRequests).toBe(2);
+    expect(registry.isOnline('home')).toBe(false);
+
+    // Within the gap: the last result, no request; the engine coming back isn't seen yet.
+    fake.online = true;
+    timers.advance(RECHECK_MIN_GAP_MS - 1);
+    expect(await registry.requestCheck('home')).toBe(false);
+    expect(probe.metricsRequests).toBe(2);
+
+    timers.advance(1);
+    await monitor.idle();
+    expect(await registry.requestCheck('home')).toBe(true);
+    expect(probe.metricsRequests).toBe(3);
+    expect(registry.isOnline('home')).toBe(true);
+    // Back on the normal interval.
+    expect(timers.delays.at(-1)).toBe(30_000);
+    monitor.stop();
+    expect(timers.pending()).toBe(0);
+  });
+
+  it('a prepare on an engine marked offline re-checks it: an engine that restarted plays at once', async () => {
+    const { db, fake, timers, monitor, registry, log, clock } = await setup();
+    monitor.start();
+    await monitor.idle();
+    timers.advance(0);
+    await monitor.idle();
+    fake.online = false;
+    for (const ms of [30_000, 30_000, 60_000]) {
+      timers.advance(ms);
+      await monitor.idle();
+    }
+    expect(registry.isOnline('home')).toBe(false);
+    // The next scheduled check is 120 s away; the engine is back now.
+    fake.online = true;
+    const module = new ServerGoEngineModule({
+      db,
+      registry,
+      logger: log.logger,
+      clock,
+      ids: sequentialIds(),
+      warmSegments: 0,
+    });
+    const result = await module.prepare({
+      engineId: 'home',
+      sessionKey: 'ps_one',
+      stream: { url: 'https://media.example/movie.mkv' } as PrepareRequest['stream'],
+      mode: 'play',
+    });
+    expect(result.ok).toBe(true);
+    expect(registry.isOnline('home')).toBe(true);
+    monitor.stop();
+  });
+
+  it('warns once per address when engine-local URLs may not reach the engine (another port)', async () => {
+    const { db, timers, monitor, log } = await setup();
+    monitor.start();
+    await monitor.idle();
+    expect(log.text()).not.toContain('not on the engine default port');
+    await putEngine(db, 'home', { ...HOME_ENGINE, address: 'http://engine.test:18080' });
+    timers.advance(30_000);
+    await monitor.idle();
+    timers.advance(30_000);
+    await monitor.idle();
+    const warned = log
+      .text()
+      .split('\n')
+      .filter((line) => line.includes('not on the engine default port'));
+    expect(warned).toHaveLength(1);
+    expect(warned[0]).toContain('"selfBase":"http://127.0.0.1:18080"');
+    monitor.stop();
+  });
+
+  it('nonDefaultEnginePort reads the explicit or the scheme port', () => {
+    expect(nonDefaultEnginePort('http://engine.test:11470')).toBeUndefined();
+    expect(nonDefaultEnginePort(null)).toBeUndefined();
+    expect(nonDefaultEnginePort('not a url')).toBeUndefined();
+    expect(nonDefaultEnginePort('http://engine.test:18080/')).toBe(18080);
+    expect(nonDefaultEnginePort('http://engine.test')).toBe(80);
+    expect(nonDefaultEnginePort('https://engine.test')).toBe(443);
+  });
+});
+
+describe('engine health metrics', () => {
+  it('a check in flight when its engine is deleted does not bring its gauge back', async () => {
+    const db = await migratedMemoryDb();
+    dbs.push(db);
+    await putEngine(db, 'home', { ...HOME_ENGINE, address: 'http://engine.test:11470' });
+    let answer: () => void = () => undefined;
+    const answered = new Promise<void>((resolve) => {
+      answer = resolve;
+    });
+    const registry = new EngineRegistry({
+      db,
+      timeouts: { control: 1_000, prepare: 1_000, media: 1_000 },
+      transportFactory: () => ({
+        kind: 'lan',
+        async request() {
+          await answered;
+          return new Response('', { status: 200 });
+        },
+      }),
+    });
+    const updates: string[] = [];
+    const monitor = new EngineHealthMonitor({
+      db,
+      registry,
+      logger: memoryLogger().logger,
+      clock: manualClock(),
+      intervalMs: 30_000,
+      timeoutMs: 1_000,
+      maxBackoffMs: 300_000,
+      timers: manualTimers(),
+      metrics: {
+        updateEngineHealth(engineId) {
+          updates.push(engineId);
+        },
+      },
+    });
+    const check = monitor.check('home');
+    await Promise.resolve();
+    expect(await deleteEngine(db, 'home')).toBe(true);
+    answer();
+    await check;
+    expect(updates).toEqual([]);
   });
 });

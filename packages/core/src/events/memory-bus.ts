@@ -49,12 +49,19 @@ interface Subscription {
 
 export class MemoryEventBus implements EventBus {
   readonly #o: MemoryEventBusOptions;
-  readonly #buffer: MultitapEvent[] = [];
+  /**
+   * The replay buffer, a ring of `replaySize` slots: the oldest event at
+   * `#start`, `#size` of them in id order. Ids in it are consecutive.
+   */
+  readonly #ring: (MultitapEvent | undefined)[];
+  #start = 0;
+  #size = 0;
   readonly #subscriptions = new Set<Subscription>();
   #counter = 0;
 
   constructor(options: MemoryEventBusOptions) {
     this.#o = options;
+    this.#ring = new Array<MultitapEvent | undefined>(Math.max(0, options.replaySize));
   }
 
   get lastEventId(): string | undefined {
@@ -75,10 +82,7 @@ export class MemoryEventBus implements EventBus {
     // Validation throws before the id is used, so a rejected event leaves no gap.
     const event = this.#o.validate === true ? MultitapEventSchema.parse(candidate) : candidate;
     this.#counter += 1;
-    if (this.#o.replaySize > 0) {
-      this.#buffer.push(event);
-      if (this.#buffer.length > this.#o.replaySize) this.#buffer.shift();
-    }
+    this.#buffer(event);
     for (const subscription of [...this.#subscriptions]) {
       if (!matchesFilter(event, subscription.filter)) continue;
       try {
@@ -104,21 +108,40 @@ export class MemoryEventBus implements EventBus {
   }
 
   replay(lastEventId: string, filter: EventFilter): ReplayResult {
-    const all = () => this.#buffer.filter((event) => matchesFilter(event, filter));
-    if (!/^\d{1,15}$/.test(lastEventId)) return { events: all(), complete: false };
+    if (!/^\d{1,15}$/.test(lastEventId)) return { events: this.#since(0, filter), complete: false };
     const last = Number(lastEventId);
     // An id this bus never issued: from before a restart.
-    if (last > this.#counter) return { events: all(), complete: false };
-    const oldest = this.#buffer[0];
+    if (last > this.#counter) return { events: this.#since(0, filter), complete: false };
+    const oldest = this.#size === 0 ? undefined : this.#ring[this.#start];
+    const oldestId = oldest === undefined ? this.#counter + 1 : Number(oldest.id);
     // Everything after `last` is still buffered when `last` is the newest
     // id, or the buffer starts at (or before) the event right after it.
-    const complete =
-      last === this.#counter || (oldest !== undefined && Number(oldest.id) <= last + 1);
-    return {
-      events: this.#buffer.filter(
-        (event) => Number(event.id) > last && matchesFilter(event, filter),
-      ),
-      complete,
-    };
+    const complete = last === this.#counter || (oldest !== undefined && oldestId <= last + 1);
+    // Ids are consecutive, so the events after `last` start at a known slot.
+    return { events: this.#since(Math.max(0, last + 1 - oldestId), filter), complete };
+  }
+
+  /** Keeps `event` for replay, dropping the oldest once full. */
+  #buffer(event: MultitapEvent): void {
+    const capacity = this.#ring.length;
+    if (capacity === 0) return;
+    if (this.#size < capacity) {
+      this.#ring[(this.#start + this.#size) % capacity] = event;
+      this.#size += 1;
+    } else {
+      this.#ring[this.#start] = event;
+      this.#start = (this.#start + 1) % capacity;
+    }
+  }
+
+  /** Buffered events from the `from`-th oldest on that match `filter`, oldest first. */
+  #since(from: number, filter: EventFilter): MultitapEvent[] {
+    const events: MultitapEvent[] = [];
+    const capacity = this.#ring.length;
+    for (let i = from; i < this.#size; i++) {
+      const event = this.#ring[(this.#start + i) % capacity];
+      if (event !== undefined && matchesFilter(event, filter)) events.push(event);
+    }
+    return events;
   }
 }

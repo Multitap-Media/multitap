@@ -3,7 +3,7 @@ type: Component
 title: "Core subtitles, timing offset, per-item player state and search extras"
 description: "Session subtitle tracks under the media token, the server-side subtitle timing offset (limits, semantics, storage), per-item player state (P1, core 0.1.3), and how search and subtitle extras (videoHash, videoSize, filename) are fanned out."
 tags: [core, api, subtitles, player-state, component]
-generated: { by: "agent/claude-sonnet-5.5", at: "2026-10-17T02:10:23Z" }
+generated: { by: "agent/claude-opus-5.5", at: "2026-11-04T02:48:21Z" }
 code_refs:
   - "packages/core/src/subtitles/"
   - "packages/core/src/http/"
@@ -18,6 +18,15 @@ Source of truth for core's subtitle, player-state and search behaviour (migrated
   (`ext/sub/{fileId}.vtt`), so a player loads them as
   `/media/{token}/ext/sub/{fileId}.vtt` with the same token, including from a
   `<track crossorigin>`. `/v1/subtitles/…` stays for server-side clients.
+  The gateway serves a file only when it was listed for the session's item.
+  What was listed is remembered per item for the file lifetime (6 h), and every
+  listing adds to it, so two sessions of one item with different hints (and so
+  different hash-matched files) keep each other's tracks. When a file is asked
+  and this session's own listing isn't remembered (a restart, the expiry), or
+  the subtitle service no longer knows the file's URL, the item is listed again
+  once with the session's own hints (concurrent misses share that listing);
+  a file missing from that listing too is a `404`. A session's offsets are read
+  from memory for up to a minute, refreshed on every change.
 - **Subtitle timing offset (server-side):** `offsetMs` is signed integer
   milliseconds (positive shows cues later), at most 600000 either way, applied
   by the WebVTT conversion with the semantics of the engine's
@@ -29,8 +38,12 @@ Source of truth for core's subtitle, player-state and search behaviour (migrated
   setting a player delay, which stays possible per viewer. A media request may add
   `?offsetMs=` (the query is not part of the allowlisted path; `Cache-Control:
   no-store` as ever); the effective offset is the sum, clamped. `/v1/subtitles/file/…`
-  takes `?offsetMs=` too. Only the unshifted conversion is cached; the shift is
-  applied per request, so varying offsets can't grow the cache. No event is
+  takes `?offsetMs=` too. The unshifted conversion is cached (10 minutes, 200
+  files, 50 MiB), and each shifted one by file id and offset in a budget of its
+  own (200 entries, 20 MiB), so a player reloading a shifted track doesn't
+  reparse the file and varying offsets can't crowd out unshifted files. A file
+  whose fetch or conversion failed fails the same way for 30 s without being
+  fetched again (`SUBTITLE_FAILURE_TTL_MS`). No event is
   emitted on a change (a new event type would break the response union); players
   reload the track, and `GET …/subtitles` reports the current `offsetMs`.
 - **Per-item player state (P1, core 0.1.3):** `GET`/`PUT
@@ -54,7 +67,11 @@ Source of truth for core's subtitle, player-state and search behaviour (migrated
 - **Search and subtitle extras:** `GET /v1/search` fans one query out to every
   enabled catalog that declares the `search` extra (and no other required one,
   as stremio-core's `catalogs_with_extra` does) through the normal aggregation,
-  so timeouts, the circuit breaker and the response cache apply; results are
+  so timeouts, the circuit breaker and the response cache apply. Addons are
+  asked at once, but at most 20 catalogs of one addon (the first in its
+  manifest; `SEARCH_MAX_CATALOGS_PER_ADDON`) and at most 4 of them at a time
+  (`SEARCH_ADDON_CONCURRENCY`), so one manifest can't fan a search out
+  without bound; results are
   grouped per catalog with each addon's status, and `skip` pages the catalogs
   that declare it. Addons that use `videoHash`, `videoSize` and `filename` to
   match subtitles (OpenSubtitles) get them: `/v1/subtitles/…` takes them as
@@ -62,7 +79,9 @@ Source of truth for core's subtitle, player-state and search behaviour (migrated
   itself, from the playing stream's `behaviorHints` or else the engine's
   `GET /opensubHash?videoUrl=` (the engine reads the start and end of the
   source). That lookup is lazy (first subtitle list of the session), bounded by
-  a timeout, cached per session (a failure for a minute), skipped silently on an
+  a timeout, shared by concurrent lists (one whose request goes away stops
+  waiting; the lookup goes on for the others), cached per session (a failure
+  for a minute; a caller going away is no failure), skipped silently on an
   engine without the endpoint, and never logs the URL.
 
 Related: [[architecture/core-v1-api]], [[architecture/last-source-per-item]], [[architecture/library-and-profiles]], [[architecture/media-gateway]], [[concept/media-tokens]], [[concept/addon-aggregation]].

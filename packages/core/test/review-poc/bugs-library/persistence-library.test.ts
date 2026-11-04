@@ -36,7 +36,7 @@ const row = (profileId: string, itemId: string, stateJson: string) => ({
 });
 
 describe('library persistence (review PoC)', () => {
-  it.fails('one unreadable library row does not hide the rest of the library', async () => {
+  it('one unreadable library row does not hide the rest of the library', async () => {
     const t = await setup();
     const profile = await t.library.createProfile('p');
     await t.library.report(profile.id, {

@@ -190,7 +190,7 @@ export function createMediaApp(deps: MediaAppDeps): Hono {
   app.notFound((c) => notFoundResponse(c));
   app.onError((err, c) => {
     logger.error({ err }, 'unhandled media error');
-    return c.body(null, 500);
+    return c.body(null, 500, { ...MEDIA_HEADERS });
   });
   return app;
 }
@@ -268,12 +268,7 @@ async function serveMedia(
   if (subtitle !== null) {
     let vtt: string;
     try {
-      vtt = await gateway.subtitles.file(
-        sid,
-        target.session.item,
-        subtitle[1] ?? '',
-        requestOffsetMs,
-      );
+      vtt = await gateway.subtitles.file(target.session, subtitle[1] ?? '', requestOffsetMs);
     } catch (err) {
       if (err instanceof SubtitleFileError) {
         return err.code === 'not-found'

@@ -18,6 +18,19 @@
  * trip. Re-checks triggered this way run one at a time and at most once per
  * {@link RECHECK_MIN_GAP_MS}; answers in between are coalesced into one
  * re-check at the end of the gap.
+ *
+ * The engine module asks for a check on demand ({@link EngineRegistry.requestCheck}):
+ * before refusing an engine marked offline, so a restarted engine plays at
+ * once rather than at the end of its backoff, and after one of its requests
+ * got no answer, so a slow or reset request isn't taken for the engine being
+ * offline. Such a check runs at once unless a re-check ran within
+ * {@link RECHECK_MIN_GAP_MS} (then the last result counts); one already
+ * running is joined.
+ *
+ * Engine-local `mediaURL`s use `http://127.0.0.1:{port}` with the port from
+ * the address ({@link engineSelfBase}); an address on another port than the
+ * engine's default is logged (`warn`) when its loop starts, since those URLs
+ * break when the engine itself listens elsewhere (a remapped container port).
  */
 import type { EngineDescriptor } from '@multitap/api';
 import type { Db } from '../db/index.ts';
@@ -26,6 +39,7 @@ import type { Clock } from '../lib/clock.ts';
 import type { Logger } from '../log.ts';
 import { listEngines } from './index.ts';
 import type { EngineRegistry } from './registry.ts';
+import { DEFAULT_ENGINE_PORT, engineSelfBase } from './server-go.ts';
 import { EngineTransportError } from './transport.ts';
 
 /** Timer functions, injected so tests can drive time by hand. */
@@ -75,10 +89,35 @@ interface EngineLoop {
   gapTimer: unknown;
   /** The engine answered while a check ran or during the gap: re-check when possible. */
   answered: boolean;
+  /** The check running now, if any: an on-demand check joins it. */
+  current: Promise<boolean> | undefined;
 }
 
 const targetOf = (engine: Pick<EngineDescriptor, 'transport' | 'address'>): string =>
   `${engine.transport}|${engine.address ?? ''}`;
+
+/**
+ * The port an engine address reaches (explicit, else the scheme's), when it
+ * isn't the engine's default port; undefined otherwise or for no address.
+ */
+export function nonDefaultEnginePort(address: string | null): number | undefined {
+  if (address === null) return undefined;
+  let url: URL;
+  try {
+    url = new URL(address);
+  } catch {
+    return undefined;
+  }
+  const port =
+    url.port !== ''
+      ? Number(url.port)
+      : url.protocol === 'https:'
+        ? 443
+        : url.protocol === 'http:'
+          ? 80
+          : undefined;
+  return port === undefined || port === DEFAULT_ENGINE_PORT ? undefined : port;
+}
 
 /** The delay before the next check after `failures` consecutive failures. */
 export function healthDelay(failures: number, intervalMs: number, maxBackoffMs: number): number {
@@ -92,7 +131,7 @@ export class EngineHealthMonitor {
   readonly #loops = new Map<string, EngineLoop>();
   #syncTimer: unknown;
   #started = false;
-  #unsubscribe: (() => void) | undefined;
+  #unsubscribe: (() => void)[] = [];
   readonly #pending = new Set<Promise<unknown>>();
 
   constructor(options: EngineHealthMonitorOptions) {
@@ -104,16 +143,18 @@ export class EngineHealthMonitor {
   start(): void {
     if (this.#started) return;
     this.#started = true;
-    this.#unsubscribe = this.#o.registry.onAnswered((engineId) => {
-      this.#onAnswered(engineId);
-    });
+    this.#unsubscribe = [
+      this.#o.registry.onAnswered((engineId) => {
+        this.#onAnswered(engineId);
+      }),
+      this.#o.registry.onCheckRequested((engineId) => this.#onCheckRequested(engineId)),
+    ];
     this.#track(this.sync());
   }
 
   stop(): void {
     this.#started = false;
-    this.#unsubscribe?.();
-    this.#unsubscribe = undefined;
+    for (const unsubscribe of this.#unsubscribe.splice(0)) unsubscribe();
     if (this.#syncTimer !== undefined) this.#timers.clearTimeout(this.#syncTimer);
     this.#syncTimer = undefined;
     for (const loop of this.#loops.values()) this.#clearLoop(loop);
@@ -157,8 +198,10 @@ export class EngineHealthMonitor {
         recheckDue: false,
         gapTimer: undefined,
         answered: false,
+        current: undefined,
       };
       this.#loops.set(engine.id, loop);
+      this.#warnPort(engine);
       this.#schedule(engine.id, loop, 0);
     }
     this.#syncTimer = this.#timers.setTimeout(() => {
@@ -224,7 +267,11 @@ export class EngineHealthMonitor {
         },
       });
     }
-    this.#o.metrics?.updateEngineHealth(engineId, ok);
+    // A check in flight when its engine was deleted must not bring back the
+    // gauge the delete route removed: report it only while the engine exists.
+    if (this.#o.metrics !== undefined && (await registry.get(engineId)) !== undefined) {
+      this.#o.metrics.updateEngineHealth(engineId, ok);
+    }
     return ok;
   }
 
@@ -237,36 +284,80 @@ export class EngineHealthMonitor {
     return row?.last_seen ?? null;
   }
 
+  /**
+   * Engine-local `mediaURL`s assume the engine listens on the address's port
+   * itself; say so when that port isn't the engine's default, the usual sign
+   * of a remapped container port or something in front of the engine.
+   */
+  #warnPort(engine: Pick<EngineDescriptor, 'id' | 'transport' | 'address'>): void {
+    if (engine.transport !== 'lan') return;
+    const port = nonDefaultEnginePort(engine.address);
+    if (port === undefined) return;
+    this.#o.logger.warn(
+      { engineId: engine.id, addressPort: port, selfBase: engineSelfBase(engine.address) },
+      'engine address is not on the engine default port: torrents, YouTube and proxied sources use ' +
+        'engine-local URLs on selfBase, which fail unless the engine itself listens on that port ' +
+        '(not with a remapped container port or a proxy in front)',
+    );
+  }
+
   #schedule(engineId: string, loop: EngineLoop, delayMs: number): void {
     loop.timer = this.#timers.setTimeout(() => {
       if (loop.running || this.#loops.get(engineId) !== loop) return;
-      loop.running = true;
-      loop.recheckDue = false;
-      this.#track(
-        this.check(engineId)
-          .catch((err: unknown) => {
-            this.#o.logger.warn({ err, engineId }, 'engine health check failed');
-            return false;
-          })
-          .then((ok) => {
-            loop.running = false;
-            loop.failures = ok ? 0 : loop.failures + 1;
-            if (ok) loop.answered = false;
-            if (this.#started && this.#loops.get(engineId) === loop) {
-              this.#schedule(
-                engineId,
-                loop,
-                healthDelay(loop.failures, this.#o.intervalMs, this.#o.maxBackoffMs),
-              );
-              // It answered something while this check failed: try again soon.
-              if (loop.answered) {
-                loop.answered = false;
-                this.#onAnswered(engineId);
-              }
-            }
-          }),
-      );
+      void this.#run(engineId, loop);
     }, delayMs);
+  }
+
+  /** Runs one check of the loop's engine and schedules the next; resolves with whether it answered. */
+  #run(engineId: string, loop: EngineLoop): Promise<boolean> {
+    loop.running = true;
+    loop.recheckDue = false;
+    const run = this.check(engineId)
+      .catch((err: unknown) => {
+        this.#o.logger.warn({ err, engineId }, 'engine health check failed');
+        return false;
+      })
+      .then((ok) => {
+        loop.running = false;
+        loop.current = undefined;
+        loop.failures = ok ? 0 : loop.failures + 1;
+        if (ok) loop.answered = false;
+        if (this.#started && this.#loops.get(engineId) === loop) {
+          this.#timers.clearTimeout(loop.timer);
+          this.#schedule(
+            engineId,
+            loop,
+            healthDelay(loop.failures, this.#o.intervalMs, this.#o.maxBackoffMs),
+          );
+          // It answered something while this check failed: try again soon.
+          if (loop.answered) {
+            loop.answered = false;
+            this.#onAnswered(engineId);
+          }
+        }
+        return ok;
+      });
+    loop.current = run;
+    this.#track(run);
+    return run;
+  }
+
+  /**
+   * A check on demand (registry.requestCheck): joins one running, gives the
+   * last result when a re-check ran within {@link RECHECK_MIN_GAP_MS}, else
+   * checks now (which starts the gap).
+   */
+  #onCheckRequested(engineId: string): Promise<boolean | undefined> {
+    const loop = this.#started ? this.#loops.get(engineId) : undefined;
+    if (loop === undefined) return Promise.resolve(this.#o.registry.isOnline(engineId));
+    if (loop.current !== undefined) return loop.current;
+    if (loop.gapTimer !== undefined && !loop.recheckDue) {
+      return Promise.resolve(this.#o.registry.isOnline(engineId));
+    }
+    this.#timers.clearTimeout(loop.timer);
+    const run = this.#run(engineId, loop);
+    if (loop.gapTimer === undefined) this.#startGap(engineId, loop);
+    return run;
   }
 
   /** An engine answered a request (registry.ts): reset its backoff, and re-check it if offline. */
@@ -285,6 +376,11 @@ export class EngineHealthMonitor {
     loop.recheckDue = true;
     this.#timers.clearTimeout(loop.timer);
     this.#schedule(engineId, loop, 0);
+    this.#startGap(engineId, loop);
+  }
+
+  /** No other re-check for {@link RECHECK_MIN_GAP_MS}; answers meanwhile get one at its end. */
+  #startGap(engineId: string, loop: EngineLoop): void {
     loop.gapTimer = this.#timers.setTimeout(() => {
       loop.gapTimer = undefined;
       if (!loop.answered || loop.running || this.#loops.get(engineId) !== loop) return;
@@ -301,6 +397,10 @@ export class EngineHealthMonitor {
 
   #track(promise: Promise<unknown>): void {
     this.#pending.add(promise);
-    void promise.finally(() => this.#pending.delete(promise));
+    promise
+      .finally(() => this.#pending.delete(promise))
+      .catch((err: unknown) => {
+        this.#o.logger.error({ err }, 'engine health background task failed');
+      });
   }
 }

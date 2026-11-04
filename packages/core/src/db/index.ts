@@ -1,4 +1,4 @@
-import { promises as fs } from 'node:fs';
+import { closeSync, openSync, promises as fs } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import SQLite from 'better-sqlite3';
@@ -39,17 +39,34 @@ export const MIGRATIONS_DIR = path.resolve(import.meta.dirname, '../../migration
 
 /**
  * Opens (creating if needed) a SQLite database. Pass `':memory:'` for tests.
- * WAL mode, foreign keys on, and a busy timeout so the CLI and a running Multitap
- * can share the file.
+ * WAL mode with `synchronous = NORMAL` (durable across a crash of Multitap,
+ * and consistent across a power loss, which may lose only the last commits),
+ * foreign keys on, and a busy timeout so the CLI and a running Multitap can
+ * share the file.
+ *
+ * A new database file is created with mode 0600 where the platform has modes:
+ * it holds secrets, like its backups. SQLite gives its `-wal` and `-shm` files
+ * the database file's mode. An existing file keeps its mode.
  */
 export function openDatabase(filename: string): Db {
+  if (filename !== ':memory:' && filename !== '') createPrivate(filename);
   const sqlite = new SQLite(filename);
   sqlite.pragma('journal_mode = WAL');
+  sqlite.pragma('synchronous = NORMAL');
   sqlite.pragma('foreign_keys = ON');
   sqlite.pragma('busy_timeout = 5000');
   const db = new Kysely<Database>({ dialect: new SqliteDialect({ database: sqlite }) });
   handles.set(db, sqlite);
   return db;
+}
+
+/** Creates an empty file with mode 0600 unless one exists (never truncating it). */
+function createPrivate(filename: string): void {
+  try {
+    closeSync(openSync(filename, 'wx', 0o600));
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code !== 'EEXIST') throw err;
+  }
 }
 
 const handles = new WeakMap<Db, SQLite.Database>();

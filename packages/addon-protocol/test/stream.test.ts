@@ -46,6 +46,18 @@ describe('StreamSource variants', () => {
     expect(StreamSourceSchema.safeParse(input).success).toBe(true);
   });
 
+  it.each(cases)(
+    '%s: a parsed stream reads the variant chosen when it was parsed',
+    (variant, _kind, input) => {
+      const stream = StreamSchema.parse({ name: 'n', ...input });
+      // Same answer from the record as from trying every variant (a copy has no record).
+      expect(streamSourceVariant(stream)).toBe(streamSourceVariant({ ...stream }));
+      expect(streamSourceVariant({ ...stream })).toBe(variant);
+      // The record is invisible: nothing extra in the keys or the JSON.
+      expect(JSON.parse(JSON.stringify(stream))).toEqual({ ...stream });
+    },
+  );
+
   it('applies torrent defaults and aliases', () => {
     const stream = StreamSchema.parse({ infoHash: HASH.toUpperCase(), sources: ['dht:x'] });
     expect(stream).toMatchObject({ infoHash: HASH, announce: ['dht:x'], fileMustInclude: [] });

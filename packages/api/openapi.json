@@ -6260,7 +6260,7 @@
       "post": {
         "operationId": "createBackup",
         "summary": "Back up the database now",
-        "description": "Writes one consistent copy of Multitap's database with SQLite's online backup, while Multitap keeps serving, checks the copy with `PRAGMA integrity_check`, then prunes the oldest backups beyond `MULTITAP_BACKUP_KEEP`. A backup contains secrets (engine proxy passwords, stored raw streams, hashed API keys): treat it as one.",
+        "description": "Writes one consistent copy of Multitap's database with SQLite's online backup, while Multitap keeps serving, checks the copy with `PRAGMA quick_check`, then prunes the oldest backups beyond `MULTITAP_BACKUP_KEEP`. A backup contains secrets (engine proxy passwords, stored raw streams, hashed API keys): treat it as one.",
         "tags": [
           "admin: backups"
         ],
@@ -7238,7 +7238,7 @@
       "get": {
         "operationId": "streamEvents",
         "summary": "Follow Multitap events (server-sent events)",
-        "description": "Messages carry `id`, `event` (the type) and `data` (the event as JSON; the `MultitapEvent` schema). On reconnect, `Last-Event-ID` replays missed events from a bounded buffer; the `X-Events-Replay` header says `complete`, or `partial` when some were lost (re-read session state then). With `request` and no `Last-Event-ID`, every buffered event of that source list is replayed first. `settings.changed` and `engine.status` reach admin keys only. A `: heartbeat` comment is sent every `MULTITAP_EVENTS_HEARTBEAT_MS`. The stream ends when Multitap shuts down, and when its API key is revoked: the key is re-checked each time the stream wakes for an event or a heartbeat, before anything is sent.",
+        "description": "Messages carry `id`, `event` (the type) and `data` (the event as JSON; the `MultitapEvent` schema). On reconnect, `Last-Event-ID` replays missed events from a bounded buffer; the `X-Events-Replay` header says `complete`, or `partial` when some were lost (re-read session state then). With `request` and no `Last-Event-ID`, every buffered event of that source list is replayed first. `settings.changed` and `engine.status` reach admin keys only. A `: heartbeat` comment is sent every `MULTITAP_EVENTS_HEARTBEAT_MS`. The stream ends when Multitap shuts down, and when its API key is revoked: the key is re-checked each time the stream wakes for an event or a heartbeat, before anything is sent (a revocation from the API is seen at once, one from the CLI within about a second). It also ends when a slow reader has more than 10000 events waiting beyond its replay: reconnect with `Last-Event-ID`.",
         "tags": [
           "events"
         ],
@@ -9140,7 +9140,7 @@
       "get": {
         "operationId": "search",
         "summary": "Search every search-capable catalog",
-        "description": "Asks every enabled addon catalog that declares the `search` extra, all at once, through the same aggregation as the other browse routes (timeouts, circuit breaker, response cache). A catalog that also requires another extra (e.g. `genre`) is not searched, as in Stremio. Results are grouped per catalog, in collection order, each with its addon's status: a failing addon is reported, never fatal. `skip` pages every catalog that declares `skip` (the others only answer `skip=0`); for the next page ask again with `skip` plus the page length. `type`/`types` limit the content types searched.",
+        "description": "Asks every enabled addon catalog that declares the `search` extra, through the same aggregation as the other browse routes (timeouts, circuit breaker, response cache): addons at once, at most 20 catalogs per addon (the first in its manifest), at most 4 of them at a time. A catalog that also requires another extra (e.g. `genre`) is not searched, as in Stremio. Results are grouped per catalog, in collection order, each with its addon's status: a failing addon is reported, never fatal. `skip` pages every catalog that declares `skip` (the others only answer `skip=0`); for the next page ask again with `skip` plus the page length. `type`/`types` limit the content types searched.",
         "tags": [
           "browse"
         ],
@@ -9453,10 +9453,10 @@
             }
           },
           "503": {
-            "description": "`MULTITAP_ENGINE_ADMISSION=reject` only: the engine's resolving and playing sessions already reach its `liveConcurrency`",
+            "description": "With `MULTITAP_ENGINE_ADMISSION=reject`, the engine's resolving and playing sessions already reach its `liveConcurrency`; or Multitap is shutting down",
             "headers": {
               "Retry-After": {
-                "description": "Seconds to wait before trying again (`MULTITAP_ENGINE_LOAD_WINDOW_MS`).",
+                "description": "Seconds to wait before trying again (`MULTITAP_ENGINE_LOAD_WINDOW_MS`); absent while shutting down.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1
@@ -10338,6 +10338,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "The revocation is in force but could not be stored, so it would end if Multitap restarted: revoke again",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
           }
         }
       }
@@ -10426,7 +10436,7 @@
       "get": {
         "operationId": "listSources",
         "summary": "The source list for a video",
-        "description": "Every stream every matching addon returned, as candidates annotated for an engine. `sort=addon` (default) keeps collection order and each addon's own order; `sort=rank` orders playable candidates first, then by score. Nothing is hidden. Answers once every addon has answered or timed out. With `incremental=true` it answers `202` at once with a request id, and each addon's candidates follow as a `streams.partial` event (`GET /v1/events?request={requestId}`), in answer order, the last with `remaining: 0`; `sort=rank` then orders each event's candidates.",
+        "description": "Every stream every matching addon returned, as candidates annotated for an engine. `sort=addon` (default) keeps collection order and each addon's own order; `sort=rank` orders playable candidates first, then by score. Nothing is hidden. Answers once every addon has answered or timed out. With `incremental=true` it answers `202` with a request id once the item's meta is known (so `addons` counts every part, the meta's own streams included), and each addon's candidates follow as a `streams.partial` event (`GET /v1/events?request={requestId}`), in answer order, the last with `remaining: 0`; `sort=rank` then orders each event's candidates.",
         "tags": [
           "browse"
         ],

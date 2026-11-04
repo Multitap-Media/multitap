@@ -27,6 +27,161 @@ repository; their tags are not part of this repository's history.
 
 ## Unreleased
 
+### Fixed
+
+- **One hostile addon response can no longer freeze Multitap.** The 8 MiB
+  response cap bounded an addon's bytes, not the work they cost: hundreds of
+  thousands of tiny streams, one object with half a million keys, or a
+  description of thousands of lines each blocked the event loop (every route
+  and the media gateway) for seconds to tens of seconds. Responses are now
+  parsed within a budget (okf:architecture/addon-response-budget): list
+  responses keep their first items up to a per-resource count (1 000 streams,
+  500 subtitles, 1 000 catalog items), items nested deeper than 32 levels or
+  with more than 256 keys on one object are dropped, metas keep their first
+  20 000 videos, manifests their first 500 catalogs, and a stream
+  description's first 16 lines are read for release names.
+- **A full cache no longer scans every entry on each write.** The stream store,
+  item metas, subtitles and tokens drop their least recently used entry in
+  constant time; expired entries are swept at most once a minute. A flood of
+  streams used to stall Multitap and push out other clients' candidate keys.
+- **Marking a long series' season watched takes linear time.** Each video
+  lookup scanned the video list, so 40 000 videos took seconds. A stored
+  watched bitfield also inflates to at most 1 MiB.
+- **Session subtitles keep every session's tracks.** Two sessions of one item
+  no longer drop each other's listed files. A file asked for after a restart
+  or the 6 h expiry is listed again with the session's own hints, so
+  hash-matched tracks no longer answer `404`, and a listed file the subtitle
+  service forgot is listed again once before a `404`
+  (okf:architecture/core-subtitles-and-player-state).
+- **Browser clients can read `X-Events-Replay`, `Retry-After`, `Allow`,
+  `Content-Disposition` and `X-Request-Id`:** `/v1` CORS exposes them
+  (okf:architecture/core-deployment).
+- **`.` and `..` are refused where a URL path would drop them.** Minting a
+  token for subject `.` or `..` is a `400` (`DELETE …/tokens/..` used to reach
+  `DELETE /v1/sessions/{id}`), and `createMultitapClient` throws a `TypeError`
+  instead of sending a request whose path parameter is `.` or `..`
+  (okf:concept/media-tokens).
+- **Revoked media tokens can't come back through a stale read.** A session's
+  token epoch only goes up and a release sticks. Revoke-all on a session
+  deleted meanwhile is a `404`, not a `500`, and a subject revocation that
+  can't be stored stays in force and answers a documented `503`
+  (okf:concept/media-tokens, okf:architecture/media-gateway-proxy).
+- **A busy database no longer fails authenticated requests.** The API key's
+  `last_used` write isn't awaited, and is written at most once a minute per key
+  (okf:architecture/core-api-keys-security).
+- **`/v1/events` is bounded.** A reader more than 10 000 events behind is ended
+  and resumes with `Last-Event-ID`, a large replay no longer risks a
+  `RangeError`, and more than ten open streams no longer trigger Node's
+  `MaxListeners` warning (okf:architecture/core-events-sse).
+- **The media listener's `500` carries `Cache-Control: no-store`, `nosniff`
+  and `no-referrer`.**
+- **A slow or reset engine request no longer fails a session as
+  `engine-offline`.** Multitap checks the engine's health first: if it
+  answers, only that source failed (`engine-error`) and auto-select tries the
+  next one (okf:architecture/engine-transport-and-health).
+- **A restarted engine plays at once.** A new session on an engine marked
+  offline triggers a health check (at most one every 5 s) instead of waiting
+  out the backoff.
+- **No engine session is left behind** when an auto-selected source becomes
+  ready just after its session was released, and a retry no longer joins an
+  engine prepare that was already aborted (which failed the session with
+  `internal-error`).
+- **The retention sweep goes on past a failing release**, and the
+  pending-release retries and purges still run
+  (okf:architecture/engine-retention).
+- **`POST /v1/sessions` answers `503` while Multitap shuts down**, and nothing
+  starts resolving after shutdown begins.
+- **Addon URLs pointing at loopback or the engine are refused with a trailing
+  dot or mixed case too** (`localhost.`), and the engine gets the URL that was
+  checked (okf:core-review/sec-input-engine-proxy-password).
+- **`/opensubHash` stays on after a per-file `404`**; only a missing route
+  turns it off. A subtitle list that goes away no longer ends the shared hash
+  lookup or caches it as a miss.
+- **A second Multitap on the same data folder stops at startup** instead of
+  failing the running one's sessions and migrating under it: startup holds a
+  lock on `multitap.lock` in the data folder, which the operating system
+  releases if the process dies (okf:architecture/core-persistence).
+- **Signals and crashes shut down cleanly.** SIGHUP without TLS no longer kills
+  Multitap (it is logged and ignored); an uncaught error or rejection logs,
+  flushes the library and logs, and exits 1; a forced shutdown comes after 8 s,
+  inside Docker's 10 s grace; a listener that fails to bind no longer closes
+  the database under a running sweep (okf:architecture/core-deployment).
+- **Configuration is read strictly.** A value of only spaces means unset (it
+  used to become 0, turning time limits off), integer settings take digits
+  only, an error never echoes a value containing `@` (a URL's credentials),
+  and unknown `MULTITAP_*` variables are warned about by name
+  (okf:architecture/configuration).
+- **Backups can't be silently empty or cut short.** Each copy is written to a
+  partial file of its own and only stale partials are removed; verification
+  refuses a missing or empty copy or one without the schema; the backup just
+  written is never pruned; files with impossible dates are skipped; a download
+  survives a concurrent prune. Routine backups use `quick_check`; the
+  pre-migration backup keeps the full check.
+- **A deleted engine's metric series are removed**, and a health check in
+  flight during the delete doesn't bring them back.
+- **The CLI refuses to run as root on another user's data folder**, which left
+  backups the server couldn't read; a failed pre-migration backup names the
+  folder and the cause.
+- **A slow addon no longer stalls a profile's progress and edits:** the meta
+  lookup runs before the profile's queue. Unreadable library rows are skipped
+  with a warning instead of failing the profile's library, and the watched
+  bitfield is built only when a report crosses the watched threshold.
+- **Addon health follows rate limits and stale answers less.** A `429` counts
+  against an addon's circuit, and a `429` or `503` with `Retry-After` keeps it
+  open that long (at most 15 minutes). Results of requests that started
+  before the circuit changed state no longer steer it, and requests made
+  after an addon is disabled or changed no longer join a fetch made with its
+  old state (okf:concept/addon-aggregation).
+- **Refreshing an unchanged manifest keeps the addon's cached responses and
+  circuit**, and a refresh that can't be stored is reported as that addon's
+  `refreshError` (`unexpected`) instead of failing refresh-all with a `500`.
+- **A manifest URL with a user name or password is refused as `invalid-url`**
+  with a message saying why (it used to fail as `network`).
+- **Only http(s) images and http(s) or `stremio:` links reach clients** from
+  addon metas and manifests, and `stremio:` links that embed an addon URL are
+  dropped however many times they are encoded
+  (okf:architecture/normalized-addon-types).
+- **The private-host guard also refuses IPv4-translated, Teredo, ORCHID,
+  benchmarking and `3fff::/20` addresses**, and any IPv6 address outside
+  `2000::/3` (okf:architecture/addon-private-host-guard).
+- **A search asks at most 20 catalogs per addon, 4 at a time**, instead of
+  every search catalog a manifest declares at once.
+- **Incremental source lists no longer lose an addon that answers before the
+  meta lookup finishes**, and the last partial says `remaining: 0` when the
+  meta adds a part (okf:core-review/bugs-library-incremental-partials).
+- **Parsed numbers always fit `ParsedSource`** (no height 0, duration 0 or
+  infinite seeders), a 0 duration no longer skips the size check, and
+  `explain` labels a primary-language match correctly when the two language
+  bonuses are equal (okf:concept/source-ranking).
+- **The image's `latest` and `X.Y` tags only move forward:** a patch to an
+  older line no longer takes them.
+
+### Changed
+
+- **Fewer database reads and less serialising.** `/v1/events` re-checks a key
+  at most once a second, shared by its streams; each event is serialised once;
+  the replay buffer is a ring. A token for a deleted session reads the
+  database at most every 5 s, and `/v1/whoami` answers without a second read.
+- Releases on an engine marked offline are queued for retry without
+  contacting it, and the sweep releases up to four sessions at a time.
+- Multitap warns when an engine address isn't on port 11470: engine-local URLs
+  (torrents, YouTube, proxied sources) assume the engine listens there itself.
+- New database files are created `0600`, data and log folders `0700`, log
+  files `0600` (existing files keep their modes), and SQLite runs with
+  `synchronous = NORMAL` under WAL.
+- Addon bodies are decoded as they stream; core's response cache keeps no
+  validation details it never reads; a failed subtitle file is served from its
+  failure for 30 s and shifted files are cached; selection parses each release
+  name once, ranks each addon's part once and records each stream's variant
+  when it is validated.
+- The base image is pinned by digest (Renovate keeps it current, after a
+  3-day release age); the release workflow drops unused OIDC and attestation
+  permissions and caches its build; CI jobs have time limits, and the
+  breaking-change check and full-history secrets scan run on Linux only.
+- The `incremental=true` description now says what Multitap does: the `202`
+  comes once the item's meta is known, so `addons` counts every part
+  (okf:decision/incremental-list-waits-for-meta).
+
 ## 0.2.1 (2026-11-02)
 
 ### Fixed

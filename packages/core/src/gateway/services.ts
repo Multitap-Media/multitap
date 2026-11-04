@@ -21,7 +21,7 @@ export interface GatewayServices {
 
 export interface GatewayServicesDeps {
   config: Pick<Config, 'media'>;
-  sessions: Pick<SessionService, 'getRecord' | 'bumpTokenEpoch' | 'onChange'>;
+  sessions: Pick<SessionService, 'getRecord' | 'bumpTokenEpoch' | 'onChange' | 'subtitleHints'>;
   repo: Pick<
     SessionRepository,
     'revokeSubject' | 'listRevocations' | 'listSubtitleOffsets' | 'setSubtitleOffset'
@@ -54,6 +54,7 @@ export function createGatewayServices(deps: GatewayServicesDeps): GatewayService
       subtitles: deps.subtitles,
       repo: deps.repo,
       clock: deps.clock,
+      hints: (record) => deps.sessions.subtitleHints(record),
     }),
   };
 }

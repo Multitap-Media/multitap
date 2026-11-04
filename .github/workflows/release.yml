@@ -1,6 +1,8 @@
 # On a release tag (vX.Y.Z): build the image for amd64 and arm64, push it to
-# ghcr.io/multitap-media/multitap as X.Y.Z, X.Y and latest with provenance and
-# an SBOM, and create the GitHub release from the CHANGELOG section.
+# ghcr.io/multitap-media/multitap as X.Y.Z, as X.Y when it is the highest
+# release of X.Y, and as latest when it is the highest release of all (so a
+# patch to an older line never moves them back), with provenance and an SBOM,
+# and create the GitHub release from the CHANGELOG section.
 # Actions are pinned by commit; Renovate keeps them current.
 name: release
 
@@ -14,13 +16,17 @@ permissions:
 jobs:
   image:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
+    # Provenance and the SBOM are BuildKit attestations pushed with the image
+    # (packages: write); nothing here signs with an OIDC token.
     permissions:
       contents: read
       packages: write
-      id-token: write
-      attestations: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Every tag, to tell whether this one is the highest.
+          fetch-depth: 0
       - name: Check the tag matches the package version
         run: |
           version=$(node -p "require('./packages/core/package.json').version")
@@ -28,6 +34,15 @@ jobs:
             echo "tag ${GITHUB_REF_NAME} does not match packages/core version ${version}" >&2
             exit 1
           }
+      - name: Decide which moving tags this release takes
+        id: moving
+        run: |
+          releases() { git tag --list "$1" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1; }
+          highest=$(releases 'v*')
+          highest_minor=$(releases "${GITHUB_REF_NAME%.*}.*")
+          echo "latest=$([ "${GITHUB_REF_NAME}" = "${highest}" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "minor=$([ "${GITHUB_REF_NAME}" = "${highest_minor}" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "highest release ${highest}, highest of its minor ${highest_minor}"
       - uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
       - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
@@ -39,10 +54,11 @@ jobs:
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: ghcr.io/multitap-media/multitap
+          flavor: latest=false
           tags: |
             type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=latest
+            type=semver,pattern={{major}}.{{minor}},enable=${{ steps.moving.outputs.minor }}
+            type=raw,value=latest,enable=${{ steps.moving.outputs.latest }}
       - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
@@ -53,10 +69,13 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           provenance: mode=max
           sbom: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   github-release:
     needs: image
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: write
     steps:

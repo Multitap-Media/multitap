@@ -3,8 +3,9 @@ import type { AddressInfo } from 'node:net';
 import { join } from 'node:path';
 import { AddonService } from './addons/index.ts';
 import { BackupService, backupBeforeMigrating } from './backup/service.ts';
-import { ConfigError, loadConfig, type Config } from './config.ts';
-import { DB_FILE, migrateToLatest, openDatabase } from './db/index.ts';
+import { ConfigError, loadConfig, unknownVariables, type Config } from './config.ts';
+import { DB_FILE, migrateToLatest, openDatabase, type Db } from './db/index.ts';
+import { lockDataDir, type DataDirLock } from './db/instance-lock.ts';
 import { ServerGoEngineModule, engineModuleConfig } from './engines/engine-module.ts';
 import { EngineHealthMonitor } from './engines/health.ts';
 import { checkEngines, defaultEngineId, getEngine } from './engines/index.ts';
@@ -51,10 +52,22 @@ export interface RunningMultitap {
   /**
    * Ends open event streams, closes both listeners (letting open requests
    * finish for up to `CLOSE_GRACE_MS`), flushes held-back library progress,
-   * then closes the database.
+   * closes the database, then releases the data folder's lock.
    */
   close(): Promise<void>;
 }
+
+/**
+ * How long `main` waits for a graceful shutdown before it exits anyway: below
+ * Docker's default 10 s stop grace, so Multitap's own exit (and its last log
+ * lines) comes before Docker's `SIGKILL`. Listeners cut open responses after
+ * `CLOSE_GRACE_MS` (5 s), which leaves the rest for flushing progress and
+ * closing the database.
+ */
+export const SHUTDOWN_TIMEOUT_MS = 8_000;
+
+/** How long `main` spends trying to flush after an uncaught error before it exits. */
+export const CRASH_FLUSH_TIMEOUT_MS = 3_000;
 
 /**
  * Opens and migrates the database, then serves the API on `config.apiPort` and
@@ -64,8 +77,26 @@ export interface RunningMultitap {
 export async function startMultitap(config: Config, logger: Logger): Promise<RunningMultitap> {
   // Read first, so a bad certificate fails startup before anything opens.
   const tls = config.tls === null ? null : readTlsMaterial(config.tls);
-  mkdirSync(config.dataDir, { recursive: true });
-  const db = openDatabase(join(config.dataDir, DB_FILE));
+  // 0700 where the platform has modes: the database holds secrets, like its backups.
+  mkdirSync(config.dataDir, { recursive: true, mode: 0o700 });
+  // Before anything changes the database: a second instance on the same folder
+  // stops here instead of migrating it and failing the live one's sessions.
+  const lock = lockDataDir(config.dataDir);
+  try {
+    return await startLocked(config, logger, tls, lock);
+  } catch (err) {
+    lock.release();
+    throw err;
+  }
+}
+
+async function startLocked(
+  config: Config,
+  logger: Logger,
+  tls: ReturnType<typeof readTlsMaterial> | null,
+  lock: DataDirLock,
+): Promise<RunningMultitap> {
+  const db: Db = openDatabase(join(config.dataDir, DB_FILE));
   try {
     await migrateToLatest(db, logger, {
       beforeMigrating: (pending) =>
@@ -189,11 +220,20 @@ export async function startMultitap(config: Config, logger: Logger): Promise<Run
   // Database backups (okf:architecture/core-persistence): on a timer from start() when MULTITAP_BACKUP_INTERVAL_MS is set.
   const backups = new BackupService({ db, logger, clock, metrics, config });
   appDeps.backups = backups;
+  // Stops what start() set going (the sweep timer and its first sweep, engine
+  // calls), waits for it, then closes the database: a sweep must never meet a
+  // closed database.
+  const abandon = async () => {
+    sessions.stop();
+    engineModule.close();
+    await Promise.all([sessions.idle(), engineModule.idle()]);
+    await db.destroy();
+  };
   try {
     await gateway.tokens.start();
     await sessions.start();
   } catch (err) {
-    await db.destroy();
+    await abandon();
     throw err;
   }
   const app = createApp(appDeps);
@@ -213,8 +253,7 @@ export async function startMultitap(config: Config, logger: Logger): Promise<Run
       throw err;
     }
   } catch (err) {
-    sessions.stop();
-    await db.destroy();
+    await abandon();
     throw err;
   }
   const port = api.port;
@@ -268,20 +307,99 @@ export async function startMultitap(config: Config, logger: Logger): Promise<Run
     },
     close() {
       closing ??= (async () => {
-        // First, so the event streams end and the API listener can close.
-        shutdown.abort();
-        engineHealth.stop();
-        backups.stop();
-        sessions.stop();
-        engineModule.close();
-        await Promise.all([api.close(), media.close(), engineHealth.idle()]);
-        await Promise.all([sessions.idle(), engineModule.idle(), backups.idle()]);
-        // Progress held back by the 90 s throttle (okf:architecture/library-and-profiles).
-        await library.flush();
-        await addons.stop();
-        await db.destroy();
+        try {
+          // First, so the event streams end and the API listener can close.
+          shutdown.abort();
+          engineHealth.stop();
+          backups.stop();
+          sessions.stop();
+          engineModule.close();
+          await Promise.all([api.close(), media.close(), engineHealth.idle()]);
+          await Promise.all([sessions.idle(), engineModule.idle(), backups.idle()]);
+          // Progress held back by the 90 s throttle (okf:architecture/library-and-profiles).
+          await library.flush();
+          await addons.stop();
+          await db.destroy();
+        } finally {
+          lock.release();
+        }
       })();
       return closing;
+    },
+  };
+}
+
+export interface ProcessHandlerDeps {
+  logger: Logger;
+  /** Graceful shutdown: `RunningMultitap.close()` once Multitap has started. */
+  close: () => Promise<void>;
+  /** Writes buffered log lines (the log file's included) before exiting. */
+  flushLogs: () => void;
+  exit: (code: number) => void;
+  /** `RunningMultitap.reloadTls()`, or `null` without TLS. */
+  reloadTls: (() => boolean) | null;
+  shutdownTimeoutMs?: number;
+  crashTimeoutMs?: number;
+}
+
+export interface ProcessHandlers {
+  /** `SIGINT` / `SIGTERM`: graceful shutdown, exit 0 (1 if it fails or times out). */
+  shutdown(signal: NodeJS.Signals): void;
+  /** `SIGHUP`: reloads the TLS files when TLS is on; otherwise logged and ignored, never fatal. */
+  reload(): void;
+  /** `uncaughtException` / `unhandledRejection`: logged as fatal, a bounded graceful flush, exit 1. */
+  crash(err: unknown, origin: string): void;
+}
+
+/**
+ * What `main` does on signals and uncaught errors (okf:architecture/core-deployment).
+ * Every path ends in one exit: a second signal or error during shutdown only
+ * raises the exit code, and a timer forces the exit if closing hangs.
+ */
+export function processHandlers(deps: ProcessHandlerDeps): ProcessHandlers {
+  const { logger } = deps;
+  let exitCode = 0;
+  let stopping = false;
+  const stop = (code: number, timeoutMs: number) => {
+    exitCode = Math.max(exitCode, code);
+    if (stopping) return;
+    stopping = true;
+    const force = setTimeout(() => {
+      logger.warn('shutdown timed out; exiting');
+      deps.flushLogs();
+      deps.exit(1);
+    }, timeoutMs);
+    force.unref();
+    // Through then(), so a close() that throws is handled like one that rejects.
+    void Promise.resolve()
+      .then(() => deps.close())
+      .catch((err: unknown) => {
+        logger.error({ err }, 'shutdown failed');
+        exitCode = 1;
+      })
+      .finally(() => {
+        clearTimeout(force);
+        deps.flushLogs();
+        deps.exit(exitCode);
+      });
+  };
+  return {
+    shutdown(signal) {
+      logger.info({ signal }, 'shutting down');
+      stop(0, deps.shutdownTimeoutMs ?? SHUTDOWN_TIMEOUT_MS);
+    },
+    reload() {
+      if (deps.reloadTls === null) {
+        logger.info({ signal: 'SIGHUP' }, 'SIGHUP ignored: there is no TLS certificate to reload');
+        return;
+      }
+      deps.reloadTls();
+    },
+    crash(err, origin) {
+      logger.fatal({ err, origin }, 'uncaught error; shutting down');
+      // Flushed at once too, in case closing never gets that far.
+      deps.flushLogs();
+      stop(1, deps.crashTimeoutMs ?? CRASH_FLUSH_TIMEOUT_MS);
     },
   };
 }
@@ -311,7 +429,34 @@ async function main(): Promise<void> {
     file,
     stdout: config.logging.stdout,
   });
-  let multitap: RunningMultitap;
+  const unknown = unknownVariables(process.env);
+  if (unknown.length > 0) {
+    // Names only: a value may be a secret.
+    logger.warn(
+      { variables: unknown },
+      `Multitap doesn't read ${unknown.join(', ')} (a typo, or a setting of another version?); ` +
+        'unknown MULTITAP_ variables are ignored',
+    );
+  }
+  let multitap: RunningMultitap | undefined;
+  const handlers = processHandlers({
+    logger,
+    close: () => multitap?.close() ?? Promise.resolve(),
+    flushLogs: () => {
+      logger.flush();
+      flushLogFile(file);
+    },
+    exit: (code) => process.exit(code),
+    reloadTls: config.tls === null ? null : () => multitap?.reloadTls() ?? false,
+  });
+  // Installed before startup, so an error a background task throws while
+  // Multitap starts is logged too; then progress is flushed where possible.
+  process.on('uncaughtException', (err, origin) => {
+    handlers.crash(err, origin);
+  });
+  process.on('unhandledRejection', (reason) => {
+    handlers.crash(reason, 'unhandledRejection');
+  });
   try {
     multitap = await startMultitap(config, logger);
   } catch (err) {
@@ -321,36 +466,18 @@ async function main(): Promise<void> {
     return;
   }
 
-  const shutdown = (signal: NodeJS.Signals) => {
-    logger.info({ signal }, 'shutting down');
-    const force = setTimeout(() => {
-      logger.warn('shutdown timed out; exiting');
-      flushLogFile(file);
-      process.exit(1);
-    }, 10_000);
-    force.unref();
-    multitap.close().then(
-      () => {
-        logger.flush();
-        flushLogFile(file);
-        process.exit(0);
-      },
-      (err: unknown) => {
-        logger.error({ err }, 'shutdown failed');
-        flushLogFile(file);
-        process.exit(1);
-      },
-    );
+  const onSignal = (signal: NodeJS.Signals) => {
+    handlers.shutdown(signal);
   };
-  process.once('SIGINT', shutdown);
-  process.once('SIGTERM', shutdown);
-  // A tool that renews the certificate signals Multitap instead of restarting it
-  // (Linux and Docker; Windows has no SIGHUP, so restart there).
-  if (config.tls !== null) {
-    onReloadSignal(() => {
-      multitap.reloadTls();
-    });
-  }
+  process.once('SIGINT', onSignal);
+  process.once('SIGTERM', onSignal);
+  // Always handled, so a SIGHUP (a closed terminal, a supervisor's reload)
+  // never kills Multitap without a graceful shutdown. With TLS, a tool that
+  // renews the certificate signals Multitap instead of restarting it (Linux
+  // and Docker; Windows has no SIGHUP, so restart there).
+  onReloadSignal(() => {
+    handlers.reload();
+  });
 }
 
 if (import.meta.main) {

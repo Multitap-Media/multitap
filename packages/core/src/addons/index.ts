@@ -12,6 +12,7 @@ import {
   type AggregateResult,
 } from './aggregate.ts';
 import { normalizedResources } from './capabilities.ts';
+import { imageUrl } from './meta-view.ts';
 import type { CircuitBreakerOptions } from './circuit-breaker.ts';
 import { AddonClients, type ResourceFetcher } from './client.ts';
 import {
@@ -183,7 +184,7 @@ export function addonView(record: AddonRecord): Addon {
     name: manifest.name,
     version: manifest.version,
     description: manifest.description ?? null,
-    logo: manifest.logo ?? null,
+    logo: imageUrl(manifest.logo) ?? null,
     host: record.host,
     types: manifest.types,
     resources: normalizedResources(manifest).map((r) => ({

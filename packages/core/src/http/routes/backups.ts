@@ -3,7 +3,6 @@
  * Multitap's database. A backup holds secrets (engine proxy passwords, stored raw
  * streams, hashed API keys): treat the file, and the download, as one.
  */
-import { createReadStream } from 'node:fs';
 import { Readable } from 'node:stream';
 import { createRoute, z, type OpenAPIHono } from '@hono/zod-openapi';
 import { BACKUP_ID_PATTERN, BackupSchema } from '@multitap/api';
@@ -50,7 +49,7 @@ const createBackupRoute = createRoute({
   summary: 'Back up the database now',
   description:
     "Writes one consistent copy of Multitap's database with SQLite's online backup, while Multitap keeps " +
-    'serving, checks the copy with `PRAGMA integrity_check`, then prunes the oldest backups beyond ' +
+    'serving, checks the copy with `PRAGMA quick_check`, then prunes the oldest backups beyond ' +
     '`MULTITAP_BACKUP_KEEP`. A backup contains secrets (engine proxy passwords, stored raw streams, hashed ' +
     'API keys): treat it as one.',
   tags,
@@ -146,14 +145,23 @@ export function registerBackupRoutes(app: OpenAPIHono<AppEnv>, deps: AppDeps): v
 
   app.openapi(downloadRoute, async (c) => {
     const { id } = c.req.valid('param');
-    const found = await backupService(deps).find(id);
-    if (found === undefined) throw new ProblemError(404, 'No backup with this id.');
-    deps.logger.info({ backupId: id, by: c.get('apiKey').id }, 'backup downloaded');
-    const body = Readable.toWeb(createReadStream(found.path)) as ReadableStream<Uint8Array>;
+    // Opened first and sized from the open file, so a prune or delete from
+    // here on can't turn the 200 into a short or failed stream.
+    const opened = await backupService(deps).open(id);
+    if (opened === undefined) throw new ProblemError(404, 'No backup with this id.');
+    const by = c.get('apiKey').id;
+    deps.logger.info({ backupId: id, by }, 'backup downloaded');
+    // Closes the handle when it ends, fails or the client goes away. A backup
+    // is never written to after its rename, so the size read above holds.
+    const stream = opened.handle.createReadStream();
+    stream.on('error', (err) => {
+      deps.logger.warn({ backupId: id, by, err: err.message }, 'backup download failed');
+    });
+    const body = Readable.toWeb(stream) as ReadableStream<Uint8Array>;
     return c.body(body, 200, {
       'Content-Type': 'application/octet-stream',
       'Content-Disposition': `attachment; filename="${id}.sqlite"`,
-      'Content-Length': String(found.backup.sizeBytes),
+      'Content-Length': String(opened.backup.sizeBytes),
       'Cache-Control': 'no-store',
     });
   });

@@ -148,11 +148,22 @@ type StreamBase = z.output<typeof StreamBaseSchema>;
 
 export type Stream = StreamBase & StreamSource;
 
+/**
+ * The variant {@link StreamSchema} chose for each stream it produced, so
+ * {@link streamSourceVariant} doesn't try every variant again. Held weakly and
+ * outside the object, so it never shows in its keys or its JSON.
+ */
+const parsedVariants = new WeakMap<object, StreamSourceVariant>();
+
 export const StreamSchema = StreamBaseSchema.transform((base, ctx): Stream => {
   const withDescription = { ...base, description: base.description ?? base.title };
-  for (const [, schema] of STREAM_SOURCE_VARIANTS) {
+  for (const [variant, schema] of STREAM_SOURCE_VARIANTS) {
     const source = schema.safeParse(withDescription);
-    if (source.success) return { ...withDescription, ...source.data };
+    if (source.success) {
+      const stream: Stream = { ...withDescription, ...source.data };
+      parsedVariants.set(stream, variant);
+      return stream;
+    }
   }
   ctx.addIssue({ code: 'custom', message: 'Expected a valid StreamSource' });
   return z.NEVER;
@@ -160,9 +171,16 @@ export const StreamSchema = StreamBaseSchema.transform((base, ctx): Stream => {
 
 /**
  * Which `StreamSource` variant a stream (parsed or raw) deserializes as, using
- * stremio-core's precedence. `undefined` if none.
+ * stremio-core's precedence. `undefined` if none. A stream {@link StreamSchema}
+ * produced answers from the variant recorded when it was parsed (treat parsed
+ * streams as read-only: copy one to change its source); anything else is
+ * tried against each variant in turn.
  */
 export function streamSourceVariant(stream: unknown): StreamSourceVariant | undefined {
+  if (typeof stream === 'object' && stream !== null) {
+    const recorded = parsedVariants.get(stream);
+    if (recorded !== undefined) return recorded;
+  }
   for (const [variant, schema] of STREAM_SOURCE_VARIANTS) {
     if (schema.safeParse(stream).success) return variant;
   }

@@ -4,6 +4,7 @@
  * (`next_video`), `unit_tests/serde/library_item_state.rs` and
  * `unit_tests/player/mark_video_as_watched.rs`.
  */
+import { deflateSync } from 'node:zlib';
 import type { LibraryItem, MetaVideo } from '@multitap/api';
 import { describe, expect, it } from 'vitest';
 import {
@@ -33,7 +34,12 @@ import {
   watchedBitfield,
   type LibraryMeta,
 } from '../src/library/rules.ts';
-import { BitField8, parseWatchedField, WatchedBitField } from '../src/library/watched-bitfield.ts';
+import {
+  BitField8,
+  MAX_BITFIELD_BYTES,
+  parseWatchedField,
+  WatchedBitField,
+} from '../src/library/watched-bitfield.ts';
 
 const NOW = Date.parse('2026-09-27T12:00:00.000Z');
 const HOUR = 3_600_000;
@@ -142,6 +148,15 @@ function meta(videos: MetaVideo[], over: Partial<LibraryMeta> = {}): LibraryMeta
   };
 }
 
+describe('watched bitfield bounds', () => {
+  it('refuses a field that inflates past MAX_BITFIELD_BYTES', () => {
+    const bomb = deflateSync(Buffer.alloc(MAX_BITFIELD_BYTES + 1)).toString('base64');
+    expect(() => BitField8.decode(bomb)).toThrow(/too large/);
+    const fits = deflateSync(Buffer.alloc(16)).toString('base64');
+    expect(BitField8.decode(fits).length).toBe(128);
+  });
+});
+
 describe('next_video (meta_item.rs)', () => {
   const m = meta([
     video('s0e1', 0, 1),
@@ -236,6 +251,21 @@ describe('TimeChanged (player.rs)', () => {
     // Flagged once per video.
     expect(timeChanged(item, { ...update, time: 0.8 * HOUR }, watched, NOW)).toBe(false);
     expect(item.state.timesWatched).toBe(1);
+  });
+
+  it('calls a bitfield factory only when the watched threshold is crossed', () => {
+    const item = libraryItem('tt123456:1:1');
+    let built = 0;
+    const factory = () => {
+      built += 1;
+      return watchedBitfield(item.state, s1.videos);
+    };
+    const update = { videoId: 'tt123456:1:1', duration: HOUR };
+    timeChanged(item, { ...update, time: 0.3 * HOUR }, factory, NOW);
+    expect(built).toBe(0);
+    expect(timeChanged(item, { ...update, time: 0.75 * HOUR }, factory, NOW)).toBe(true);
+    expect(built).toBe(1);
+    expect(watchedBitfield(item.state, s1.videos).getVideo('tt123456:1:1')).toBe(true);
   });
 
   it('time_changed_without_duration_does_not_flag_watched', () => {
@@ -623,6 +653,19 @@ describe('library writes (ctx/update_library.rs, meta_details.rs)', () => {
     const b = watchedAll(specials, ['tt123456:1:1']);
     reconcileSeriesResumeAfterWatchedChange(b.item, 1, b.bits, specials, NOW);
     expect(b.item.state.timeOffset).toBe(0);
+  });
+
+  it('marks a huge season watched in linear time (an addon-sized video list)', () => {
+    // Lookups were a scan per video, and the resume walk rescanned per step:
+    // 40 000 videos took seconds and blocked the event loop.
+    const many = meta(Array.from({ length: 50_000 }, (_, i) => vid(1, i + 1)));
+    const item = playing('tt123456:1:1');
+    const started = performance.now();
+    expect(markSeasonWatched(item, many, 1, true, NOW)).toBe(true);
+    expect(performance.now() - started).toBeLessThan(2_000);
+    const after = watchedBitfield(item.state, many.videos);
+    expect(after.getVideo('tt123456:1:50000')).toBe(true);
+    expect(item.state.timeOffset).toBe(0);
   });
 
   it('MetaItemMarkAsWatched on a new item creates it temp and removed (mark_meta_item_as_watched.rs)', () => {

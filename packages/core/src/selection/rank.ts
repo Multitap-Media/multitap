@@ -185,8 +185,9 @@ function sizePenalty(
 ): number {
   const { sizeBytes } = parsed;
   if (sizeBytes === undefined) return 0;
-  const duration = parsed.durationSec ?? runtimeSec;
-  if (duration === undefined || duration <= 0) {
+  // A 0 (or missing) duration says nothing; fall back to the item's runtime.
+  const duration = [parsed.durationSec, runtimeSec].find((d) => d !== undefined && d > 0);
+  if (duration === undefined) {
     return sizeBytes < size.noRuntimeMinMiB * 1024 ** 2 ? size.tooSmallPenalty : 0;
   }
   const mbPerMinute = sizeBytes / 1e6 / (duration / 60);
@@ -201,14 +202,20 @@ function languageScore(
   parsed: ParsedSource,
   preferred: readonly string[],
   language: RankingSettings['language'],
-): number {
+): { points: number; rule: 'language' | 'languageSecondary' } {
   const langs = parsed.languages;
-  if (langs === undefined || langs.length === 0 || preferred.length === 0) return 0;
+  if (langs === undefined || langs.length === 0 || preferred.length === 0) {
+    return { points: 0, rule: 'language' };
+  }
   const [first, ...rest] = preferred;
-  if (first !== undefined && langs.includes(first)) return language.matchBonus;
-  if (rest.some((lang) => langs.includes(lang))) return language.secondaryMatchBonus;
-  if (langs.includes('mul')) return 0;
-  return -language.mismatchPenalty;
+  if (first !== undefined && langs.includes(first)) {
+    return { points: language.matchBonus, rule: 'language' };
+  }
+  if (rest.some((lang) => langs.includes(lang))) {
+    return { points: language.secondaryMatchBonus, rule: 'languageSecondary' };
+  }
+  if (langs.includes('mul')) return { points: 0, rule: 'language' };
+  return { points: -language.mismatchPenalty, rule: 'language' };
 }
 
 /** Rule 8: points by height class, capped at what the engine plays live; unknown is usually old SD. */
@@ -288,8 +295,7 @@ function contributions(
   add('container', -containerPenalty(parsed, live, s.container), {}, parsed.container);
   add('size', -sizePenalty(parsed, live, s.size, options.runtimeSec), {});
   const lang = languageScore(parsed, options.preferredLanguages ?? DEFAULT_LANGUAGES, s.language);
-  const secondary = lang > 0 && lang === s.language.secondaryMatchBonus;
-  add(secondary ? 'languageSecondary' : 'language', lang, {
+  add(lang.rule, lang.points, {
     'language.matchBonus': s.language.matchBonus,
     'language.secondaryMatchBonus': s.language.secondaryMatchBonus,
     'language.mismatchPenalty': s.language.mismatchPenalty,

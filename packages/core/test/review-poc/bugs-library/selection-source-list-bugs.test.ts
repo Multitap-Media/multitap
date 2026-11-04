@@ -1,6 +1,7 @@
 /**
- * Review PoC (incremental source list, `streams.partial`). `it.fails` asserts
- * the CORRECT behaviour.
+ * Review PoC (incremental source list, `streams.partial`). Both were `it.fails`
+ * (asserting the correct behaviour) until they were fixed on 2026-11-04; they
+ * now guard the fix.
  *
  * 1. `emit` (a hoisted function) uses `let partials`, which is declared only
  *    after `await lookup` and `await collection.get(...)`. A stream addon that
@@ -19,6 +20,7 @@ import { HOME_ENGINE } from '../../engine-fixture.ts';
 import type { ItemInfo } from '../../../src/selection/item-meta.ts';
 import { startSourceList, type SourcePartial } from '../../../src/selection/source-list.ts';
 import { StreamStore } from '../../../src/selection/stream-store.ts';
+import { memoryLogger } from '../../helpers.ts';
 
 const engine = { id: HOME_ENGINE.id, capabilities: HOME_ENGINE.capabilities };
 const record = (id: string, name: string) => ({
@@ -84,17 +86,14 @@ async function run(answerMs: number, metaMs: number, info: ItemInfo) {
 }
 
 describe('streams.partial', () => {
-  it.fails(
-    'an addon answering before the meta lookup finishes still gets its partial',
-    async () => {
-      // The stream addon answers in 5 ms, the meta lookup takes 50 ms.
-      const { partials, result } = await run(5, 50, { target: { name: 'Movie' } });
-      expect(result.candidates).toHaveLength(1); // the full list has it...
-      expect(partials.map((p) => p.addon.addonId)).toEqual(['stream-addon']); // ...the events don't
-    },
-  );
+  it('an addon answering before the meta lookup finishes still gets its partial', async () => {
+    // The stream addon answers in 5 ms, the meta lookup takes 50 ms.
+    const { partials, result } = await run(5, 50, { target: { name: 'Movie' } });
+    expect(result.candidates).toHaveLength(1); // the full list has it...
+    expect(partials.map((p) => p.addon.addonId)).toEqual(['stream-addon']); // ...the events don't
+  });
 
-  it.fails('with a meta-embedded part, the last partial says remaining 0', async () => {
+  it('with a meta-embedded part, the last partial says remaining 0', async () => {
     // The meta lookup is fast here, so only the remaining count is under test.
     const { started, partials } = await run(20, 0, {
       target: { name: 'Movie' },
@@ -109,5 +108,41 @@ describe('streams.partial', () => {
       ['stream-addon', 1],
       ['meta-addon', 0],
     ]);
+  });
+});
+
+describe('streams.partial listeners', () => {
+  it('a failing listener is logged at debug and the full list still comes', async () => {
+    const log = memoryLogger('debug');
+    const started = await startSourceList(
+      {
+        addons: fakeAddons(5),
+        streams: new StreamStore({ clock: () => 0 }),
+        meta: { lookup: () => Promise.resolve({ target: { name: 'Movie' } }) },
+        logger: log.logger,
+      },
+      {
+        type: 'movie',
+        videoId: 'tt0000001',
+        engine,
+        highRes: 'off',
+        rank: { settings: DEFAULT_RANKING_SETTINGS },
+      },
+      () => {
+        throw new Error('listener broke');
+      },
+    );
+    const result = await started.done;
+    expect(result.candidates).toHaveLength(1);
+    expect(log.lines().find((l) => l.msg === 'source list listener failed')).toMatchObject({
+      addonId: 'stream-addon',
+    });
+  });
+
+  it('the full list is the partials put together, each addon annotated once', async () => {
+    const { partials, result } = await run(5, 0, { target: { name: 'Movie' } });
+    expect(result.candidates).toEqual(partials.flatMap((p) => p.candidates));
+    // The same objects: the full list reuses what the partial annotated.
+    expect(result.candidates[0]).toBe(partials[0]?.candidates[0]);
   });
 });

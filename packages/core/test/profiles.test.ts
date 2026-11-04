@@ -529,3 +529,75 @@ describe('library writes', () => {
     expect(await t.stored(id)).toHaveLength(1);
   });
 });
+
+describe('meta lookups and the profile queue', () => {
+  /** A meta source whose series lookups wait for `release()`; movies answer at once. */
+  function gatedMeta() {
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const meta: MetaSource = async (type) => {
+      if (type === 'series') {
+        await gate;
+        return SERIES;
+      }
+      return MOVIE;
+    };
+    return { meta, release };
+  }
+
+  it('a slow addon holds up neither the profile’s other reports nor its edits', async () => {
+    const { meta, release } = gatedMeta();
+    const t = await setup({ meta });
+    const id = await t.createProfile();
+    const movie = { type: 'movie', id: MOVIE.id };
+    await t.library.report(id, { item: movie, time: 1_000, duration: HOUR });
+
+    // Loading the series waits for its meta…
+    const loading = t.library.report(id, {
+      item: series,
+      videoId: ep(1),
+      time: 1_000,
+      duration: HOUR,
+    });
+    let loaded = false;
+    void loading.then(() => {
+      loaded = true;
+    });
+    // …while the movie can still be edited and reported on.
+    const rewound = await t.library.rewind(id, MOVIE.id);
+    expect(rewound.kind).toBe('ok');
+    const reported = await t.library.report(id, { item: movie, time: 2_000, duration: HOUR });
+    expect(reported?.state.timeOffset).toBe(2_000);
+    expect(loaded).toBe(false);
+
+    release();
+    expect((await loading)?.state.video_id).toBe(ep(1));
+  });
+
+  it('builds the watched bitfield only when a report crosses the watched threshold', async () => {
+    let iterations = 0;
+    const videos = new Proxy(SERIES.videos, {
+      get(target, prop, receiver) {
+        if (prop === Symbol.iterator) iterations += 1;
+        return Reflect.get(target, prop, receiver) as unknown;
+      },
+    });
+    const counted: MetaDetail = { ...SERIES, videos };
+    const t = await setup({ meta: () => Promise.resolve(counted) });
+    const id = await t.createProfile();
+    const base = { item: series, videoId: ep(1), duration: HOUR };
+    await t.library.report(id, { ...base, time: 1_000 });
+    const before = iterations;
+    for (let n = 2; n <= 5; n++) {
+      t.clock.advance(1_000);
+      await t.library.report(id, { ...base, time: n * 1_000 });
+    }
+    expect(iterations).toBe(before);
+    // Crossing 70 % uses it: the episode is set in the field.
+    const crossed = await t.library.report(id, { ...base, time: 0.75 * HOUR });
+    expect(iterations).toBeGreaterThan(before);
+    expect(crossed?.state.watched).toMatch(/^tt0903747:1:1:1:/);
+  });
+});

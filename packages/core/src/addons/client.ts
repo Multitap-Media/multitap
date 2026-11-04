@@ -5,6 +5,7 @@ import {
   type AddonErrorCode,
   type AddonHttpStatusError,
   type AddonRequestOptions,
+  type DroppedItem,
   type ParsedResourceResponse,
   type PrivateHostGuard,
   type ResourcePathInput,
@@ -77,21 +78,43 @@ export function timeoutFor(timeouts: Config['addons']['timeoutsMs'], resource: s
 
 /**
  * Errors that say the addon is unhealthy and count towards opening its
- * circuit. Any other failure (a 4xx, a response that fails validation, one
- * that's too large) means the addon answered.
+ * circuit: no answer, a 5xx, or a 429 (the addon asks to be left alone). Any
+ * other failure (a 4xx, a response that fails validation, one that's too
+ * large) means the addon answered.
  */
-function isHealthFailure(err: unknown): boolean {
+export function isHealthFailure(err: unknown): boolean {
   if (!(err instanceof AddonError)) return true;
   switch (err.code) {
     case 'timeout':
     case 'network':
     case 'invalid-json':
       return true;
-    case 'http-status':
-      return (err as AddonHttpStatusError).status >= 500;
+    case 'http-status': {
+      const { status } = err as AddonHttpStatusError;
+      return status >= 500 || status === 429;
+    }
     default:
       return false;
   }
+}
+
+/** The `Retry-After` of a 429 or 503, which keeps the circuit open at least that long. */
+function retryAfterMs(err: unknown): number | undefined {
+  if (!(err instanceof AddonError) || err.code !== 'http-status') return undefined;
+  const { status, retryAfterMs: ms } = err as AddonHttpStatusError;
+  return status === 429 || status === 503 ? ms : undefined;
+}
+
+const NO_ISSUES: DroppedItem['issues'] = [];
+
+/**
+ * The response as core keeps it: dropped items keep their index but not their
+ * validation issues, which core never reads (only how many were dropped) and
+ * which can be much larger than the items themselves.
+ */
+function withoutIssues(data: ParsedResourceResponse): ParsedResourceResponse {
+  if (data.dropped.length === 0) return data;
+  return { ...data, dropped: data.dropped.map(({ index }) => ({ index, issues: NO_ISSUES })) };
 }
 
 /**
@@ -129,10 +152,18 @@ export class AddonClients {
     return this.#breakers.get(addonId)?.state ?? 'closed';
   }
 
-  /** Forgets an addon's cached responses and circuit (on removal or a manifest change). */
+  /**
+   * Forgets an addon's cached responses, circuit and in-flight requests (on
+   * removal or a manifest or state change), so the next request is made with
+   * the new state rather than joining one made with the old.
+   */
   forget(addonId: string): void {
+    const prefix = `${addonId}\u0000`;
     this.#breakers.delete(addonId);
-    this.#cache.deletePrefix(`${addonId}\u0000`);
+    this.#cache.deletePrefix(prefix);
+    for (const key of this.#inFlight.keys()) {
+      if (key.startsWith(prefix)) this.#inFlight.delete(key);
+    }
   }
 
   /** Resolves once background revalidations have finished (tests). */
@@ -175,11 +206,13 @@ export class AddonClients {
     path: ResourcePathInput,
     signal: AbortSignal | undefined,
   ): Promise<AddonCallResult> {
-    let pending = this.#inFlight.get(key);
-    if (pending === undefined) {
-      pending = this.#fetch(key, addon, path, signal).finally(() => this.#inFlight.delete(key));
-      this.#inFlight.set(key, pending);
-    }
+    const joined = this.#inFlight.get(key);
+    if (joined !== undefined) return joined;
+    const pending: Promise<AddonCallResult> = this.#fetch(key, addon, path, signal).finally(() => {
+      // forget() may have dropped it, and a newer request taken its place.
+      if (this.#inFlight.get(key) === pending) this.#inFlight.delete(key);
+    });
+    this.#inFlight.set(key, pending);
     return pending;
   }
 
@@ -199,14 +232,15 @@ export class AddonClients {
     signal: AbortSignal | undefined,
   ): Promise<AddonCallResult> {
     const breaker = this.#breaker(addon.id);
-    if (!breaker.tryAcquire()) return { status: 'circuit-open' };
+    const ticket = breaker.tryAcquire();
+    if (ticket === undefined) return { status: 'circuit-open' };
     try {
       const options: AddonRequestOptions = { timeoutMs: timeoutFor(this.#timeouts, path.resource) };
       if (signal !== undefined) options.signal = signal;
       if (this.#headers !== undefined) options.headers = this.#headers;
       if (this.#guard !== undefined) options.guard = this.#guard;
-      const data = await this.#fetchResource(addon.manifestUrl, path, options);
-      breaker.success();
+      const data = withoutIssues(await this.#fetchResource(addon.manifestUrl, path, options));
+      breaker.success(ticket);
       if (data.dropped.length > 0) {
         this.#logger.info(
           {
@@ -218,14 +252,25 @@ export class AddonClients {
           'addon response items failed validation and were dropped',
         );
       }
+      if (data.truncated > 0) {
+        this.#logger.info(
+          {
+            addonId: addon.id,
+            host: addon.host,
+            resource: path.resource,
+            truncated: data.truncated,
+          },
+          'addon response had more items than the response budget keeps; the rest were left out',
+        );
+      }
       // Only a current breaker's cache is written: forget() may have run meanwhile.
       if (this.#breakers.get(addon.id) === breaker) this.#cache.set(key, data, data.cache);
       return { status: 'ok', data, cache: 'miss' };
     } catch (err) {
       const code = err instanceof AddonError ? err.code : 'unexpected';
-      if (code === 'aborted') breaker.cancel();
-      else if (isHealthFailure(err)) breaker.failure();
-      else breaker.success();
+      if (code === 'aborted') breaker.cancel(ticket);
+      else if (isHealthFailure(err)) breaker.failure(ticket, retryAfterMs(err));
+      else breaker.success(ticket);
       this.#logger.warn(
         { addonId: addon.id, host: addon.host, resource: path.resource, code },
         'addon request failed',

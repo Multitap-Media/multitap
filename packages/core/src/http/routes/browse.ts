@@ -136,6 +136,10 @@ const catalogRoute = createRoute({
 // ---- Search ------------------------------------------------------------------------
 
 const SEARCH_MAX_TYPES = 16;
+/** Catalogs of one addon a search asks, in manifest order; the rest are left out. */
+export const SEARCH_MAX_CATALOGS_PER_ADDON = 20;
+/** Catalogs of one addon a search asks at the same time. */
+export const SEARCH_ADDON_CONCURRENCY = 4;
 
 const searchRoute = createRoute({
   method: 'get',
@@ -143,8 +147,9 @@ const searchRoute = createRoute({
   operationId: 'search',
   summary: 'Search every search-capable catalog',
   description:
-    'Asks every enabled addon catalog that declares the `search` extra, all at once, through the same ' +
-    'aggregation as the other browse routes (timeouts, circuit breaker, response cache). A catalog that also ' +
+    'Asks every enabled addon catalog that declares the `search` extra, through the same aggregation as the ' +
+    'other browse routes (timeouts, circuit breaker, response cache): addons at once, at most 20 catalogs per ' +
+    'addon (the first in its manifest), at most 4 of them at a time. A catalog that also ' +
     'requires another extra (e.g. `genre`) is not searched, as in Stremio. Results are grouped per catalog, ' +
     "in collection order, each with its addon's status: a failing addon is reported, never fatal. " +
     '`skip` pages every catalog that declares `skip` (the others only answer `skip=0`); for the next page ask ' +
@@ -203,17 +208,21 @@ const searchRoute = createRoute({
 /**
  * The catalogs a search covers, with the extras to ask them for: those that
  * declare `search`, need nothing else, and (for `skip` > 0) declare `skip`.
- * Stremio's rule (`catalogs_with_extra`).
+ * Stremio's rule (`catalogs_with_extra`). At most `maxPerAddon` of each addon,
+ * the first in its manifest: one addon can't fan a search out without bound.
  */
 export function searchTargets(
   catalogs: readonly CatalogEntry[],
   query: string,
   skip: number,
   types: ReadonlySet<string> | undefined,
+  maxPerAddon: number = SEARCH_MAX_CATALOGS_PER_ADDON,
 ): { entry: CatalogEntry; extra: ExtraValue[] }[] {
   const out: { entry: CatalogEntry; extra: ExtraValue[] }[] = [];
+  const perAddon = new Map<string, number>();
   for (const entry of catalogs) {
     if (types !== undefined && !types.has(entry.type)) continue;
+    if ((perAddon.get(entry.addonId) ?? 0) >= maxPerAddon) continue;
     if (!entry.extra.some((prop) => prop.name === 'search')) continue;
     if (
       entry.extra.some((prop) => prop.isRequired && prop.name !== 'search' && prop.name !== 'skip')
@@ -226,11 +235,44 @@ export function searchTargets(
       const params: Record<string, string[]> = { search: [query] };
       if (skip > 0) params.skip = [String(skip)];
       out.push({ entry, extra: catalogExtras(entry, params) });
+      perAddon.set(entry.addonId, (perAddon.get(entry.addonId) ?? 0) + 1);
     } catch {
       // The catalog restricts `search` in a way free text can't meet.
     }
   }
   return out;
+}
+
+/**
+ * At most `max` holders per key at a time; the others wait in order. One
+ * search's limiter: nothing outlives the request.
+ */
+function perKeyLimit(max: number): {
+  acquire(key: string): Promise<void>;
+  release(key: string): void;
+} {
+  const running = new Map<string, number>();
+  const waiting = new Map<string, (() => void)[]>();
+  return {
+    acquire(key) {
+      const now = running.get(key) ?? 0;
+      if (now < max) {
+        running.set(key, now + 1);
+        return Promise.resolve();
+      }
+      return new Promise<void>((resolve) => {
+        const queue = waiting.get(key) ?? [];
+        queue.push(resolve);
+        waiting.set(key, queue);
+      });
+    },
+    release(key) {
+      // The slot passes straight to the next waiter, if any.
+      const next = waiting.get(key)?.shift();
+      if (next !== undefined) next();
+      else running.set(key, (running.get(key) ?? 1) - 1);
+    },
+  };
 }
 
 // ---- Meta ------------------------------------------------------------------------
@@ -274,7 +316,8 @@ const streamsRoute = createRoute({
     'Every stream every matching addon returned, as candidates annotated for an engine. ' +
     "`sort=addon` (default) keeps collection order and each addon's own order; `sort=rank` orders playable " +
     'candidates first, then by score. Nothing is hidden. Answers once every addon has answered or timed out. ' +
-    "With `incremental=true` it answers `202` at once with a request id, and each addon's candidates follow " +
+    "With `incremental=true` it answers `202` with a request id once the item's meta is known (so `addons` " +
+    "counts every part, the meta's own streams included), and each addon's candidates follow " +
     'as a `streams.partial` event (`GET /v1/events?request={requestId}`), in answer order, the last with ' +
     "`remaining: 0`; `sort=rank` then orders each event's candidates.",
   tags,
@@ -614,33 +657,40 @@ export function registerBrowseRoutes(app: OpenAPIHono<AppEnv>, deps: AppDeps): v
       skip,
       wanted.length === 0 ? undefined : new Set(wanted),
     );
+    // Addons are asked at once, each addon's catalogs a few at a time.
+    const limit = perKeyLimit(SEARCH_ADDON_CONCURRENCY);
     const settled = await Promise.all(
       targets.map(async ({ entry, extra }): Promise<SearchSource | undefined> => {
-        const result = await deps.addons.aggregate('catalog', entry.type, entry.id, extra, {
-          addonIds: [entry.addonId],
-          onOutcome: (outcome) => {
-            const kind =
-              outcome.status === 'ok'
-                ? 'success'
-                : outcome.status === 'timeout'
-                  ? 'timeout'
-                  : 'error';
-            deps.metrics.recordAddonOutcome(outcome.addonId, 'catalog', kind);
-          },
-        });
-        const outcome = result.addons[0];
-        // Disabled or changed while the request ran.
-        if (outcome === undefined) return undefined;
-        return {
-          addonId: entry.addonId,
-          addonName: entry.addonName,
-          catalogId: entry.id,
-          catalogName: entry.name ?? null,
-          type: entry.type,
-          skip,
-          metas: outcome.items.map((item) => metaPreviewView(item, safety)),
-          addon: addonStatus(outcome),
-        };
+        await limit.acquire(entry.addonId);
+        try {
+          const result = await deps.addons.aggregate('catalog', entry.type, entry.id, extra, {
+            addonIds: [entry.addonId],
+            onOutcome: (outcome) => {
+              const kind =
+                outcome.status === 'ok'
+                  ? 'success'
+                  : outcome.status === 'timeout'
+                    ? 'timeout'
+                    : 'error';
+              deps.metrics.recordAddonOutcome(outcome.addonId, 'catalog', kind);
+            },
+          });
+          const outcome = result.addons[0];
+          // Disabled or changed while the request ran.
+          if (outcome === undefined) return undefined;
+          return {
+            addonId: entry.addonId,
+            addonName: entry.addonName,
+            catalogId: entry.id,
+            catalogName: entry.name ?? null,
+            type: entry.type,
+            skip,
+            metas: outcome.items.map((item) => metaPreviewView(item, safety)),
+            addon: addonStatus(outcome),
+          };
+        } finally {
+          limit.release(entry.addonId);
+        }
       }),
     );
     const sources = settled.filter((source): source is SearchSource => source !== undefined);
@@ -696,7 +746,12 @@ export function registerBrowseRoutes(app: OpenAPIHono<AppEnv>, deps: AppDeps): v
     if (engine === undefined) throw new ProblemError(400, `Unknown engine '${engineId}'.`);
     const highRes = query.highRes ?? deps.config.selection.defaultHighRes;
     const sort = query.sort ?? 'addon';
-    const sourceDeps = { addons: deps.addons, streams: deps.streams, meta: itemMetaLookup(deps) };
+    const sourceDeps = {
+      addons: deps.addons,
+      streams: deps.streams,
+      meta: itemMetaLookup(deps),
+      logger: deps.logger,
+    };
     const profile = await profileSelection(deps, query.profileId, videoId);
     const request = {
       type,

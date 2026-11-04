@@ -4,6 +4,7 @@
  * markers, never by addon id, so a fork or a clone using the same layout works.
  */
 import { languagesFromFlags, normalizeLanguage } from './languages.ts';
+import { positiveInt } from './name.ts';
 
 /** Stream fields the extractors read. Structural, so raw and parsed streams both fit. */
 export interface StreamText {
@@ -49,20 +50,30 @@ export function parseSize(text: string): number | undefined {
   const m = SIZE.exec(text);
   if (!m?.[1] || !m[2]) return undefined;
   const unit = UNIT[m[2].toLowerCase()];
-  return unit === undefined ? undefined : Math.round(Number(m[1].replace(',', '.')) * unit);
+  return unit === undefined
+    ? undefined
+    : positiveInt(Math.round(Number(m[1].replace(',', '.')) * unit));
 }
 
 /** A line that starts with an emoji is addon metadata, not a release name. */
 const META_LINE = /^[\p{Extended_Pictographic}\p{Regional_Indicator}]/u;
 
 /**
+ * Lines of a description read for release names. Real descriptions have a
+ * handful; an addon's text is otherwise bounded only by its response size, and
+ * every line is parsed (okf:architecture/addon-response-budget).
+ */
+export const MAX_DESCRIPTION_LINES = 16;
+
+/**
  * Release-name candidates from the description, best first: the last plain
  * line is the file when a pack name precedes it (Torrentio), else the only one.
+ * Only the first `MAX_DESCRIPTION_LINES` lines are read.
  */
 export function releaseLines(text: string | undefined): string[] {
   if (text === undefined) return [];
   return text
-    .split('\n')
+    .split('\n', MAX_DESCRIPTION_LINES)
     .map((line) => line.trim())
     .filter((line) => line !== '' && !META_LINE.test(line))
     .reverse();
@@ -88,7 +99,7 @@ export function debridCached(label: string | undefined): boolean | undefined {
 function genericInfo(stream: StreamText): ExtractedInfo {
   const videoSize = stream.behaviorHints?.videoSize;
   return {
-    sizeBytes: videoSize !== undefined && videoSize > 0 ? videoSize : undefined,
+    sizeBytes: positiveInt(videoSize),
     cached: debridCached(stream.name),
   };
 }
@@ -97,7 +108,7 @@ function genericInfo(stream: StreamText): ExtractedInfo {
 
 /** Torrentio layout: `👤 96 💾 83.5 GB ⚙️ ThePirateBay`, then a line of flags. */
 export function torrentioInfo(text: string): ExtractedInfo {
-  const seeders = /👤\s*(\d+)/u.exec(text);
+  const seeders = /👤\s*(\d{1,9})(?!\d)/u.exec(text);
   const size = /💾\s*([^⚙\n]+)/u.exec(text);
   const flags = languagesFromFlags(text);
   return {
@@ -110,7 +121,7 @@ export function torrentioInfo(text: string): ExtractedInfo {
 /** Easynews++ layout: `🕛 2h:34m:30s`, `📦 85.6 GB 📅 1418d`, `🌐 eng, ger ⭐`. */
 export function easynewsInfo(text: string): ExtractedInfo {
   const size = /📦\s*([^📅\n]+)/u.exec(text);
-  const duration = /🕛\s*(?:(\d+)h:)?(\d+)m:(\d+)s/u.exec(text);
+  const duration = /🕛\s*(?:(\d{1,4})h:)?(\d{1,4})m:(\d{1,4})s/u.exec(text);
   const langs = /🌐\s*([^\n⭐]+)/u.exec(text);
   const languages = (langs?.[1] ?? '')
     .split(/[,\s]+/)
@@ -118,8 +129,11 @@ export function easynewsInfo(text: string): ExtractedInfo {
     .filter((lang): lang is string => lang !== undefined);
   return {
     sizeBytes: size?.[1] === undefined ? undefined : parseSize(size[1]),
+    // `🕛 0m:0s` is no duration.
     durationSec: duration
-      ? Number(duration[1] ?? 0) * 3600 + Number(duration[2]) * 60 + Number(duration[3])
+      ? positiveInt(
+          Number(duration[1] ?? 0) * 3600 + Number(duration[2]) * 60 + Number(duration[3]),
+        )
       : undefined,
     languages: languages.length > 0 ? [...new Set(languages)] : undefined,
   };

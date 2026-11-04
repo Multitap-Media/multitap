@@ -1,3 +1,4 @@
+import { chmodSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { sql } from 'kysely';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -38,6 +39,40 @@ describe('database', () => {
     const fk = await sql<{ foreign_keys: number }>`pragma foreign_keys`.execute(db);
     expect(mode.rows[0]?.journal_mode).toBe('wal');
     expect(fk.rows[0]?.foreign_keys).toBe(1);
+    // NORMAL (1): safe with WAL, one fsync per checkpoint instead of per commit.
+    const sync = await sql<{ synchronous: number }>`pragma synchronous`.execute(db);
+    expect(sync.rows[0]?.synchronous).toBe(1);
+  });
+
+  it.skipIf(process.platform === 'win32')(
+    'creates a new database file 0600, and its -wal and -shm alike',
+    async () => {
+      const tmp = tempDir();
+      const file = join(tmp.dir, DB_FILE);
+      const db = openDatabase(file);
+      cleanup = async () => {
+        await db.destroy();
+        tmp.cleanup();
+      };
+      await migrateToLatest(db);
+      for (const name of [file, `${file}-wal`, `${file}-shm`]) {
+        expect(statSync(name).mode & 0o777, name).toBe(0o600);
+      }
+    },
+  );
+
+  it.skipIf(process.platform === 'win32')('leaves the mode of an existing file alone', async () => {
+    const tmp = tempDir();
+    const file = join(tmp.dir, DB_FILE);
+    writeFileSync(file, '');
+    chmodSync(file, 0o640);
+    const db = openDatabase(file);
+    cleanup = async () => {
+      await db.destroy();
+      tmp.cleanup();
+    };
+    await migrateToLatest(db);
+    expect(statSync(file).mode & 0o777).toBe(0o640);
   });
 
   it('applies the migrations to a fresh database, and re-running is a no-op', async () => {

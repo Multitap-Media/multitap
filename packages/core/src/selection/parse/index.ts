@@ -25,6 +25,10 @@ function labelText(name: string | undefined): string | undefined {
 
 type Scalar = Exclude<keyof ParsedSource, 'languages'>;
 
+function validNumber(field: string, value: number): boolean {
+  return Number.isSafeInteger(value) && (field === 'seeders' ? value >= 0 : value > 0);
+}
+
 export function parseStream(stream: StreamText): ParsedSource {
   const names = [
     stream.behaviorHints?.filename,
@@ -43,6 +47,9 @@ export function parseStream(stream: StreamText): ParsedSource {
   for (const info of infos) {
     for (const [field, value] of Object.entries(info)) {
       if (field === 'languages' || value === undefined) continue;
+      // The published schema takes whole numbers only, positive except seeders;
+      // anything else is left for a later source to fill.
+      if (typeof value === 'number' && !validNumber(field, value)) continue;
       out[field as Scalar] ??= value;
     }
   }

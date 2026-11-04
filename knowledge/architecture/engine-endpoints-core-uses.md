@@ -1,9 +1,9 @@
 ---
 type: Architecture
 title: "Engine endpoints core uses, and engine facts core relies on"
-description: "The stremio-server-go endpoints core calls, how core detects DELETE support, builds engine-local mediaURLs, picks the torrent file and keeps trackers; plus the torrent idle-timeout lifecycle."
+description: "The stremio-server-go endpoints core calls, how core detects DELETE and /opensubHash support, builds engine-local mediaURLs (and warns about a port that may not be the engine's own), picks the torrent file and keeps trackers; plus the torrent idle-timeout lifecycle."
 tags: [engine, endpoints, core, torrent]
-generated: { by: "agent/claude-opus-5.5", at: "2026-11-01T12:00:00Z" }
+generated: { by: "agent/claude-opus-5.5", at: "2026-11-04T02:45:00Z" }
 code_refs:
   - "packages/core/src/engines/server-go.ts"
   - "packages/core/src/engines/server-go-types.ts"
@@ -35,7 +35,8 @@ Source of truth for the engine surface core depends on  Only core talks to engin
 **Engine facts core relies on** (learned building phase 2):
 - **Health:** a `200` from `GET /metrics` means the engine is up. It's cheap and needs no session or torrent.
 - **Detecting `DELETE` (#24):** core sends `DELETE /hlsv2/..capability-probe` once per engine. The id contains `..`, which server-go's `validSessionID` rejects, so an engine with #24 answers `400` and one without it routes the request to its generic `404` (`405` counts the same). The answer is cached until the engine next comes back online (it may have been upgraded); a failed probe isn't cached.
-- **Engine-local URLs:** the `mediaURL`s core builds for the engine's own endpoints (torrents, `/yt`, `/proxy/stream`) use `http://127.0.0.1:{port}`, with the port taken from the engine descriptor's `address` (default `11470`). That's the loopback listener the SSRF guard lets through ([[architecture/engine-hls-model]], [[architecture/engine-security-posture]]).
+- **Detecting `/opensubHash`:** a `405`, or a `404` with Go's generic `404 page not found` body (no such route), means the engine lacks it; that's cached until the engine next comes back online. Any other `404` is about that file and turns nothing off.
+- **Engine-local URLs:** the `mediaURL`s core builds for the engine's own endpoints (torrents, `/yt`, `/proxy/stream`) use `http://127.0.0.1:{port}`, with the port taken from the engine descriptor's `address` (default `11470`). That's the loopback listener the SSRF guard lets through ([[architecture/engine-hls-model]], [[architecture/engine-security-posture]]). They're right only when the engine itself listens on that port: with a remapped container port, or a proxy in front on another port, those sources fail. The descriptor has no field for the engine's own port, so the health monitor logs a warning (once per address) when the address's port, explicit or the scheme's, isn't `11470`.
 - **Torrent file choice:** without a `fileIdx`, core asks for `guessFileIdx` and passes `fileMustInclude`: the stream's own list if it has one, otherwise a regex built from `behaviorHints.filename` that matches the torrent-relative path's last component (`/(?:^|/)Name\.mkv$/`; server-go reads an entry as a regex only in `/…/flags` form, anything else as a literal substring).
 - **Trackers in the torrent `mediaURL`:** `/{ih}/{idx}?tr=…` repeats the create's tracker sources (as stremio-core's streaming URLs do). The engine reopens a torrent from `mediaURL` alone after a restart (persisted sessions) or once its idle timeout dropped it, and without them a torrent known only to the addon's trackers finds no peers.
 

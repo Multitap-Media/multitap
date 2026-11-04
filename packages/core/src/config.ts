@@ -235,17 +235,30 @@ export const MIN_SESSION_BITRATE = 100_000;
 /** #25's ceiling for a per-session bitrate (200M). */
 export const MAX_SESSION_BITRATE = 200_000_000;
 
-// Unset and empty variables both mean "use the default", so `MULTITAP_API_PORT=` in a
-// compose file doesn't turn into port 0.
-const blankAsUnset = (value: unknown) => (value === '' ? undefined : value);
+// Unset, empty and blank (only whitespace) variables all mean "use the default", so
+// `MULTITAP_API_PORT=` or `MULTITAP_API_PORT= ` in a compose file doesn't turn into port 0.
+const blankAsUnset = (value: unknown) =>
+  typeof value === 'string' && value.trim() === '' ? undefined : value;
 
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
 
-const port = z.coerce.number().int().min(1).max(65535);
-const timeoutMs = z.coerce.number().int().min(100).max(300_000);
-const durationMs = (min: number, max: number) => z.coerce.number().int().min(min).max(max);
-const count = (min: number, max: number) => z.coerce.number().int().min(min).max(max);
+/**
+ * A whole number written as digits only (surrounding spaces allowed). Stricter
+ * than `Number()`, which reads `1e3` as 1000 and `0x10` as 16.
+ */
+const integer = (min: number, max: number) =>
+  z
+    .string()
+    .trim()
+    .regex(/^\d+$/, 'Expected a whole number (digits only)')
+    .transform(Number)
+    .pipe(z.number().int().min(min).max(max));
+
+const port = integer(1, 65535);
+const timeoutMs = integer(100, 300_000);
+const durationMs = integer;
+const count = integer;
 
 /** `20M`, `1.5M`, `800k` or a plain integer, in bits per second (ffmpeg's decimal suffixes). */
 const bitrate = z
@@ -365,7 +378,7 @@ const publicBase = z
     } catch {
       return false;
     }
-  }, 'Expected an absolute http(s) URL without query or fragment, e.g. https://media.example.org')
+  }, 'Expected an absolute http(s) URL without a user name, password, query or fragment, e.g. https://media.example.org')
   .transform((value) => value.replace(/\/+$/, ''));
 
 /** `50M`, `512k`, `1G` or a plain integer, in bytes (binary multiples). */
@@ -587,6 +600,35 @@ const EnvSchema = z.object({
   ),
 });
 
+/** Every variable {@link loadConfig} reads, from `EnvSchema` itself. */
+export const KNOWN_VARIABLES: ReadonlySet<string> = new Set(Object.keys(EnvSchema.shape));
+
+/**
+ * `MULTITAP_*` variables in `env` that Multitap doesn't read (a typo such as
+ * `MULTITAP_CORS_ORIGIN`, or a setting from another version), sorted. Multitap
+ * logs them once at startup; only the names, since a value may be a secret.
+ */
+export function unknownVariables(env: Record<string, string | undefined>): string[] {
+  return Object.keys(env)
+    .filter((name) => name.startsWith('MULTITAP_') && !KNOWN_VARIABLES.has(name))
+    .sort();
+}
+
+/** Variables whose value is never echoed in an error: secrets, and manifest URLs (which embed keys). */
+const NEVER_ECHOED = (name: string) =>
+  name.includes('SECRET') || name === 'MULTITAP_DEFAULT_ADDONS';
+
+/**
+ * How an invalid value is shown in an error: not at all for a secret, or for
+ * a value with an `@` (a URL with a user name and password before its host,
+ * which must not reach stderr or a log collector).
+ */
+function shownValue(name: string, value: string | undefined): string {
+  if (value === undefined || NEVER_ECHOED(name)) return '';
+  if (value.includes('@')) return ' (value not shown: it may contain credentials)';
+  return ` (got ${JSON.stringify(value)})`;
+}
+
 /** Thrown by {@link loadConfig} with one line per invalid variable. */
 export class ConfigError extends Error {
   override name = 'ConfigError';
@@ -598,7 +640,8 @@ export type SecretFileReader = (path: string) => string;
 const readSecretFile: SecretFileReader = (path) => readFileSync(path, 'utf8').replace(/\r?\n$/, '');
 
 /**
- * Parses Multitap's settings from `env`. Unknown variables are ignored. Relative
+ * Parses Multitap's settings from `env`. Unknown variables are ignored here
+ * ({@link unknownVariables} lists the `MULTITAP_*` ones, for a warning). Relative
  * paths resolve against `cwd`. `MULTITAP_MEDIA_TOKEN_SECRET_FILE` is read here, with
  * `readFile` (a test seam).
  *
@@ -612,11 +655,7 @@ export function loadConfig(
   const result = EnvSchema.safeParse(env);
   const problems: string[] = [];
   const problem = (name: string, message: string) => {
-    const value = env[name];
-    // Secrets are never echoed back.
-    const shown =
-      value === undefined || name.includes('SECRET') ? '' : ` (got ${JSON.stringify(value)})`;
-    problems.push(`  ${name}: ${message}${shown}`);
+    problems.push(`  ${name}: ${message}${shownValue(name, env[name])}`);
   };
   if (!result.success) {
     for (const issue of result.error.issues) problem(issue.path.join('.'), issue.message);

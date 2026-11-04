@@ -3,7 +3,7 @@ type: Decision
 title: "Client picks by default; auto-select falls back through candidates"
 description: "Starting playback: a picked source has no fallback and fails visibly; auto-select ranks, prepares the first candidate and tries the next on failure, with attempt and time limits, one torrent retry, failure reasons, and binge and last-source bonuses."
 tags: [core, auto-select, playback, decision]
-generated: { by: "agent/claude-sonnet-5.5", at: "2026-10-17T02:10:23Z" }
+generated: { by: "agent/claude-opus-5.5", at: "2026-11-04T02:45:00Z" }
 code_refs:
   - "packages/core/src/selection/"
   - "packages/core/src/sessions/"
@@ -56,7 +56,13 @@ engine module's business.
   whose failure the engine module marks retryable (no metadata yet, a failed
   probe, an engine error) is retried, once, `MULTITAP_AUTO_SELECT_RETRY_AFTER_MS` after it
   failed. An `engine-offline` failure ends auto-select at once, since every
-  other candidate would fail the same way.
+  other candidate would fail the same way. It's reported only when a health
+  check finds the engine down: a candidate whose request timed out or was reset
+  on an engine that answers the check fails as `engine-error` and auto-select
+  tries the next ([[architecture/engine-transport-and-health]]).
+- A candidate that gets ready after the session was released (or Multitap
+  began shutting down) has its engine session released, as on the picked
+  path.
 - **Each attempt has a time limit**, `MULTITAP_AUTO_SELECT_ATTEMPT_TIMEOUT_MS` (default
   45 s; `0` turns it off). Found on the reference engine: a dead torrent costs the
   engine's whole metadata wait (`STREMIO_CREATE_METADATA_TIMEOUT`, 2 min) per

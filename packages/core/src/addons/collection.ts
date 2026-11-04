@@ -105,8 +105,26 @@ export function normalizeManifestUrl(input: string): URL {
       'The manifest URL is not a valid http or https URL.',
     );
   }
+  // fetch refuses a URL with credentials, so it could never be fetched.
+  if (url.username !== '' || url.password !== '') {
+    throw new AddonCollectionError(
+      'invalid-url',
+      'The manifest URL must not contain a user name or password.',
+    );
+  }
   url.hash = '';
   return url;
+}
+
+/** JSON with every object's keys sorted, so equal manifests compare equal whatever their key order. */
+export function canonicalJson(value: unknown): string {
+  return JSON.stringify(value, (_key, v: unknown) => {
+    if (typeof v !== 'object' || v === null || Array.isArray(v)) return v;
+    // No prototype, so an own `__proto__` key is copied like any other.
+    const sorted = Object.create(null) as Record<string, unknown>;
+    for (const key of Object.keys(v).sort()) sorted[key] = (v as Record<string, unknown>)[key];
+    return sorted;
+  });
 }
 
 function errorCode(err: unknown): string {
@@ -387,27 +405,49 @@ export class AddonCollection {
       );
       return record;
     }
-    return this.#exclusive(async () => {
-      // It may have been removed while the manifest was in flight.
-      if (!this.#records.includes(record)) return record;
-      const now = this.#clock();
-      await this.#db
-        .updateTable('addons')
-        .set({ manifest_json: JSON.stringify(manifest), manifest_fetched_at: now })
-        .where('id', '=', record.id)
-        .execute();
-      if (manifest.id !== record.manifest.id) {
-        this.#logger.warn(
-          { addonId: record.id, host: record.host, from: record.manifest.id, to: manifest.id },
-          'addon manifest id changed on refresh',
-        );
-      }
-      record.manifest = manifest;
-      record.fetchedAt = now;
-      record.refreshError = null;
-      this.#changed(record.id);
+    try {
+      return await this.#exclusive(() => this.#storeRefreshed(record, manifest));
+    } catch (err) {
+      // Storing it failed (the database, or a manifest that can't be serialized):
+      // this addon reports it, and the other addons' refreshes go on.
+      record.refreshError = { code: 'unexpected', at: this.#clock() };
+      this.#logger.error(
+        { addonId: record.id, host: record.host, err },
+        'addon manifest refresh could not be stored; keeping the last good manifest',
+      );
       return record;
-    });
+    }
+  }
+
+  async #storeRefreshed(record: AddonRecord, manifest: Manifest): Promise<AddonRecord> {
+    // It may have been removed while the manifest was in flight.
+    if (!this.#records.includes(record)) return record;
+    const now = this.#clock();
+    // An unchanged manifest (the usual case) only moves fetchedAt: its cached
+    // responses and circuit stay, since nothing they depend on changed.
+    const changed = canonicalJson(manifest) !== canonicalJson(record.manifest);
+    await this.#db
+      .updateTable('addons')
+      .set(
+        changed
+          ? { manifest_json: JSON.stringify(manifest), manifest_fetched_at: now }
+          : { manifest_fetched_at: now },
+      )
+      .where('id', '=', record.id)
+      .execute();
+    if (manifest.id !== record.manifest.id) {
+      this.#logger.warn(
+        { addonId: record.id, host: record.host, from: record.manifest.id, to: manifest.id },
+        'addon manifest id changed on refresh',
+      );
+    }
+    record.fetchedAt = now;
+    record.refreshError = null;
+    if (changed) {
+      record.manifest = manifest;
+      this.#changed(record.id);
+    }
+    return record;
   }
 
   #manifestOptions(): AddonRequestOptions {

@@ -3,7 +3,7 @@ type: Finding
 title: Core adds the engine proxy password to addon-supplied engine /proxy URLs
 description: "A plain url stream pointing at the engine's own loopback /proxy/stream gets core's stored api_password appended, so a hostile addon passes the proxy password gate and reaches proxy-only allowlisted hosts through the media routes."
 tags: [core, review, security, sec-input, engine, secrets]
-generated: { by: agent/mcp, at: "2026-10-20T03:13:38Z" }
+generated: { by: "agent/claude-opus-5.5", at: "2026-11-04T02:45:00Z" }
 code_refs:
   - "packages/core/src/engines/engine-module.ts"
   - "packages/core/src/engines/server-go.ts"
@@ -55,5 +55,7 @@ Fixed, with both parts of the fix direction and the orchestrator's addition:
 - The password goes only on the `/proxy/stream` URL core builds for a `proxy` plan: in `prepare`, a `url` plan's media URL is sent as it is. Stored media URLs that start with the engine's `/proxy/stream` can now only be core-built ones, so the re-sends (master self-heal, `/opensubHash`) still add it there.
 - An addon `url` stream whose host is loopback (`localhost`, `127/8`, `::1`, `0.0.0.0`, `::`, mapped forms) or the engine's own address host is refused as `unsupported`.
 - A `proxy` plan's target must pass core's private-host guard ([[architecture/addon-private-host-guard]]): a private host only when `MULTITAP_ADDON_PRIVATE_ALLOW` lists it, so the engine's two allowlists stay separate. A host name is resolved once at prepare; DNS rebinding after that is left to the engine's own dial-time check.
+
+Hardened 2026-11-04: the host comparison ignores case and the DNS root's trailing dot (`localhost.`, `engine.lan.`), and a `url` plan sends the engine the parsed URL that was checked rather than the addon's raw string. Host names are still compared as names (a name resolving to loopback is the engine's own SSRF guard's business).
 
 The PoC became `packages/core/test/engine-proxy-password.test.ts`.

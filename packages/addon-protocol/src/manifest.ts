@@ -3,6 +3,7 @@
  * `types/addon/descriptor.rs`.
  */
 import { z } from 'zod';
+import { DEFAULT_MAX_MANIFEST_CATALOGS } from './limits.ts';
 import { lenientUrl, optional, u64, urlString } from './common.ts';
 import type { ExtraValue, ResourcePathInput } from './request.ts';
 
@@ -128,8 +129,12 @@ export const ManifestBehaviorHintsSchema = z.looseObject({
 });
 export type ManifestBehaviorHints = z.output<typeof ManifestBehaviorHintsSchema>;
 
+/** At most `DEFAULT_MAX_MANIFEST_CATALOGS` are read (okf:architecture/addon-response-budget). */
 const catalogList = z
-  .array(ManifestCatalogSchema)
+  .preprocess(
+    (value) => (Array.isArray(value) ? value.slice(0, DEFAULT_MAX_MANIFEST_CATALOGS) : value),
+    z.array(ManifestCatalogSchema),
+  )
   .default(() => [])
   .transform((catalogs) => uniqueBy(catalogs, (c) => `${c.id}\u0000${c.type}`));
 

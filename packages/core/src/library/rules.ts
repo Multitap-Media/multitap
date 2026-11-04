@@ -269,9 +269,18 @@ export function nextVideo<V extends Pick<MetaVideo, 'id' | 'season' | 'episode' 
 ): V | undefined {
   if (isMetaLive(meta)) return undefined;
   const position = meta.videos.findIndex((video) => video.id === videoId);
-  const current = meta.videos[position];
-  const next = meta.videos[position + 1];
-  if (position === -1 || current === undefined || next === undefined) return undefined;
+  return position === -1 ? undefined : nextVideoAt(meta.videos, position, now);
+}
+
+/** `nextVideo` from the video at `position` of `videos` (the meta isn't live). */
+function nextVideoAt<V extends Pick<MetaVideo, 'season' | 'episode' | 'released'>>(
+  videos: readonly V[],
+  position: number,
+  now: number,
+): V | undefined {
+  const current = videos[position];
+  const next = videos[position + 1];
+  if (current === undefined || next === undefined) return undefined;
   const curSeason = seriesInfo(current)?.season ?? 0;
   const nextSeason = seriesInfo(next)?.season ?? 0;
   const released = next.released === undefined || Date.parse(next.released) <= now;
@@ -287,13 +296,16 @@ export interface TimeUpdate {
 
 /**
  * `ActionPlayer::TimeChanged` on the player's library item. `watched` is the
- * player's bitfield (`watched_update`), present when the meta was loaded.
- * Returns whether the video just crossed the watched threshold.
+ * player's bitfield (`watched_update`), present when the meta was loaded; it
+ * may be given as a function, called only when the video crosses the watched
+ * threshold (building it sorts the videos and inflates the stored field, so a
+ * caller can skip that on every other report). Returns whether the video just
+ * crossed the watched threshold.
  */
 export function timeChanged(
   item: LibraryItem,
   update: TimeUpdate,
-  watched: WatchedBitField | undefined,
+  watched: WatchedBitField | (() => WatchedBitField) | undefined,
   now: number,
 ): boolean {
   const { time, duration } = update;
@@ -325,8 +337,9 @@ export function timeChanged(
   ) {
     state.flaggedWatched = 1;
     state.timesWatched += 1;
-    if (watched !== undefined) {
-      const next = watched.clone();
+    const field = typeof watched === 'function' ? watched() : watched;
+    if (field !== undefined) {
+      const next = field.clone();
       next.setVideo(videoId, true);
       state.watched = next.toString();
     }
@@ -443,13 +456,12 @@ export function reconcileSeriesResumeAfterWatchedChange(
 ): void {
   const start = item.state.video_id;
   if (start === null || !watched.getVideo(start)) return;
-  let currentId: string = start;
-  const inSeason = meta.videos.some(
-    (video) => video.id === currentId && seriesInfo(video)?.season === season,
-  );
-  if (!inSeason) return;
-  for (;;) {
-    const next = nextVideo(meta, currentId, now);
+  const position = meta.videos.findIndex((video) => video.id === start);
+  const current = meta.videos[position];
+  if (current === undefined || seriesInfo(current)?.season !== season) return;
+  // One walk along the list (calling nextVideo per step rescanned it each time).
+  for (let at = position; ; at++) {
+    const next = isMetaLive(meta) ? undefined : nextVideoAt(meta.videos, at, now);
     if (next === undefined) {
       item.state.timeOffset = 0;
       return;
@@ -458,7 +470,6 @@ export function reconcileSeriesResumeAfterWatchedChange(
       advanceToVideo(item, next.id);
       return;
     }
-    currentId = next.id;
   }
 }
 

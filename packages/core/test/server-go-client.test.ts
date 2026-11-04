@@ -4,9 +4,14 @@
  */
 import { createServer, type IncomingHttpHeaders, type Server } from 'node:http';
 import { createServer as createTcpServer, type AddressInfo, type Socket } from 'node:net';
-import { afterEach, describe, expect, it } from 'vitest';
-import { createLanTransport, engineBaseUrl, lanDispatcher } from '../src/engines/lan-transport.ts';
-import { createServerGoClient, engineSelfBase } from '../src/engines/server-go.ts';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import {
+  createLanTransport,
+  engineBaseUrl,
+  lanDispatcher,
+  onBodyEnd,
+} from '../src/engines/lan-transport.ts';
+import { createServerGoClient, engineSelfBase, isRouteNotFound } from '../src/engines/server-go.ts';
 import { ServerGoError } from '../src/engines/server-go-types.ts';
 import { EngineTransportError } from '../src/engines/transport.ts';
 import { FakeEngine } from './fakes/engine.ts';
@@ -174,6 +179,43 @@ describe('lan transport', () => {
     expect(JSON.stringify(err) + String(err)).not.toContain('secret');
     // undici's timers are coarse (about 1 s for short values), far below the 10 s budget.
     expect(performance.now() - started).toBeLessThan(5_000);
+  });
+
+  it("stops listening to the caller's signal once the body has ended", async () => {
+    const fakeFetch = (() => Promise.resolve(new Response('segment bytes'))) as typeof fetch;
+    const transport = createLanTransport(
+      { id: 'home', address: 'http://engine.test:11470' },
+      { fetch: fakeFetch },
+    );
+    for (const end of ['read', 'cancel'] as const) {
+      const controller = new AbortController();
+      const removed = vi.spyOn(controller.signal, 'removeEventListener');
+      const res = await transport.request('/hlsv2/s/seg0.ts', {
+        timeoutMs: 1_000,
+        signal: controller.signal,
+      });
+      expect(res.status).toBe(200);
+      expect(removed).not.toHaveBeenCalled();
+      if (end === 'read') expect(await res.text()).toBe('segment bytes');
+      else await res.body?.cancel();
+      expect(removed).toHaveBeenCalledWith('abort', expect.any(Function));
+    }
+  });
+
+  it('onBodyEnd: at once without a body; status and headers kept', async () => {
+    let calls = 0;
+    const done = () => {
+      calls += 1;
+    };
+    onBodyEnd(new Response(null, { status: 204 }), done);
+    expect(calls).toBe(1);
+    const res = onBodyEnd(
+      new Response('x', { status: 404, statusText: 'Not Found', headers: { 'X-A': '1' } }),
+      done,
+    );
+    expect([res.status, res.statusText, res.headers.get('x-a')]).toEqual([404, 'Not Found', '1']);
+    expect(await res.text()).toBe('x');
+    expect(calls).toBe(2);
   });
 
   it('accepts only http(s) base addresses without credentials', () => {
@@ -354,6 +396,61 @@ describe('server-go client against the fake engine', () => {
     await expect(c.supportsDelete()).rejects.toBeInstanceOf(EngineTransportError);
     fake.online = true;
     expect(await c.supportsDelete()).toBe(true);
+  });
+
+  it('a per-file 404 from /opensubHash keeps the endpoint; only a route-not-found or 405 turns it off', async () => {
+    const fake = new FakeEngine();
+    const answers: (Response | undefined)[] = [
+      new Response('opensub: file not found', { status: 404 }),
+      undefined,
+      new Response('404 page not found\n', { status: 404 }),
+    ];
+    let calls = 0;
+    const c = createServerGoClient({
+      engineId: 'home',
+      transport: {
+        kind: 'lan',
+        request: (path, init) => {
+          if (path.startsWith('/opensubHash')) {
+            calls += 1;
+            const answer = answers.shift();
+            if (answer !== undefined) return Promise.resolve(answer);
+          }
+          return fake.transport('home').request(path, init);
+        },
+      },
+      timeouts,
+    });
+    const url = 'https://m.example/a.mkv';
+    expect(await c.openSubHash(url)).toBeUndefined();
+    expect(await c.openSubHash(url)).toMatchObject({ size: expect.any(Number) as number });
+    expect(await c.openSubHash(url)).toBeUndefined();
+    // Off now: not asked again until the capabilities are reset.
+    expect(await c.openSubHash(url)).toBeUndefined();
+    expect(calls).toBe(3);
+    c.resetCapabilities();
+    expect(await c.openSubHash(url)).toBeDefined();
+    expect(calls).toBe(4);
+    expect(isRouteNotFound('404 page not found\n')).toBe(true);
+    expect(isRouteNotFound('hls: session not found x')).toBe(false);
+  });
+
+  it('a 405 from /opensubHash turns it off', async () => {
+    let calls = 0;
+    const c = createServerGoClient({
+      engineId: 'home',
+      transport: {
+        kind: 'lan',
+        request: () => {
+          calls += 1;
+          return Promise.resolve(new Response('', { status: 405 }));
+        },
+      },
+      timeouts,
+    });
+    expect(await c.openSubHash('https://m.example/a.mkv')).toBeUndefined();
+    expect(await c.openSubHash('https://m.example/a.mkv')).toBeUndefined();
+    expect(calls).toBe(1);
   });
 
   it('builds engine-local URLs from the address port', () => {

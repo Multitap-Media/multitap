@@ -6,10 +6,11 @@
 #   docker run -d --name multitap -v multitap-data:/data -p 127.0.0.1:8080:8080 multitap
 #   docker exec multitap multitap api-key create --scope admin --label me
 #
-# The build context is filtered by .dockerignore.
+# The build context is filtered by .dockerignore. The base image is pinned by
+# digest (the multi-arch index of node:26-alpine); Renovate moves the digest.
 
 # ---- Build: install the workspace, compile, and deploy a pruned Multitap ------
-FROM node:26-alpine AS build
+FROM node:26-alpine@sha256:c6ad9e9c1d80f6eb607c26b4b0a132ff7a2344fad1c78ea3baa2a7d4c8de6d94 AS build
 
 # Node 26 has no corepack. Keep in step with package.json#packageManager.
 RUN npm install -g pnpm@12.6.0
@@ -47,7 +48,7 @@ RUN find /out/node_modules -path '*/better-sqlite3/prebuilds/*' ! -name 'linuxmu
 RUN chmod -R go-w /out /repo/packages/core/migrations
 
 # ---- Runtime --------------------------------------------------------------------
-FROM node:26-alpine AS runtime
+FROM node:26-alpine@sha256:c6ad9e9c1d80f6eb607c26b4b0a132ff7a2344fad1c78ea3baa2a7d4c8de6d94 AS runtime
 
 # Multitap is AGPL-3.0-only; its workspace packages under node_modules/@multitap are MIT.
 LABEL org.opencontainers.image.title="Multitap" \

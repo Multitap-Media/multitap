@@ -4,12 +4,13 @@
  * admin keys. Each message has `id:` (send it back as `Last-Event-ID`),
  * `event:` (the type) and `data:` (the whole event as JSON, `MultitapEvent`).
  * Comments (`: heartbeat`) keep idle connections open. A stream ends on
- * shutdown and once its key is revoked.
+ * shutdown, once its key is revoked, and when its reader falls
+ * {@link EVENTS_PENDING_LIMIT} events behind.
  */
 import { createRoute, z, type OpenAPIHono } from '@hono/zod-openapi';
 import { EVENT_TYPES, type MultitapEvent, type EventType } from '@multitap/api';
 import { streamSSE } from 'hono/streaming';
-import { apiKeyActive } from '../../auth/keys.ts';
+import { apiKeyActiveCached } from '../../auth/keys.ts';
 import type { EventFilter } from '../../events/bus.ts';
 import { authResponses, BEARER_SECURITY } from '../openapi.ts';
 import { problemContent, ProblemError } from '../problem.ts';
@@ -17,6 +18,87 @@ import type { AppDeps, AppEnv } from '../types.ts';
 
 /** Response header saying whether a `Last-Event-ID` replay had every missed event. */
 export const REPLAY_HEADER = 'X-Events-Replay';
+
+/**
+ * Live events a stream may have waiting, on top of its replay, before it is
+ * ended: a reader that slow reconnects with `Last-Event-ID` and gets what the
+ * replay buffer still holds (`partial` when that's not everything).
+ */
+export const EVENTS_PENDING_LIMIT = 10_000;
+
+/** Each event's `data:`, serialised once however many streams send it. */
+const serialized = new WeakMap<MultitapEvent, string>();
+
+function dataOf(event: MultitapEvent): string {
+  let data = serialized.get(event);
+  if (data === undefined) {
+    data = JSON.stringify(event);
+    serialized.set(event, data);
+  }
+  return data;
+}
+
+/**
+ * Per shutdown signal, the open streams to wake when it aborts: one listener
+ * on the signal however many streams are open (no `MaxListenersExceeded`).
+ */
+const shutdownWakers = new WeakMap<AbortSignal, Set<() => void>>();
+
+/** Calls `wake` when `signal` aborts; returns the function that stops that. */
+function onAbort(signal: AbortSignal, wake: () => void): () => void {
+  let wakers = shutdownWakers.get(signal);
+  if (wakers === undefined) {
+    const created = new Set<() => void>();
+    wakers = created;
+    shutdownWakers.set(signal, created);
+    signal.addEventListener(
+      'abort',
+      () => {
+        for (const w of [...created]) w();
+      },
+      { once: true },
+    );
+  }
+  const set = wakers;
+  set.add(wake);
+  return () => {
+    set.delete(wake);
+  };
+}
+
+/** A FIFO with O(1) takes from the front (an array's `shift` is O(n)). */
+class EventQueue {
+  #items: (MultitapEvent | undefined)[] = [];
+  #head = 0;
+
+  get length(): number {
+    return this.#items.length - this.#head;
+  }
+
+  push(event: MultitapEvent): void {
+    this.#items.push(event);
+  }
+
+  /** Puts `events` before everything queued (no spread: a replay can be 100 000 events). */
+  prepend(events: readonly MultitapEvent[]): void {
+    this.#items = (events as readonly (MultitapEvent | undefined)[]).concat(
+      this.#items.slice(this.#head),
+    );
+    this.#head = 0;
+  }
+
+  shift(): MultitapEvent | undefined {
+    if (this.#head >= this.#items.length) return undefined;
+    const event = this.#items[this.#head];
+    this.#items[this.#head] = undefined;
+    this.#head += 1;
+    if (this.#head >= 1_024 && this.#head * 2 >= this.#items.length) {
+      this.#items = this.#items.slice(this.#head);
+      this.#head = 0;
+    }
+    return event;
+  }
+}
 
 const eventsRoute = createRoute({
   method: 'get',
@@ -30,7 +112,9 @@ const eventsRoute = createRoute({
     'With `request` and no `Last-Event-ID`, every buffered event of that source list is replayed first. ' +
     '`settings.changed` and `engine.status` reach admin keys only. A `: heartbeat` comment is sent every ' +
     '`MULTITAP_EVENTS_HEARTBEAT_MS`. The stream ends when Multitap shuts down, and when its API key is revoked: the ' +
-    'key is re-checked each time the stream wakes for an event or a heartbeat, before anything is sent.',
+    'key is re-checked each time the stream wakes for an event or a heartbeat, before anything is sent (a revocation ' +
+    'from the API is seen at once, one from the CLI within about a second). It also ends when a slow reader has ' +
+    `more than ${String(EVENTS_PENDING_LIMIT)} events waiting beyond its replay: reconnect with \`Last-Event-ID\`.`,
   tags: ['events'],
   security: BEARER_SECURITY,
   request: {
@@ -113,18 +197,27 @@ export function registerEventRoutes(app: OpenAPIHono<AppEnv>, deps: AppDeps): vo
 
     // Subscribe before replaying, so nothing published in between is lost;
     // duplicates are dropped by id below.
-    const pending: MultitapEvent[] = [];
+    const pending = new EventQueue();
+    const limit = deps.config.events.replaySize + EVENTS_PENDING_LIMIT;
     let wake: (() => void) | undefined;
+    /** The reader fell too far behind: the stream ends. */
+    let overflowed = false;
     const unsubscribe = bus.subscribe(filter, (event) => {
-      pending.push(event);
+      if (overflowed) return;
+      if (pending.length >= limit) {
+        overflowed = true;
+        unsubscribe();
+      } else {
+        pending.push(event);
+      }
       wake?.();
     });
     if (lastEventId !== undefined) {
       const replay = bus.replay(lastEventId, filter);
-      pending.unshift(...replay.events);
+      pending.prepend(replay.events);
       c.header(REPLAY_HEADER, replay.complete ? 'complete' : 'partial');
     } else if (query.request !== undefined) {
-      pending.unshift(...bus.replay('0', filter).events);
+      pending.prepend(bus.replay('0', filter).events);
     }
 
     const heartbeatMs = deps.config.events.heartbeatMs;
@@ -137,12 +230,15 @@ export function registerEventRoutes(app: OpenAPIHono<AppEnv>, deps: AppDeps): vo
       });
       // Multitap shutting down ends the stream; the client reconnects with
       // Last-Event-ID once Multitap is back.
-      const onShutdown = () => {
-        wake?.();
-      };
-      shutdown?.addEventListener('abort', onShutdown);
+      const stopWaking =
+        shutdown === undefined
+          ? () => undefined
+          : onAbort(shutdown, () => {
+              wake?.();
+            });
       // Read through a function: `aborted` changes across awaits.
-      const open = (): boolean => !stream.aborted && !stream.closed && shutdown?.aborted !== true;
+      const open = (): boolean =>
+        !stream.aborted && !stream.closed && shutdown?.aborted !== true && !overflowed;
       try {
         await stream.write(': connected\n\n');
         let lastSent = 0;
@@ -152,7 +248,7 @@ export function registerEventRoutes(app: OpenAPIHono<AppEnv>, deps: AppDeps): vo
             const id = Number(event.id);
             if (id <= lastSent) continue;
             lastSent = id;
-            await stream.writeSSE({ id: event.id, event: event.type, data: JSON.stringify(event) });
+            await stream.writeSSE({ id: event.id, event: event.type, data: dataOf(event) });
           }
           if (!open()) break;
           const woken = await new Promise<boolean>((resolve) => {
@@ -168,15 +264,23 @@ export function registerEventRoutes(app: OpenAPIHono<AppEnv>, deps: AppDeps): vo
           if (!open()) break;
           // A revoked key gets nothing more. Checked on every wake-up, before
           // anything is written, so the stream ends at the next event or
-          // heartbeat, also when the CLI revoked the key in another process.
-          if (!(await apiKeyActive(deps.db, keyId))) {
+          // heartbeat. The answer is shared by the key's streams for up to a
+          // second (one query, not one per stream and event); a revocation in
+          // this process is seen at once, one by the CLI in another within it.
+          if (!(await apiKeyActiveCached(deps.db, keyId, deps.clock))) {
             deps.logger.info({ apiKeyId: keyId }, 'event stream ended: api key revoked');
             break;
           }
           if (!woken && open()) await stream.write(': heartbeat\n\n');
         }
+        if (overflowed) {
+          deps.logger.info(
+            { apiKeyId: keyId, lastEventId: lastSent === 0 ? undefined : String(lastSent) },
+            'event stream ended: the reader fell too far behind',
+          );
+        }
       } finally {
-        shutdown?.removeEventListener('abort', onShutdown);
+        stopWaking();
         unsubscribe();
         deps.metrics.setEventSubscribers(bus.subscriberCount);
       }
