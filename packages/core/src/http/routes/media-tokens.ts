@@ -315,7 +315,7 @@ export function registerMediaTokenRoutes(app: OpenAPIHono<AppEnv>, deps: AppDeps
   /** The session and a check that `fileId` is one of its item's tracks. */
   const offsetTarget = async (id: string, fileId: string) => {
     const session = await record(id, false);
-    if (!(await gatewayServices(deps).subtitles.has(session.item, fileId))) {
+    if (!(await gatewayServices(deps).subtitles.has(session, fileId))) {
       throw new ProblemError(404, "No subtitle file with this id for this session's item.");
     }
   };
