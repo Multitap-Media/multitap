@@ -869,7 +869,7 @@ export interface paths {
         };
         /**
          * The source list for a video
-         * @description Every stream every matching addon returned, as candidates annotated for an engine. `sort=addon` (default) keeps collection order and each addon's own order; `sort=rank` orders playable candidates first, then by score. Nothing is hidden. Answers once every addon has answered or timed out. With `incremental=true` it answers `202` at once with a request id, and each addon's candidates follow as a `streams.partial` event (`GET /v1/events?request={requestId}`), in answer order, the last with `remaining: 0`; `sort=rank` then orders each event's candidates.
+         * @description Every stream every matching addon returned, as candidates annotated for an engine. `sort=addon` (default) keeps collection order and each addon's own order; `sort=rank` orders playable candidates first, then by score. Nothing is hidden. Answers once every addon has answered or timed out. With `incremental=true` it answers `202` with a request id once the item's meta is known (so `addons` counts every part, the meta's own streams included), and each addon's candidates follow as a `streams.partial` event (`GET /v1/events?request={requestId}`), in answer order, the last with `remaining: 0`; `sort=rank` then orders each event's candidates.
          */
         get: operations["listSources"];
         put?: never;

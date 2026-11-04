@@ -3,7 +3,7 @@ type: Component
 title: "Core events: SSE stream, replay and incremental source lists"
 description: "GET /v1/events server-sent events: event types, filters, heartbeat, the bounded replay buffer with Last-Event-ID and the X-Events-Replay header, and incremental source lists answered with 202 and streams.partial events."
 tags: [core, api, events, sse, component]
-generated: { by: "agent/claude-opus-5.5", at: "2026-11-04T12:00:00Z" }
+generated: { by: "agent/claude-opus-5.5", at: "2026-11-04T10:57:40Z" }
 code_refs:
   - "packages/core/src/events/"
   - "packages/core/src/http/routes/events.ts"
@@ -55,9 +55,12 @@ Source of truth for core's event stream (migrated from the former design documen
   stream ends within a heartbeat plus about a second
   ([[architecture/core-api-keys-security]]).
 - **Incremental source lists** (as built in phase 2): `GET /v1/streams/…?incremental=true`
-  answers `202` at once with a `requestId`, and each addon's candidates follow
-  as a `streams.partial` event, in answer order, the last one with
-  `remaining: 0`. Subscribing with `?request={requestId}` and no
+  answers `202` with a `requestId` once the item's meta lookup is done, so its
+  `addons` count is exact, the meta's own streams or `yt_id:` part included
+  ([[decision/incremental-list-waits-for-meta]]). The addons are asked at once,
+  and each one's candidates follow as a `streams.partial` event, in answer
+  order (an answer that arrives before the `202` is queued, not lost), the last
+  one with `remaining: 0`. Subscribing with `?request={requestId}` and no
   `Last-Event-ID` first replays every buffered event of that list, so a client
   that subscribes after the `202` misses nothing.
 

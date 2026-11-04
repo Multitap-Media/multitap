@@ -178,6 +178,9 @@ repository; their tags are not part of this repository's history.
   3-day release age); the release workflow drops unused OIDC and attestation
   permissions and caches its build; CI jobs have time limits, and the
   breaking-change check and full-history secrets scan run on Linux only.
+- The `incremental=true` description now says what Multitap does: the `202`
+  comes once the item's meta is known, so `addons` counts every part
+  (okf:decision/incremental-list-waits-for-meta).
 
 ## 0.2.1 (2026-11-02)
 
