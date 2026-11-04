@@ -11,10 +11,11 @@ import {
   type MultitapEvent,
   type MultitapEventInput,
 } from '@multitap/api';
-import { afterEach, describe, expect, it } from 'vitest';
-import { createApiKey, revokeApiKey } from '../src/auth/keys.ts';
+import { getEventListeners } from 'node:events';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { createApiKey, KEY_ACTIVE_CACHE_MS, revokeApiKey } from '../src/auth/keys.ts';
 import { MemoryEventBus } from '../src/events/memory-bus.ts';
-import { REPLAY_HEADER } from '../src/http/routes/events.ts';
+import { EVENTS_PENDING_LIMIT, REPLAY_HEADER } from '../src/http/routes/events.ts';
 import { autoSourcesFor } from '../src/http/selection-deps.ts';
 import { HOME_ENGINE } from './engine-fixture.ts';
 import { startFakeAddon, type FakeAddon } from './fakes/addon.ts';
@@ -104,6 +105,18 @@ describe('MemoryEventBus', () => {
     expect(bus.replay('abc', {})).toMatchObject({ complete: false });
     // Filtered.
     expect(ids(bus.replay('2', { sessionId: 'ps_d' }))).toEqual(['4']);
+  });
+
+  it('keeps the newest events in order once the buffer has wrapped many times', () => {
+    const { bus } = make(3);
+    for (let i = 1; i <= 10; i++) bus.publish(status(`ps_${String(i)}`));
+    const ids = (r: { events: MultitapEvent[] }) => r.events.map((e) => e.id);
+    expect(ids(bus.replay('0', {}))).toEqual(['8', '9', '10']);
+    expect(bus.replay('6', {})).toMatchObject({ complete: false });
+    expect(bus.replay('7', {})).toMatchObject({ complete: true });
+    expect(ids(bus.replay('8', {}))).toEqual(['9', '10']);
+    expect(ids(bus.replay('9', { sessionId: 'ps_10' }))).toEqual(['10']);
+    expect(bus.replay('10', {})).toEqual({ events: [], complete: true });
   });
 
   it('keeps nothing with a zero-size buffer', () => {
@@ -343,6 +356,67 @@ describe('GET /v1/events', () => {
     await revokeApiKey(r.db, leaked.id, r.clock);
     await stream.ended();
     expect(stream.events()).toEqual([]);
+  });
+
+  it('sees a revocation made by another process once the shared key check is a second old', async () => {
+    const r = await rig();
+    r.config.events.heartbeatMs = 20;
+    const leaked = await createApiKey(r.db, { scope: 'client', label: 'leaked' }, r.clock);
+    const streams = [await openEvents(r, leaked.key), await openEvents(r, leaked.key)];
+    for (const s of streams) await s.until(() => s.messages.some((m) => m.comment === 'heartbeat'));
+    // Another process's database write: nothing in this one hears of it.
+    await r.db
+      .updateTable('api_keys')
+      .set({ revoked_at: r.clock() })
+      .where('id', '=', leaked.id)
+      .execute();
+    r.clock.advance(KEY_ACTIVE_CACHE_MS);
+    for (const s of streams) await s.ended();
+  });
+
+  it('ends a stream whose reader falls too far behind', async () => {
+    const r = await rig();
+    r.config.events.replaySize = 0;
+    const key = await r.keyFor('client');
+    const slow = await openEvents(r, key);
+    await slow.until(() => slow.messages.some((m) => m.comment === 'connected'));
+    // Published at once, faster than any reader: the queue passes its limit.
+    for (let i = 0; i <= EVENTS_PENDING_LIMIT; i++) r.bus.publish(status('ps_flood'));
+    await slow.ended();
+    expect(slow.events().length).toBeLessThan(EVENTS_PENDING_LIMIT);
+    expect(r.log.lines()).toContainEqual(
+      expect.objectContaining({ msg: 'event stream ended: the reader fell too far behind' }),
+    );
+    // It resumes from what it got; the bus's buffer no longer has everything.
+    const last = slow.events().at(-1)?.id ?? '0';
+    const resumed = await openEvents(r, key, '', { 'Last-Event-ID': last });
+    expect(resumed.res.headers.get(REPLAY_HEADER)).toBe('partial');
+    resumed.close();
+  });
+
+  it('serialises each event once for every stream, and adds one shutdown listener for all', async () => {
+    const r = await rig();
+    const shutdown = new AbortController();
+    r.appDeps.shutdown = shutdown.signal;
+    const key = await r.keyFor('client');
+    const streams = [];
+    for (let i = 0; i < 12; i++) {
+      const s = await openEvents(r, key, '?types=session.status');
+      await s.until(() => s.messages.some((m) => m.comment === 'connected'));
+      streams.push(s);
+    }
+    // One listener on the signal, not one per stream (Node warns past 10).
+    expect(getEventListeners(shutdown.signal, 'abort')).toHaveLength(1);
+    const stringify = vi.spyOn(JSON, 'stringify');
+    try {
+      const event = r.bus.publish(status('ps_once'));
+      for (const s of streams) await s.until(() => s.events().length === 1);
+      expect(stringify.mock.calls.filter(([value]) => value === event)).toHaveLength(1);
+    } finally {
+      stringify.mockRestore();
+    }
+    shutdown.abort();
+    for (const s of streams) await s.ended();
   });
 });
 

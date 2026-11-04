@@ -3,7 +3,7 @@ type: Component
 title: "Core subtitles, timing offset, per-item player state and search extras"
 description: "Session subtitle tracks under the media token, the server-side subtitle timing offset (limits, semantics, storage), per-item player state (P1, core 0.1.3), and how search and subtitle extras (videoHash, videoSize, filename) are fanned out."
 tags: [core, api, subtitles, player-state, component]
-generated: { by: "agent/claude-sonnet-5.5", at: "2026-10-17T02:10:23Z" }
+generated: { by: "agent/claude-opus-5.5", at: "2026-11-04T12:00:00Z" }
 code_refs:
   - "packages/core/src/subtitles/"
   - "packages/core/src/http/"
@@ -18,6 +18,15 @@ Source of truth for core's subtitle, player-state and search behaviour (migrated
   (`ext/sub/{fileId}.vtt`), so a player loads them as
   `/media/{token}/ext/sub/{fileId}.vtt` with the same token, including from a
   `<track crossorigin>`. `/v1/subtitles/…` stays for server-side clients.
+  The gateway serves a file only when it was listed for the session's item.
+  What was listed is remembered per item for the file lifetime (6 h), and every
+  listing adds to it, so two sessions of one item with different hints (and so
+  different hash-matched files) keep each other's tracks. When a file is asked
+  and this session's own listing isn't remembered (a restart, the expiry), or
+  the subtitle service no longer knows the file's URL, the item is listed again
+  once with the session's own hints (concurrent misses share that listing);
+  a file missing from that listing too is a `404`. A session's offsets are read
+  from memory for up to a minute, refreshed on every change.
 - **Subtitle timing offset (server-side):** `offsetMs` is signed integer
   milliseconds (positive shows cues later), at most 600000 either way, applied
   by the WebVTT conversion with the semantics of the engine's

@@ -20,7 +20,7 @@ import { registerBackupRoutes } from './routes/backups.ts';
 import { registerBrowseRoutes } from './routes/browse.ts';
 import { registerDevRoutes } from './routes/dev.ts';
 import { registerEngineRoutes } from './routes/engines.ts';
-import { registerEventRoutes } from './routes/events.ts';
+import { REPLAY_HEADER, registerEventRoutes } from './routes/events.ts';
 import { registerMediaTokenRoutes } from './routes/media-tokens.ts';
 import { registerMetricsRoute } from './routes/metrics.ts';
 import { registerProfileRoutes } from './routes/profiles.ts';
@@ -57,6 +57,20 @@ const DOCUMENT_PATH = '/openapi.json';
  * fetch-based SSE client resume `/v1/events` (okf:architecture/core-events-sse).
  */
 const API_CORS_HEADERS = ['Authorization', 'Content-Type', 'Last-Event-ID'];
+
+/**
+ * Response headers a cross-origin `/v1` caller may read: `Allow` (a `405`),
+ * `Content-Disposition` (a backup download), `Retry-After` (a `503`),
+ * `X-Events-Replay` (okf:architecture/core-events-sse) and `X-Request-Id` (to quote in a report).
+ * Without them a browser hides these from the page.
+ */
+const API_CORS_EXPOSED = [
+  'Allow',
+  'Content-Disposition',
+  'Retry-After',
+  REPLAY_HEADER,
+  'X-Request-Id',
+];
 
 /** The route pattern that answered, never the raw path or query (they can carry secrets). */
 function routeOf(c: Context): string {
@@ -169,6 +183,7 @@ export function createApp(deps: AppDeps): OpenAPIHono<AppEnv> {
         return methods === undefined ? undefined : [...methods.keys()].sort();
       },
       allowHeaders: API_CORS_HEADERS,
+      exposeHeaders: API_CORS_EXPOSED,
     });
     return corsHandler(c, next);
   });

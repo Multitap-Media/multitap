@@ -12,6 +12,7 @@
  */
 import { randomBytes } from 'node:crypto';
 import { errors as joseErrors, jwtVerify, SignJWT } from 'jose';
+import { ProblemError } from '../http/problem.ts';
 import type { Clock } from '../lib/clock.ts';
 import { TtlCache } from '../lib/ttl-cache.ts';
 import type { Logger } from '../log.ts';
@@ -29,6 +30,12 @@ export const MAX_TOKEN_LENGTH = 2_048;
 /** Verified signatures are cached this long (okf:architecture/media-gateway-proxy). */
 export const VERIFIED_CACHE_TTL_MS = 60_000;
 export const VERIFIED_CACHE_MAX_ENTRIES = 10_000;
+/**
+ * A session id found in no record (deleted, or never created) is remembered
+ * this long, so a validly signed token for it doesn't read the database on
+ * every request.
+ */
+export const UNKNOWN_SESSION_CACHE_TTL_MS = 5_000;
 
 /** What the token service needs from playback sessions. */
 export interface TokenSessions {
@@ -78,6 +85,8 @@ export class JoseTokenService implements TokenService {
   /** Session id → subject → latest `expiresAt` minted in this process. */
   readonly #minted = new Map<string, Map<string, number>>();
   readonly #verified: TtlCache<MediaTokenClaims>;
+  /** Session ids with no record, briefly ({@link UNKNOWN_SESSION_CACHE_TTL_MS}). */
+  readonly #unknown: TtlCache<true>;
   readonly #startedAt: number;
   #loading: Promise<void> | undefined;
 
@@ -98,6 +107,11 @@ export class JoseTokenService implements TokenService {
     this.#verified = new TtlCache({
       clock: deps.clock,
       ttlMs: VERIFIED_CACHE_TTL_MS,
+      maxEntries: VERIFIED_CACHE_MAX_ENTRIES,
+    });
+    this.#unknown = new TtlCache({
+      clock: deps.clock,
+      ttlMs: UNKNOWN_SESSION_CACHE_TTL_MS,
       maxEntries: VERIFIED_CACHE_MAX_ENTRIES,
     });
   }
@@ -197,12 +211,29 @@ export class JoseTokenService implements TokenService {
     until = Math.max(until, this.#minted.get(sessionId)?.get(subject) ?? 0);
     if (until <= now) return;
     this.#denylist(sessionId, subject, until);
-    await this.#o.repo.revokeSubject({ sessionId, subject, until });
+    try {
+      await this.#o.repo.revokeSubject({ sessionId, subject, until });
+    } catch (err) {
+      // The subject's tokens already fail here; only a restart would bring them back.
+      this.#o.logger.error(
+        { err, sessionId, subject },
+        'media token revocation in force but not stored: it ends if Multitap restarts',
+      );
+      throw new ProblemError(
+        503,
+        "The subject's tokens are revoked, but the revocation could not be stored and would end if Multitap restarted; revoke again.",
+      );
+    }
   }
 
+  /**
+   * Bumps the session's epoch.
+   *
+   * @throws {ProblemError} `404` when the session is gone (deleted since the route looked).
+   */
   async revokeAll(sessionId: string): Promise<number> {
     const epoch = await this.#o.sessions.bumpTokenEpoch(sessionId);
-    if (epoch === undefined) throw new Error('no such session');
+    if (epoch === undefined) throw new ProblemError(404, 'No session with this id.');
     const state = this.#sessions.get(sessionId);
     if (state !== undefined) state.epoch = Math.max(state.epoch, epoch);
     return epoch;
@@ -210,13 +241,22 @@ export class JoseTokenService implements TokenService {
 
   sessionChanged(sessionId: string): void {
     this.#sessions.delete(sessionId);
+    this.#unknown.delete(sessionId);
   }
 
-  /** Keeps the cached state current from a session change (`SessionService.onChange`). */
+  /**
+   * Keeps the cached state current from a session change
+   * (`SessionService.onChange`) or a read of its record. It only moves
+   * forward: the epoch never goes down and a released session stays
+   * released, so a record read before a revoke-all or a release, and
+   * observed after it, can't bring old tokens back.
+   */
   observe(record: PlaybackSessionRecord): void {
+    const cached = this.#sessions.get(record.id);
+    this.#unknown.delete(record.id);
     this.#sessions.set(record.id, {
-      released: record.status === 'released',
-      epoch: record.tokenEpoch,
+      released: record.status === 'released' || cached?.released === true,
+      epoch: Math.max(record.tokenEpoch, cached?.epoch ?? 0),
     });
     if (record.status === 'released') {
       // Every token of a released session is dead anyway (410).
@@ -254,8 +294,13 @@ export class JoseTokenService implements TokenService {
   async #state(sessionId: string): Promise<SessionState | undefined> {
     const cached = this.#sessions.get(sessionId);
     if (cached !== undefined) return cached;
+    if (this.#unknown.get(sessionId) !== undefined) return undefined;
     const record = await this.#o.sessions.getRecord(sessionId);
-    if (record === undefined) return undefined;
+    if (record === undefined) {
+      // Unless the session was observed meanwhile.
+      if (!this.#sessions.has(sessionId)) this.#unknown.set(sessionId, true);
+      return this.#sessions.get(sessionId);
+    }
     this.observe(record);
     return this.#sessions.get(sessionId);
   }

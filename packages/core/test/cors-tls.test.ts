@@ -76,6 +76,25 @@ describe('CORS on the API listener', () => {
     expect(res.headers.get('vary')).toMatch(/\bOrigin\b/);
   });
 
+  it('exposes the response headers a browser client reads', async () => {
+    const { api } = await start({ MULTITAP_CORS_ORIGINS: ALLOWED });
+    const res = await fetch(`${api}/healthz`, { headers: { Origin: ALLOWED } });
+    expect(res.headers.get('access-control-expose-headers')).toBe(
+      'Allow,Content-Disposition,Retry-After,X-Events-Replay,X-Request-Id',
+    );
+    // Also on an error answered before any route, such as a 405 with `Allow`.
+    const notAllowed = await fetch(`${api}/healthz`, {
+      method: 'DELETE',
+      headers: { Origin: ALLOWED },
+    });
+    expect(notAllowed.status).toBe(405);
+    expect(notAllowed.headers.get('allow')).toBe('GET, HEAD');
+    expect(notAllowed.headers.get('access-control-expose-headers')).toContain('Allow');
+    // Not for another origin.
+    const other = await fetch(`${api}/healthz`, { headers: { Origin: OTHER } });
+    expect(other.headers.get('access-control-expose-headers')).toBeNull();
+  });
+
   it('keeps auth and 404s for an allowed origin', async () => {
     const { api } = await start({ MULTITAP_CORS_ORIGINS: ALLOWED });
     const res = await fetch(`${api}/v1/admin/api-keys`, { headers: { Origin: ALLOWED } });

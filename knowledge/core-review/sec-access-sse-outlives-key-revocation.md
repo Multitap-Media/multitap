@@ -49,6 +49,8 @@ The `/v1/events` loop re-checks its key by id (`apiKeyActive` in `auth/keys.ts`,
 
 Tests: the PoC is now two normal tests in `packages/core/test/events.test.ts` (revoked through `DELETE /v1/admin/api-keys/{id}` while an admin-only event is published; revoked in the database only, as the CLI does, on an idle stream). Both fail with the check removed.
 
+Since 2026-11-04 the check is `apiKeyActiveCached`: one query per key at most once a second, shared by the key's streams, instead of one per stream per wake-up. A revocation through the API (`revokeApiKey` in this process) updates the cached answer at once, so the first test still sees nothing delivered after it; a CLI revocation from another process is seen within about a second more (test: "sees a revocation made by another process once the shared key check is a second old").
+
 Not covered, as before: other long-running requests (an incremental source list) finish on their own, and revoking a key still doesn't revoke the media tokens it minted (sec-access L4, now stated in `SECURITY.md`).
 
 ## Public-release blocker

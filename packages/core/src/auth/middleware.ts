@@ -1,5 +1,6 @@
 import { createMiddleware } from 'hono/factory';
 import type { Db } from '../db/index.ts';
+import type { Logger } from '../log.ts';
 import { notFoundResponse, problemResponse } from '../http/problem.ts';
 import {
   scopeAllows,
@@ -22,12 +23,17 @@ const BEARER = /^Bearer ([^\s]+)$/i;
  * - Valid key without the scope: `403`.
  * Nested uses are cheap: a key already verified for this request is reused.
  */
-export function requireScope(scope: ApiKeyScope, deps: { db: Db; clock: Clock }) {
+export function requireScope(
+  scope: ApiKeyScope,
+  deps: { db: Db; clock: Clock; logger?: Pick<Logger, 'warn'> },
+) {
   return createMiddleware<{ Variables: AuthVariables }>(async (c, next) => {
     let principal = c.get('apiKey') as ApiKeyPrincipal | undefined;
     if (principal === undefined) {
       const match = BEARER.exec(c.req.header('Authorization') ?? '');
-      principal = match?.[1] ? await verifyApiKey(deps.db, match[1], deps.clock) : undefined;
+      principal = match?.[1]
+        ? await verifyApiKey(deps.db, match[1], deps.clock, deps.logger)
+        : undefined;
       if (principal === undefined) return notFoundResponse(c);
       c.set('apiKey', principal);
     }

@@ -386,7 +386,7 @@ export interface paths {
         };
         /**
          * Follow Multitap events (server-sent events)
-         * @description Messages carry `id`, `event` (the type) and `data` (the event as JSON; the `MultitapEvent` schema). On reconnect, `Last-Event-ID` replays missed events from a bounded buffer; the `X-Events-Replay` header says `complete`, or `partial` when some were lost (re-read session state then). With `request` and no `Last-Event-ID`, every buffered event of that source list is replayed first. `settings.changed` and `engine.status` reach admin keys only. A `: heartbeat` comment is sent every `MULTITAP_EVENTS_HEARTBEAT_MS`. The stream ends when Multitap shuts down, and when its API key is revoked: the key is re-checked each time the stream wakes for an event or a heartbeat, before anything is sent.
+         * @description Messages carry `id`, `event` (the type) and `data` (the event as JSON; the `MultitapEvent` schema). On reconnect, `Last-Event-ID` replays missed events from a bounded buffer; the `X-Events-Replay` header says `complete`, or `partial` when some were lost (re-read session state then). With `request` and no `Last-Event-ID`, every buffered event of that source list is replayed first. `settings.changed` and `engine.status` reach admin keys only. A `: heartbeat` comment is sent every `MULTITAP_EVENTS_HEARTBEAT_MS`. The stream ends when Multitap shuts down, and when its API key is revoked: the key is re-checked each time the stream wakes for an event or a heartbeat, before anything is sent (a revocation from the API is seen at once, one from the CLI within about a second). It also ends when a slow reader has more than 10000 events waiting beyond its replay: reconnect with `Last-Event-ID`.
          */
         get: operations["streamEvents"];
         put?: never;
@@ -6046,6 +6046,15 @@ export interface operations {
             };
             /** @description No session with this id, or the API key is missing, invalid or revoked */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description The revocation is in force but could not be stored, so it would end if Multitap restarted: revoke again */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

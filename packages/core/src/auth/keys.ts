@@ -2,6 +2,7 @@ import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypt
 import type { Db } from '../db/index.ts';
 import type { ApiKeyRow, ApiKeyScope } from '../db/schema.ts';
 import type { Clock } from '../lib/clock.ts';
+import type { Logger } from '../log.ts';
 
 export type { ApiKeyScope } from '../db/schema.ts';
 export type { Clock } from '../lib/clock.ts';
@@ -25,10 +26,14 @@ export interface ApiKeyRecord {
   revokedAt: number | null;
 }
 
-/** The principal a verified key authenticates as. */
+/** The principal a verified key authenticates as: the key as read when it was verified. */
 export interface ApiKeyPrincipal {
   id: string;
   scope: ApiKeyScope;
+  label: string;
+  createdAt: number;
+  /** The key's last use, this request's when it was the one recorded. */
+  lastUsed: number | null;
 }
 
 // 32 random bytes in base64url without padding is always 43 characters.
@@ -106,6 +111,7 @@ export async function revokeApiKey(
   id: string,
   clock: Clock,
 ): Promise<ApiKeyRecord | undefined> {
+  activity(db).delete(id);
   await db
     .updateTable('api_keys')
     .set({ revoked_at: clock() })
@@ -113,7 +119,73 @@ export async function revokeApiKey(
     .where('revoked_at', 'is', null)
     .execute();
   const row = await db.selectFrom('api_keys').selectAll().where('id', '=', id).executeTakeFirst();
+  activity(db).set(id, { active: row?.revoked_at === null, checkedAt: clock() });
   return row && toRecord(row);
+}
+
+/** Entries kept per database in the in-memory key caches below; cleared wholesale past it. */
+const KEY_CACHE_MAX_ENTRIES = 10_000;
+
+/** How long {@link apiKeyActiveCached} trusts its last answer for a key. */
+export const KEY_ACTIVE_CACHE_MS = 1_000;
+
+interface Activity {
+  active: boolean;
+  checkedAt: number;
+  pending?: Promise<boolean>;
+}
+
+/** Per database: key id → its last activity check (and the one in flight). */
+const activityByDb = new WeakMap<Db, Map<string, Activity>>();
+
+function activity(db: Db): Map<string, Activity> {
+  let map = activityByDb.get(db);
+  if (map === undefined) {
+    map = new Map();
+    activityByDb.set(db, map);
+  }
+  return map;
+}
+
+/**
+ * {@link apiKeyActive}, answered from memory when checked less than
+ * {@link KEY_ACTIVE_CACHE_MS} ago, with one query in flight per key, shared by
+ * every open `/v1/events` stream of that key (okf:architecture/core-events-sse).
+ * A revocation through {@link revokeApiKey} in this process is seen at once;
+ * one made by another process (the CLI) within about a second.
+ */
+export async function apiKeyActiveCached(db: Db, id: string, clock: Clock): Promise<boolean> {
+  const known = activity(db);
+  const entry = known.get(id);
+  if (entry?.pending !== undefined) return entry.pending;
+  if (entry !== undefined && clock() - entry.checkedAt < KEY_ACTIVE_CACHE_MS) return entry.active;
+  if (known.size >= KEY_CACHE_MAX_ENTRIES) known.clear();
+  const checking: Activity = { active: entry?.active ?? false, checkedAt: entry?.checkedAt ?? 0 };
+  checking.pending = apiKeyActive(db, id).then(
+    (active) => {
+      // A revocation in this process meanwhile replaced the entry: it wins.
+      if (known.get(id) === checking) known.set(id, { active, checkedAt: clock() });
+      return known.get(id)?.active ?? active;
+    },
+    (err: unknown) => {
+      if (known.get(id) === checking) known.delete(id);
+      throw err;
+    },
+  );
+  known.set(id, checking);
+  return checking.pending;
+}
+
+/** Per database: key id → the last `last_used` this process wrote (or is writing). */
+const lastUsedByDb = new WeakMap<Db, Map<string, number>>();
+
+function lastUsedWrites(db: Db): Map<string, number> {
+  let map = lastUsedByDb.get(db);
+  if (map === undefined) {
+    map = new Map();
+    lastUsedByDb.set(db, map);
+  }
+  return map;
 }
 
 /**
@@ -133,13 +205,18 @@ export async function apiKeyActive(db: Db, id: string): Promise<boolean> {
 
 /**
  * Checks a presented key. Returns the principal for a known, unrevoked key and
- * records its use (at most once per {@link LAST_USED_INTERVAL_MS}); otherwise
- * `undefined`.
+ * records its use (at most once per {@link LAST_USED_INTERVAL_MS} per key,
+ * concurrent requests included); otherwise `undefined`.
+ *
+ * The `last_used` write is not awaited: a busy database must not fail the
+ * request it authenticates. A failed write is logged (`warn`) and retried by
+ * the key's next request.
  */
 export async function verifyApiKey(
   db: Db,
   presented: string,
   clock: Clock,
+  logger?: Pick<Logger, 'warn'>,
 ): Promise<ApiKeyPrincipal | undefined> {
   if (!KEY_PATTERN.test(presented)) return undefined;
   const hash = hashApiKey(presented);
@@ -147,7 +224,7 @@ export async function verifyApiKey(
   // the comparison below is constant-time anyway.
   const row = await db
     .selectFrom('api_keys')
-    .select(['id', 'key_hash', 'scope', 'last_used', 'revoked_at'])
+    .select(['id', 'key_hash', 'scope', 'label', 'created_at', 'last_used', 'revoked_at'])
     .where('key_hash', '=', hash)
     .executeTakeFirst();
   if (!row) return undefined;
@@ -157,8 +234,32 @@ export async function verifyApiKey(
   if (row.revoked_at !== null) return undefined;
 
   const now = clock();
-  if (row.last_used === null || now - row.last_used >= LAST_USED_INTERVAL_MS) {
-    await db.updateTable('api_keys').set({ last_used: now }).where('id', '=', row.id).execute();
+  const written = lastUsedWrites(db);
+  const recorded = written.get(row.id);
+  let lastUsed =
+    recorded === undefined || (row.last_used !== null && row.last_used > recorded)
+      ? row.last_used
+      : recorded;
+  if (lastUsed === null || now - lastUsed >= LAST_USED_INTERVAL_MS) {
+    if (written.size >= KEY_CACHE_MAX_ENTRIES) written.clear();
+    written.set(row.id, now);
+    lastUsed = now;
+    void db
+      .updateTable('api_keys')
+      .set({ last_used: now })
+      .where('id', '=', row.id)
+      .execute()
+      .catch((err: unknown) => {
+        // Let the key's next request try again.
+        if (written.get(row.id) === now) written.delete(row.id);
+        logger?.warn({ err, apiKeyId: row.id }, 'api key: storing last_used failed');
+      });
   }
-  return { id: row.id, scope: row.scope };
+  return {
+    id: row.id,
+    scope: row.scope,
+    label: row.label,
+    createdAt: row.created_at,
+    lastUsed,
+  };
 }

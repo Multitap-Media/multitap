@@ -52,6 +52,24 @@ describe('createMultitapClient', () => {
     );
   });
 
+  it('refuses a "." or ".." path parameter instead of calling another route', async () => {
+    const { multitap, requests } = await clientFor('client');
+    for (const subject of ['.', '..']) {
+      // `…/tokens/..` would be `DELETE /v1/sessions/{id}`: releasing the session.
+      await expect(
+        multitap.DELETE('/v1/sessions/{id}/tokens/{subject}', {
+          params: { path: { id: 'ps_x', subject } },
+        }),
+      ).rejects.toThrow(/Path parameter "subject" is "\.{1,2}"/);
+    }
+    expect(requests).toEqual([]);
+    // Dots inside a value are sent as they are.
+    await multitap.GET('/v1/meta/{type}/{id}', {
+      params: { path: { type: 'movie', id: '...' } },
+    });
+    expect(requests[0]?.url).toBe('http://core.test/v1/meta/movie/...');
+  });
+
   it('returns problems for a missing scope', async () => {
     const { multitap } = await clientFor('client');
     const forbidden = await multitap.GET('/v1/admin/engines');

@@ -3,7 +3,7 @@ type: Architecture
 title: "Media gateway proxy behaviour: authorization, streaming, CORS, disconnects, telemetry"
 description: "How the gateway proxies: in-process token authorization, unbuffered streaming and response headers, CORS, not aborting segment requests on viewer disconnect, several viewers on one transcode, timeouts, per-viewer telemetry, the browser CSP finding of 2026-10-01, and token hygiene in logs."
 tags: [core, gateway, media, proxy, architecture]
-generated: { by: "agent/claude-sonnet-5.5", at: "2026-10-17T02:10:23Z" }
+generated: { by: "agent/claude-opus-5.5", at: "2026-11-04T12:00:00Z" }
 code_refs:
   - "packages/core/src/gateway/"
 status: stable
@@ -14,12 +14,18 @@ Source of truth for the gateway's proxy behaviour  The URL scheme and status cod
 - **Authorization:** in-process, with no call out per request. Check the signature,
   `exp`, `tokenEpoch`, the subject denylist, and that the session isn't
   released. Verified tokens are cached briefly (60 s, as built), and session
-  state (released, epoch) is kept in memory and updated on every change.
+  state (released, epoch) is kept in memory and updated on every change. That
+  state only moves forward (the highest epoch seen, released for good), so a
+  record read before a revoke-all or a release and applied after it can't
+  bring old tokens back. A session id with no record is remembered for 5 s, so
+  a validly signed token for a deleted session doesn't read the database on
+  every request.
 - **Streaming:** pipe the response through without buffering (as built, a web
   `ReadableStream` that pulls one chunk at a time and counts the bytes). Pass
   the upstream status, `Content-Type` and `Content-Length` through, and send
   `Cache-Control: no-store`, `Referrer-Policy: no-referrer` and
-  `X-Content-Type-Options: nosniff`.
+  `X-Content-Type-Options: nosniff` (on every answer, an unexpected `500`
+  included).
 - **Filename allowlist** as in [[architecture/media-gateway]]. Everything else is `404`, so engine APIs
   are never reachable through the gateway. The media listener serves nothing
   but `/media`.
