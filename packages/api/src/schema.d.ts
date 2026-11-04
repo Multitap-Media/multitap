@@ -236,7 +236,7 @@ export interface paths {
         put?: never;
         /**
          * Back up the database now
-         * @description Writes one consistent copy of Multitap's database with SQLite's online backup, while Multitap keeps serving, checks the copy with `PRAGMA integrity_check`, then prunes the oldest backups beyond `MULTITAP_BACKUP_KEEP`. A backup contains secrets (engine proxy passwords, stored raw streams, hashed API keys): treat it as one.
+         * @description Writes one consistent copy of Multitap's database with SQLite's online backup, while Multitap keeps serving, checks the copy with `PRAGMA quick_check`, then prunes the oldest backups beyond `MULTITAP_BACKUP_KEEP`. A backup contains secrets (engine proxy passwords, stored raw streams, hashed API keys): treat it as one.
          */
         post: operations["createBackup"];
         delete?: never;

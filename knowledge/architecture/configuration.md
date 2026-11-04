@@ -13,7 +13,7 @@ Source of truth for this topic and its setting rules. `pnpm run docs:check` read
 
 ## Core
 
-Every variable but `NODE_ENV` carries the `MULTITAP_` prefix, core's public name ([[decision/core-public-name-multitap]]); the unprefixed names of `core-v0.1.4` and earlier are not read. Every variable is validated at startup (`packages/core/src/config.ts`); an invalid one stops core with one line per problem, and secrets are never echoed. Every `_MS` variable is an integer number of milliseconds: the table shows defaults in readable units (`8h` is `28800000`). Unset and empty both mean the default.
+Every variable but `NODE_ENV` carries the `MULTITAP_` prefix, core's public name ([[decision/core-public-name-multitap]]); the unprefixed names of `core-v0.1.4` and earlier are not read. Every variable is validated at startup (`packages/core/src/config.ts`); an invalid one stops core with one line per problem, and secrets are never echoed. Every `_MS` variable is an integer number of milliseconds: the table shows defaults in readable units (`8h` is `28800000`). Integer settings take digits only (spaces around them are allowed; `1e3`, `0x10` or `5s` are errors). Unset, empty and blank (only spaces) all mean the default, so a stray space never turns a timeout into `0`. A value that may hold credentials (anything with an `@`, such as a URL with a user name and password) is not echoed in the error either. Core warns once at startup about `MULTITAP_*` variables it doesn't read (a typo such as `MULTITAP_CORS_ORIGIN`, or a setting of another version), naming them but never their values; the list of known names comes from `EnvSchema` itself, other variables are not looked at.
 
 | Setting | Default (or example) | Purpose |
 |---|---|---|

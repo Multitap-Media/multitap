@@ -39,8 +39,8 @@ Source of truth for core's event stream (migrated from the former design documen
   signal and fans out to the open streams, so any number of streams stays
   under Node's `MaxListeners` warning. Clients see the stream end and
   reconnect with `Last-Event-ID` once core is back. Listeners cut any response
-  still open after `CLOSE_GRACE_MS` (5 s), well inside `main`'s 10 s
-  force-exit, so held-back library progress is always flushed
+  still open after `CLOSE_GRACE_MS` (5 s), well inside `main`'s 8 s
+  force-exit ([[architecture/core-deployment]]), so held-back library progress is always flushed
   ([[architecture/library-and-profiles]]).
 - **Key revocation** ends a stream too. The key is checked when the stream
   opens, and the loop re-checks it by id (`apiKeyActiveCached`) each time it

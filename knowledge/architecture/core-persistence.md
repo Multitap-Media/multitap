@@ -42,6 +42,33 @@ and `0010_session_subtitle_offsets` ([[architecture/core-v1-api]]), and `0011_it
 (the per-item player state, [[architecture/core-v1-api]]). The secret columns are listed once in code (`SECRET_COLUMNS`), and a
 test keeps them out of every API view.
 
+**The connection** (`openDatabase`, `packages/core/src/db/index.ts`): WAL mode
+with `synchronous = NORMAL` (safe with WAL: a crash of core loses nothing, a
+power loss at most the last commits, never consistency), foreign keys on and a
+5 s busy timeout, so the CLI and a running core share the file. A new database
+file is created with mode `0600` (SQLite gives its `-wal`/`-shm` the same), and
+core creates `MULTITAP_DATA_DIR` and `MULTITAP_LOG_DIR` `0700` (log files `0600`), where the
+platform has modes. Existing files and folders keep theirs.
+
+**One server per data folder.** Before it migrates or touches sessions, core
+takes `<MULTITAP_DATA_DIR>/multitap.lock`: an exclusive SQLite transaction held
+open for the life of the process (`packages/core/src/db/instance-lock.ts`). The
+operating system holds the lock (POSIX advisory locks, `LockFileEx` on Windows)
+and drops it when the process exits, however it exits, so a crash or `SIGKILL`
+leaves no stale lock and there is no PID to second-guess (two containers sharing
+a volume are both PID 1). A second core on the same folder stops at once with an
+error naming the folder, instead of failing the live one's resolving sessions as
+`interrupted`, sweeping and migrating, and then dying with `EADDRINUSE`.
+`close()` and a failed start release it. The CLI doesn't take it: it is meant to
+run beside a running core and shares the database through SQLite's locking (and
+`BEGIN IMMEDIATE` for migrations, below).
+
+**The CLI as root.** Run as root (`sudo`) on a data or backup folder another user
+owns, the CLI refuses with a message saying why: the files it would write there
+(the database journal, a backup before migrating in a `0700` folder) would belong
+to root, and core, running as that user, would then fail with `EACCES` and refuse
+to start. Root may run it on folders root owns. Not checked on Windows.
+
 **How migrations run** (`migrateToLatest`, `packages/core/src/db/index.ts`), at
 core's start and in the CLI, which may be the first to open the database after
 an upgrade:
@@ -67,14 +94,28 @@ an upgrade:
   `<MULTITAP_BACKUP_DIR>/pre-migration/multitap-<timestamp>-before-<first pending>.sqlite`
   before any runs. The newest 3 are kept, apart from the `/v1/admin/backups`
   list and `MULTITAP_BACKUP_KEEP`. A fresh database gets none. If the backup fails, the
-  upgrade doesn't start, and the error names the folder to check.
+  upgrade doesn't start, and the error names the folder and the cause
+  (`EACCES` with the likely reason, a folder left to root by `sudo`; `ENOSPC`).
+  This copy gets the full `PRAGMA integrity_check`: nothing is served yet, and it
+  is the copy an upgrade is undone from.
 
 **Backups.** A live WAL-mode database must not be copied as a file. Core backs
 it up through the admin API (`/v1/admin/backups`, [[architecture/core-v1-api]]) with SQLite's online
 backup (better-sqlite3's `backup()`): a consistent snapshot, copied in steps
-while core keeps serving. The copy is switched to a single self-contained file
-(no `-wal`/`-shm`), reopened read-only and checked with `PRAGMA integrity_check`;
-only then is it kept and the oldest backups beyond `MULTITAP_BACKUP_KEEP` pruned. A
+while core keeps serving. The copy is written as `<name>.<pid>-<random>.partial`, a name only that copy
+uses, switched to a single self-contained file (no `-wal`/`-shm`), reopened
+read-only (both opens require the file to exist, so a copy removed meanwhile can't
+come back as an empty database that checks `ok`), refused if it is empty or has no
+`kysely_migration` table, and checked with `PRAGMA quick_check` (it runs on the
+event loop while core serves; the full `integrity_check` is kept for the backup
+before migrating). Only then is it renamed into place and the oldest backups beyond
+`MULTITAP_BACKUP_KEEP` pruned; the backup just written always counts as kept, even
+when the clock stepped back and its stamp sorts it oldest. A backup removes
+`.partial` files nobody has written to for an hour (left by a crash), never one
+another copy may still be writing. A file named like a backup whose date doesn't
+exist is ignored (a warning) rather than failing the list. A download opens the file
+first and takes its size from the open file, so a prune or delete during the
+download can't cut it short; a stream error is logged. A
 failed backup logs a warning, counts as a failure in `multitap_backup_outcomes_total` and
 leaves the older backups alone; one backup runs at a time (a second request gets
 `409`). Files are `multitap-<UTC timestamp>.sqlite` in `MULTITAP_BACKUP_DIR` (default

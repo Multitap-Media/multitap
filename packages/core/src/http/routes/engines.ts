@@ -126,6 +126,8 @@ export function registerEngineRoutes(app: OpenAPIHono<AppEnv>, deps: AppDeps): v
       throw new ProblemError(409, 'This is the default engine; change the default first.');
     }
     if (!(await deleteEngine(deps.db, id))) throw new ProblemError(404, 'No engine with this id.');
+    // Its gauges go too, or /metrics reports a deleted engine's last health forever.
+    deps.metrics.removeEngine(id);
     deps.logger.info({ engineId: id, by: c.get('apiKey').id }, 'engine deleted');
     return c.body(null, 204);
   });

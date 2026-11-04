@@ -174,6 +174,17 @@ export class MetricsRegistry {
   }
 
   /**
+   * Drops every series labelled with a deleted engine, so a removed engine
+   * stops reporting (health 1 forever, otherwise). A later health check or
+   * load report for the id, should it be added again, recreates them.
+   */
+  removeEngine(engineId: string): void {
+    for (const gauge of [this.engineHealth, this.engineLoadSessions, this.engineLiveConcurrency]) {
+      gauge.remove({ engine_id: engineId });
+    }
+  }
+
+  /**
    * Record an addon outcome (catalog, meta, streams, subtitles).
    */
   recordAddonOutcome(
