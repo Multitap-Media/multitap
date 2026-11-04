@@ -95,10 +95,30 @@ export class AddonAbortedError extends AddonError {
 export class AddonHttpStatusError extends AddonError {
   readonly code = 'http-status';
   readonly status: number;
-  constructor(host: string, status: number) {
+  /** The response's `Retry-After`, in milliseconds from when it arrived, when it had a valid one. */
+  readonly retryAfterMs: number | undefined;
+  constructor(host: string, status: number, retryAfterMs?: number) {
     super(`Request to ${describe(host)} failed with HTTP ${String(status)}`, host);
     this.status = status;
+    this.retryAfterMs = retryAfterMs;
   }
+}
+
+/**
+ * Reads a `Retry-After` header (delay-seconds or an HTTP date) as milliseconds
+ * from `now`; `undefined` when absent or invalid. A date in the past is 0.
+ */
+export function parseRetryAfter(
+  value: string | null,
+  now: number = Date.now(),
+): number | undefined {
+  if (value === null) return undefined;
+  const text = value.trim();
+  if (/^\d{1,10}$/.test(text)) return Number(text) * 1000;
+  // An HTTP date (IMF-fixdate, or the obsolete RFC 850 and asctime forms) is short.
+  if (text.length > 64 || !/^[A-Za-z]/.test(text)) return undefined;
+  const at = Date.parse(text);
+  return Number.isNaN(at) ? undefined : Math.max(0, at - now);
 }
 
 export class AddonResponseTooLargeError extends AddonError {

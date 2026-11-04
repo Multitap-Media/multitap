@@ -1,4 +1,5 @@
 import { AddonSchema, type Addon } from '@multitap/api';
+import { sql } from 'kysely';
 import { afterEach, describe, expect, it } from 'vitest';
 import { AddonService } from '../src/addons/index.ts';
 import { createApiKey } from '../src/auth/keys.ts';
@@ -271,6 +272,80 @@ describe('/v1/admin/addons', () => {
     ]);
     const after = await t.addons.collection.index();
     expect(after.match({ resource: 'meta', type: 'series', id: 'tt1' })).toEqual([]);
+  });
+
+  it("an unchanged manifest on refresh keeps the addon's cache and circuit", async () => {
+    const t = await setup();
+    // Torrentio's stream responses carry cacheMaxAge.
+    const torrentio = await fake({ fixture: 'torrentio-public' });
+    const added = await t.add(torrentio.manifestUrl);
+    await t.addons.aggregate('stream', 'movie', 'tt1375666');
+    const changes: string[] = [];
+    t.addons.collection.onEvent((event) => changes.push(event.type));
+
+    t.clock.advance(60_000);
+    const all = await t.call('POST', '/v1/admin/addons/refresh');
+    expect(all.json()).toMatchObject([{ fetchedAt: '2026-09-27T12:01:00.000Z' }]);
+    expect(changes).toEqual([]);
+    const cached = await t.addons.aggregate('stream', 'movie', 'tt1375666');
+    expect(cached.addons[0]?.cache).toBe('fresh');
+    expect(torrentio.resourceRequests()).toHaveLength(1);
+
+    // A real change still forgets them.
+    torrentio.set({ manifest: { version: '9.9.9' } });
+    await t.call('POST', `/v1/admin/addons/${added.id}/refresh`);
+    expect(changes).toEqual(['changed']);
+    const refetched = await t.addons.aggregate('stream', 'movie', 'tt1375666');
+    expect(refetched.addons[0]?.cache).toBe('miss');
+  });
+
+  it("a refresh that can't be stored is that addon's refreshError, not a 500", async () => {
+    const t = await setup();
+    const cinemeta = await fake({ fixture: 'cinemeta' });
+    const youtube = await fake({ fixture: 'youtube' });
+    const a = await t.add(cinemeta.manifestUrl);
+    await t.add(youtube.manifestUrl);
+    // The database refuses every manifest write from now on.
+    await sql`CREATE TRIGGER no_manifest_writes BEFORE UPDATE ON addons
+      BEGIN SELECT RAISE(ABORT, 'refused'); END`.execute(t.db);
+
+    t.clock.advance(60_000);
+    const all = await t.call('POST', '/v1/admin/addons/refresh');
+    expect(all.status).toBe(200);
+    const views = all.json() as Addon[];
+    expect(views.map((v) => v.refreshError)).toEqual([
+      { code: 'unexpected', at: '2026-09-27T12:01:00.000Z' },
+      { code: 'unexpected', at: '2026-09-27T12:01:00.000Z' },
+    ]);
+    expect(views[0]?.id).toBe(a.id);
+    expect(t.log.lines().some((l) => String(l.msg).includes('could not be stored'))).toBe(true);
+  });
+
+  it("shows a manifest's logo only when it is an http(s) URL", async () => {
+    const t = await setup();
+    const script = await fake({ fixture: 'cinemeta', manifest: { logo: 'javascript:alert(1)' } });
+    const web = await fake({
+      fixture: 'youtube',
+      manifest: { logo: 'https://images.example.com/logo.png' },
+    });
+    expect((await t.add(script.manifestUrl)).logo).toBeNull();
+    expect((await t.add(web.manifestUrl)).logo).toBe('https://images.example.com/logo.png');
+  });
+
+  it('refuses a manifest URL with credentials as invalid, without echoing it', async () => {
+    const t = await setup();
+    for (const manifestUrl of [
+      `https://user:${SECRET}@addon.example.com/manifest.json`,
+      `stremio://${SECRET}@addon.example.com/manifest.json`,
+    ]) {
+      for (const path of ['/v1/admin/addons', '/v1/admin/addons/preview']) {
+        const res = await t.call('POST', path, { manifestUrl });
+        expect(res.status).toBe(400);
+        expect(detailOf(res)).toBe('The manifest URL must not contain a user name or password.');
+      }
+    }
+    expect(t.bodies.join('\n')).not.toContain(SECRET);
+    expect(t.log.text()).not.toContain(SECRET);
   });
 
   it('refreshes stale manifests on the schedule only', async () => {

@@ -102,9 +102,14 @@ function handle(req: IncomingMessage, res: ServerResponse) {
       });
       return;
     }
+    case '/stream/movie/busy.json':
+      res.writeHead(429, { 'content-type': 'application/json', 'retry-after': '30' });
+      return res.end('{}');
     case '/stream/movie/split-utf8.json': {
       // A multi-byte character split across two chunks must decode whole.
-      const bytes = Buffer.from(JSON.stringify({ streams: [{ url: 'https://a.io/1', name: 'Ü€😀' }] }));
+      const bytes = Buffer.from(
+        JSON.stringify({ streams: [{ url: 'https://a.io/1', name: 'Ü€😀' }] }),
+      );
       const cut = bytes.indexOf(0xf0) + 2; // inside the 4-byte emoji
       res.writeHead(200, { 'content-type': 'application/json' });
       res.write(bytes.subarray(0, cut));
@@ -307,6 +312,19 @@ describe('fetchResource', () => {
         fetchResource(transport(), stream('big-chunked'), { maxBytes: 16 * 1024, timeoutMs: 5000 }),
       AddonResponseTooLargeError,
     );
+  });
+
+  it("reports a status's Retry-After", async () => {
+    const busy = await expectAddonError(
+      () => fetchResource(transport(), stream('busy')),
+      AddonHttpStatusError,
+    );
+    expect([busy.status, busy.retryAfterMs]).toEqual([429, 30_000]);
+    const notFound = await expectAddonError(
+      () => fetchResource(transport(), stream('not-found')),
+      AddonHttpStatusError,
+    );
+    expect(notFound.retryAfterMs).toBeUndefined();
   });
 
   it('counts decompressed bytes against the size cap', async () => {

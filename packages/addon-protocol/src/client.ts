@@ -23,6 +23,7 @@ import {
   AddonTimeoutError,
   AddonUnsupportedTransportError,
   AddonValidationError,
+  parseRetryAfter,
 } from './errors.ts';
 import { checkJsonShape } from './limits.ts';
 import { ManifestSchema, type Manifest } from './manifest.ts';
@@ -130,7 +131,11 @@ async function fetchJson(url: URL, options: AddonRequestOptions): Promise<unknow
     );
     if (!response.ok) {
       await response.body?.cancel().catch(() => undefined);
-      throw new AddonHttpStatusError(host, response.status);
+      throw new AddonHttpStatusError(
+        host,
+        response.status,
+        parseRetryAfter(response.headers.get('retry-after')),
+      );
     }
     body = await readText(response, host, maxBytes);
   } catch (error) {

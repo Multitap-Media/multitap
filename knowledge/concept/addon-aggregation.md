@@ -44,6 +44,28 @@ Source of truth for addon aggregation
 - **Timeouts:** catalog/meta 5 s, streams 10 s. Return partial results rather
   than waiting on a slow addon. Stream results can also arrive incrementally as
   `streams.partial` events.
+- **Addon health:** each addon has a circuit breaker (`addons/circuit-breaker.ts`;
+  `MULTITAP_ADDON_CIRCUIT_FAILURES`, `MULTITAP_ADDON_CIRCUIT_RESET_MS`). A
+  timeout, a network failure, invalid JSON, a 5xx and a 429 count as failures;
+  any other answer (a 404, an invalid body) means the addon is up. A 429 or 503
+  with `Retry-After` opens the circuit at once for that long (at most
+  15 minutes; at least the reset time when it was the failure that reached the
+  threshold, or a failed trial). Every change of state starts a new period and
+  each request reports its outcome with the ticket it was let through with, so
+  only results from the current period count: a request that started before
+  the circuit opened can't close it, extend the open window or free a second
+  half-open trial; only the trial decides.
+- **Caches follow the manifest:** a refresh that brings an unchanged manifest
+  (compared as canonical JSON, keys sorted) only moves `fetchedAt`. A changed
+  manifest, a disable or a removal forgets the addon's cached responses, its
+  circuit and its in-flight requests, so the next request is made afresh. A
+  refresh that fails to store (the database, a manifest that can't be
+  serialized) is that addon's `refreshError` (`unexpected`); the others go on.
+  Cached responses keep how many items were dropped, not their validation
+  issues.
+- **Manifest URLs** with a user name or password are refused when installed
+  (`invalid-url`), since `fetch` can't send them; addons take their
+  configuration in the path.
 - **Series:** meta `videos[]` gives episode ids (`tt123:1:2`). Streams are
   fetched per episode. `bingeGroup` is kept for auto-next (same release group):
   as built, every candidate carries it, a ready session exposes its source's,
