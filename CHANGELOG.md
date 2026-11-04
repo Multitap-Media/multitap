@@ -126,6 +126,35 @@ repository; their tags are not part of this repository's history.
   lookup runs before the profile's queue. Unreadable library rows are skipped
   with a warning instead of failing the profile's library, and the watched
   bitfield is built only when a report crosses the watched threshold.
+- **Addon health follows rate limits and stale answers less.** A `429` counts
+  against an addon's circuit, and a `429` or `503` with `Retry-After` keeps it
+  open that long (at most 15 minutes). Results of requests that started
+  before the circuit changed state no longer steer it, and requests made
+  after an addon is disabled or changed no longer join a fetch made with its
+  old state (okf:concept/addon-aggregation).
+- **Refreshing an unchanged manifest keeps the addon's cached responses and
+  circuit**, and a refresh that can't be stored is reported as that addon's
+  `refreshError` (`unexpected`) instead of failing refresh-all with a `500`.
+- **A manifest URL with a user name or password is refused as `invalid-url`**
+  with a message saying why (it used to fail as `network`).
+- **Only http(s) images and http(s) or `stremio:` links reach clients** from
+  addon metas and manifests, and `stremio:` links that embed an addon URL are
+  dropped however many times they are encoded
+  (okf:architecture/normalized-addon-types).
+- **The private-host guard also refuses IPv4-translated, Teredo, ORCHID,
+  benchmarking and `3fff::/20` addresses**, and any IPv6 address outside
+  `2000::/3` (okf:architecture/addon-private-host-guard).
+- **A search asks at most 20 catalogs per addon, 4 at a time**, instead of
+  every search catalog a manifest declares at once.
+- **Incremental source lists no longer lose an addon that answers before the
+  meta lookup finishes**, and the last partial says `remaining: 0` when the
+  meta adds a part (okf:core-review/bugs-library-incremental-partials).
+- **Parsed numbers always fit `ParsedSource`** (no height 0, duration 0 or
+  infinite seeders), a 0 duration no longer skips the size check, and
+  `explain` labels a primary-language match correctly when the two language
+  bonuses are equal (okf:concept/source-ranking).
+- **The image's `latest` and `X.Y` tags only move forward:** a patch to an
+  older line no longer takes them.
 
 ### Changed
 
@@ -140,6 +169,15 @@ repository; their tags are not part of this repository's history.
 - New database files are created `0600`, data and log folders `0700`, log
   files `0600` (existing files keep their modes), and SQLite runs with
   `synchronous = NORMAL` under WAL.
+- Addon bodies are decoded as they stream; core's response cache keeps no
+  validation details it never reads; a failed subtitle file is served from its
+  failure for 30 s and shifted files are cached; selection parses each release
+  name once, ranks each addon's part once and records each stream's variant
+  when it is validated.
+- The base image is pinned by digest (Renovate keeps it current, after a
+  3-day release age); the release workflow drops unused OIDC and attestation
+  permissions and caches its build; CI jobs have time limits, and the
+  breaking-change check and full-history secrets scan run on Linux only.
 
 ## 0.2.1 (2026-11-02)
 
