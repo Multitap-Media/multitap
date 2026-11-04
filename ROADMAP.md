@@ -1,7 +1,7 @@
 # Multitap roadmap
 
 Everything outstanding for **Multitap** as a product: a menu of goals for filling
-out the service, not a schedule. Last updated 2026-11-02, at Multitap **0.2.1**.
+out the service, not a schedule. Last updated 2026-11-04, at Multitap **0.2.2**.
 
 ## What Multitap is
 

@@ -27,6 +27,8 @@ repository; their tags are not part of this repository's history.
 
 ## Unreleased
 
+## 0.2.2 (2026-11-04)
+
 ### Fixed
 
 - **One hostile addon response can no longer freeze Multitap.** The 8 MiB

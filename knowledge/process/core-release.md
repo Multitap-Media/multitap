@@ -3,7 +3,7 @@ type: Process
 title: "Release procedure (vX.Y.Z)"
 description: "How to cut a Multitap release: choose patch versus minor from the API change, bump the three package versions, rename the changelog's Unreleased block, regenerate OpenAPI, commit, tag vX.Y.Z, let the release workflow publish the image, check api:diff, and the commit-after-pipe pitfall."
 tags: [release, core, tags, process]
-generated: { by: "agent/claude-opus-5.5", at: "2026-10-26T12:00:00Z" }
+generated: { by: "agent/claude-opus-5.5", at: "2026-11-04T11:10:00Z" }
 status: stable
 code_refs:
   - ".github/workflows/release.yml"
@@ -29,6 +29,6 @@ Also the `release` skill (`.claude/skills/release/SKILL.md`). No per-release app
 
 **Pitfall.** Never chain `git commit` after `pnpm run ci | grep`: the pipe hides CI's exit status. Read the `ci: ok` line or use `set -o pipefail`.
 
-Tags in this repository: `v0.2.0` (2026-10-29, the first commit). Earlier releases (0.1.0 to 0.1.4) were tagged in the original repository: [[fact/core-release-history]].
+Tags in this repository: `v0.2.0` (2026-10-29, the first commit), `v0.2.1` (2026-11-02) and `v0.2.2` (2026-11-04). Earlier releases (0.1.0 to 0.1.4) were tagged in the original repository: [[fact/core-release-history]].
 
 Related: [[decision/core-public-repo-fresh-history]].
