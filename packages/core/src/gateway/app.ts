@@ -190,7 +190,7 @@ export function createMediaApp(deps: MediaAppDeps): Hono {
   app.notFound((c) => notFoundResponse(c));
   app.onError((err, c) => {
     logger.error({ err }, 'unhandled media error');
-    return c.body(null, 500);
+    return c.body(null, 500, { ...MEDIA_HEADERS });
   });
   return app;
 }

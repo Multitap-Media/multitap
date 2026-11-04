@@ -692,6 +692,31 @@ describe('the media listener', () => {
     expect((await call('DELETE', `/v1/sessions/${id}`)).status).toBe(204);
     expect((await call('GET', `/v1/sessions/${id}/viewers`)).status).toBe(410);
   });
+
+  it('answers an unexpected error with a bare 500 that still carries the media headers', async () => {
+    const { r, gateway, readySession, mint } = await setup();
+    const { id } = await readySession();
+    const token = await mint(id, 'member-1');
+    const failing = createMediaApp({
+      config: r.config,
+      logger: r.log.logger,
+      services: {
+        sessions: {
+          mediaTarget: () => Promise.reject(new Error('database is locked')),
+          touch: r.service.touch.bind(r.service),
+        },
+        engines: r.module,
+        gateway,
+      },
+    });
+    const res = await failing.request(`/media/${token.token}/master.m3u8`);
+    expect(res.status).toBe(500);
+    expect(await res.text()).toBe('');
+    expect(res.headers.get('cache-control')).toBe('no-store');
+    expect(res.headers.get('x-content-type-options')).toBe('nosniff');
+    expect(res.headers.get('referrer-policy')).toBe('no-referrer');
+    expect(r.log.lines()).toContainEqual(expect.objectContaining({ msg: 'unhandled media error' }));
+  });
 });
 
 describe('the OpenAPI document', () => {

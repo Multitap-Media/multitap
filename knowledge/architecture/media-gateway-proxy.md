@@ -24,7 +24,8 @@ Source of truth for the gateway's proxy behaviour  The URL scheme and status cod
   `ReadableStream` that pulls one chunk at a time and counts the bytes). Pass
   the upstream status, `Content-Type` and `Content-Length` through, and send
   `Cache-Control: no-store`, `Referrer-Policy: no-referrer` and
-  `X-Content-Type-Options: nosniff`.
+  `X-Content-Type-Options: nosniff` (on every answer, an unexpected `500`
+  included).
 - **Filename allowlist** as in [[architecture/media-gateway]]. Everything else is `404`, so engine APIs
   are never reachable through the gateway. The media listener serves nothing
   but `/media`.
