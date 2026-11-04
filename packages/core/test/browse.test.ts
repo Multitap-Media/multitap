@@ -279,6 +279,53 @@ describe('GET /v1/meta/{type}/{id}', () => {
     expect(res.text).not.toContain(SECRET);
   });
 
+  it('passes only http(s) images and http(s) or stremio: links', async () => {
+    const t = await setup();
+    const { fake } = await t.install({ fixture: 'cinemeta' });
+    const twice = encodeURIComponent(encodeURIComponent(fake.manifestUrl));
+    const links = [
+      { name: 'Script', category: 'x', url: 'javascript:alert(1)' },
+      { name: 'Data', category: 'x', url: 'data:text/html,<script>alert(1)</script>' },
+      { name: 'Twice', category: 'Genres', url: `stremio:///discover/${twice}/series/top` },
+      { name: 'Single slash', category: 'Genres', url: 'stremio:/discover/https:/a.example.com' },
+      { name: 'Broken escape', category: 'Genres', url: 'stremio:///discover/https%3A%2F%2Fa%ZZ' },
+      { name: 'Search', category: 'Cast', url: 'stremio:///search?search=Jane%20Doe' },
+      { name: 'Web', category: 'imdb', url: 'https://imdb.com/title/tt0903747' },
+    ];
+    fake.set({
+      routes: {
+        'meta/series/tt0903747': {
+          meta: {
+            id: 'tt0903747',
+            type: 'series',
+            name: 'Breaking Bad',
+            poster: 'javascript:alert(1)',
+            background: 'data:image/png;base64,AAAA',
+            logo: 'https://images.example.com/logo.png',
+            links,
+            videos: [
+              { id: 'tt0903747:1:1', title: 'Pilot', thumbnail: 'javascript:alert(1)' },
+              { id: 'tt0903747:1:2', title: 'Two', thumbnail: 'https://images.example.com/2.jpg' },
+            ],
+          },
+        },
+      },
+    });
+    const res = await t.get('/v1/meta/series/tt0903747');
+    expect(res.status).toBe(200);
+    const { meta } = MetaResultSchema.parse(res.json());
+    expect(meta.links.map((l) => l.name)).toEqual(['Search', 'Web']);
+    expect(meta.poster).toBeUndefined();
+    expect(meta.background).toBeUndefined();
+    expect(meta.logo).toBe('https://images.example.com/logo.png');
+    expect(meta.videos.map((v) => v.thumbnail)).toEqual([
+      undefined,
+      'https://images.example.com/2.jpg',
+    ]);
+    expect(res.text).not.toContain('javascript:');
+    expect(res.text).not.toContain(SECRET);
+  });
+
   it('falls back to the next addon when the first one fails', async () => {
     const t = await setup();
     const broken = await t.install({
