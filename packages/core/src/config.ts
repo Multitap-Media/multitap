@@ -620,8 +620,8 @@ const NEVER_ECHOED = (name: string) =>
 
 /**
  * How an invalid value is shown in an error: not at all for a secret, or for
- * a value with an `@` (a URL with a user name and password, such as
- * `https://user:pass@host`, which must not reach stderr or a log collector).
+ * a value with an `@` (a URL with a user name and password before its host,
+ * which must not reach stderr or a log collector).
  */
 function shownValue(name: string, value: string | undefined): string {
   if (value === undefined || NEVER_ECHOED(name)) return '';

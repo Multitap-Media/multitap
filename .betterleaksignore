@@ -1,3 +1,6 @@
 # Fingerprints of findings that were checked and are not secrets, one per line.
 # Passed with --ignore-file by scripts/secrets-scan.js. Add a line only after
 # checking the finding is benign.
+# config.ts comment (commit 3c18579): the made-up example of a URL with a user
+# name and password that the config error must not echo.
+d74ff0ee8da3b9806b18c877dbf29bbde50b5bd8e4dad7a3a725000feb82e8f1

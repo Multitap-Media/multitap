@@ -1,0 +1,7 @@
+{
+  "format_version": 1,
+  "schemathesis_version": "4.28.0",
+  "schema_location": "/home/user/multitap/packages/api/openapi.json",
+  "base_url": "http://127.0.0.1:46807",
+  "created_at": "2026-11-04T02:56:44.217758+00:00"
+}
