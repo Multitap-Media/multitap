@@ -5,6 +5,7 @@ import {
   readdirSync,
   readFileSync,
   rmSync,
+  utimesSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -18,7 +19,10 @@ import {
   BackupError,
   BackupService,
   PRE_MIGRATION_KEEP,
+  STALE_PARTIAL_MS,
   backupBeforeMigrating,
+  backupFailureHint,
+  finishAndVerify,
   isBackupId,
   preMigrationDir,
 } from '../src/backup/service.ts';
@@ -150,6 +154,83 @@ describe('BackupService', () => {
     writeFileSync(join(dir, 'backups', 'multitap-bad.sqlite'), 'x');
     writeFileSync(join(dir, 'backups', `${a.id}.sqlite.partial`), 'x');
     expect((await backups.list()).map((x) => x.id)).toEqual([b.id, a.id]);
+  });
+
+  it('removes only stale partial files, never one another copy may still be writing', async () => {
+    const { backups } = setup();
+    const folder = join(dir, 'backups');
+    mkdirSync(folder, { recursive: true });
+    const stale = join(folder, 'multitap-20260101T000000000Z.sqlite.partial');
+    const inFlight = join(folder, 'multitap-20260101T000000001Z.sqlite.4242-abcd0123.partial');
+    writeFileSync(stale, 'x');
+    writeFileSync(inFlight, 'x');
+    const old = (Date.now() - STALE_PARTIAL_MS - 60_000) / 1000;
+    utimesSync(stale, old, old);
+
+    await backups.run('manual');
+    expect(existsSync(stale)).toBe(false);
+    expect(existsSync(inFlight)).toBe(true);
+  });
+
+  it('keeps the backup just written when the clock stepped back since the others', async () => {
+    const { backups, clock } = setup({ keep: 2 });
+    const a = await backups.run('scheduled');
+    clock.advance(1000);
+    const b = await backups.run('scheduled');
+    clock.advance(-3_600_000);
+    const latest = await backups.run('manual');
+    expect(existsSync(backupPath(latest.id))).toBe(true);
+    expect((await backups.list()).map((x) => x.id)).toEqual([b.id, latest.id]);
+    expect(existsSync(backupPath(a.id))).toBe(false);
+  });
+
+  it('ignores a file named like a backup whose date does not exist', async () => {
+    const { backups, call, log } = setup();
+    const real = await backups.run('manual');
+    for (const id of ['multitap-20261301T000000000Z', 'multitap-20260230T000000000Z']) {
+      writeFileSync(backupPath(id), 'x');
+      expect(await backups.find(id)).toBeUndefined();
+      expect((await call(`/v1/admin/backups/${id}`)).status).toBe(404);
+    }
+    expect((await backups.list()).map((b) => b.id)).toEqual([real.id]);
+    const res = await call('/v1/admin/backups');
+    expect(res.status).toBe(200);
+    expect(log.lines().some((l) => String(l.msg).includes('date does not exist'))).toBe(true);
+  });
+
+  it('fails verification for a copy that is gone, empty or not a Multitap database', () => {
+    const missing = join(dir, 'gone.sqlite');
+    expect(() => {
+      finishAndVerify(missing, 'quick_check');
+    }).toThrow();
+    // Not created as an empty database that would check "ok".
+    expect(existsSync(missing)).toBe(false);
+
+    const empty = join(dir, 'empty.sqlite');
+    writeFileSync(empty, '');
+    expect(() => {
+      finishAndVerify(empty, 'quick_check');
+    }).toThrow(/empty or not a Multitap database/);
+
+    const other = join(dir, 'other.sqlite');
+    const sqlite = new SQLite(other);
+    sqlite.exec('create table t (x)');
+    sqlite.close();
+    expect(() => {
+      finishAndVerify(other, 'integrity_check');
+    }).toThrow(/not a Multitap database/);
+  });
+
+  it('names the folder and the cause when the backup folder is not writable', () => {
+    const denied = Object.assign(new Error('EACCES: permission denied, mkdir'), {
+      code: 'EACCES',
+    });
+    const hint = backupFailureHint(new Error('wrapped', { cause: denied }), '/srv/data/backups');
+    expect(hint).toContain('/srv/data/backups');
+    expect(hint).toContain('EACCES');
+    expect(hint).toMatch(/sudo/);
+    const full = Object.assign(new Error('no space'), { code: 'ENOSPC' });
+    expect(backupFailureHint(full, '/srv/x')).toContain('full (ENOSPC)');
   });
 
   it('rejects ids that are not backup ids, so no path escapes the directory', async () => {
@@ -297,6 +378,19 @@ describe('/v1/admin/backups', () => {
     expect((await call(`/v1/admin/backups/${backup.id}`, { method: 'DELETE' })).status).toBe(404);
     expect((await call(`/v1/admin/backups/${backup.id}`)).status).toBe(404);
     expect(await (await call('/v1/admin/backups')).json()).toEqual([]);
+  });
+
+  it('a download already answered survives the backup being pruned or deleted', async () => {
+    const { call, backups } = setup();
+    const backup = (await (await call('/v1/admin/backups', { method: 'POST' })).json()) as Backup;
+    const expected = readFileSync(backupPath(backup.id));
+
+    const download = await call(`/v1/admin/backups/${backup.id}`);
+    expect(download.status).toBe(200);
+    expect(await backups.delete(backup.id)).toBe(true);
+    const bytes = Buffer.from(await download.arrayBuffer());
+    expect(download.headers.get('content-length')).toBe(String(expected.length));
+    expect(bytes.equals(expected)).toBe(true);
   });
 
   it('answers 409 to a backup requested while one runs', async () => {

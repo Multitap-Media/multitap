@@ -30,7 +30,7 @@ afterEach(async () => {
 });
 
 describe('backups (review PoC)', () => {
-  it.fails('a backup written after the clock stepped back is kept', async () => {
+  it('a backup written after the clock stepped back is kept', async () => {
     const clock = manualClock();
     const backups = new BackupService({
       db,
