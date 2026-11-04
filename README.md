@@ -719,7 +719,7 @@ From the repository root:
 | `pnpm run api:mock` | Prism mock server from the document |
 | `pnpm run build` | Builds every package's `dist/` as it is packed and published |
 | `pnpm run pack:check` | Packs the three packages, installs them into a project outside the workspace, imports them with plain `node` and typechecks a strict NodeNext consumer (needs the npm registry) |
-| `pnpm run ci` | lint, typecheck, api:check, api:diff (skipped with a warning without oasdiff), docs:check, tests, pack:check, the secrets scan (and the contract run on native Linux; `--contract` forces it, through WSL on Windows) |
+| `pnpm run ci` | lint, typecheck, api:check, api:diff (skipped with a warning without oasdiff), docs:check, tests, pack:check, the secrets scan (and the contract run on native Linux; `--contract` forces it, through WSL on Windows; `--no-history` leaves out api:diff and the secrets scan, as CI's Windows job does) |
 
 Tests never reach the internet or start ffmpeg. Fixtures under
 `packages/addon-protocol/test/fixtures/real/` are real responses with every stream URL
