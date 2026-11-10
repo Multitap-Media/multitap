@@ -1,3 +1,7 @@
+## 2026-11-10
+* **Update**: The header/index cache and the transcode-ahead window merged upstream as rivulet-engine#80 and #79 (Rivulet Engine v0.31.0), so items 1 to 8 of the tracking issue are done. Updated `process/engine-upstream-prs.md`, `process/upstream-engine-asks.md`, `process/upstream-engine-asks-table.md`, `process/build-plan.md` (phase 4 is next), `process/risk-register.md` (R10), `architecture/engine-session-lifecycle.md`, `architecture/engine-prepare-stream.md` (the warm-up stays: transcode-ahead is engine-wide and starts after a first request) and `architecture/engine-prepare-ahead.md` (the engine's prepare API as merged: statuses, errors, detection, lifetime), with their `process/index.md` and `architecture/index.md` entries.
+* **Creation**: Documented concept `process/phase-4-core-checklist.md` (what the reference engine needs, the core work for phase 4 in build order, and the open questions), with its `process/index.md` and `project-map.md` entries.
+
 ## 2026-11-04
 * **Update**: Updated concept `process/core-release.md` (the tags in this repository: `v0.2.1` and `v0.2.2`).
 * **Creation**: Documented concept `decision/incremental-list-waits-for-meta.md` (maintainer decision: the incremental list's `202` waits for the item's meta lookup so `addons` stays an exact count), with its `decision/index.md` and `project-map.md` entries, and updated `architecture/core-events-sse.md` (the `202` comes after the meta lookup; an early addon answer is queued).

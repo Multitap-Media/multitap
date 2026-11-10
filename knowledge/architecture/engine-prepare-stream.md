@@ -45,10 +45,13 @@ Source of truth for preparing a stream for playback  Interface and overview: [[a
    but `200` is unplayable (`engine-error`); a `400` there means an override
    the engine refused. A master request aborted or timed out may still have
    made the session on the engine, so core releases it (best effort).
-5. **Warm the start.** On an engine with a transcode-ahead window ([[process/engine-upstream-prs]]), ask
-   for it on the master request and let the engine read ahead. Otherwise core
-   fetches `seg0`–`seg2` (or the video-only and default-audio equivalents) in the
-   background and discards them. As built: from the master, every variant
+5. **Warm the start.** Core fetches `seg0`–`seg2` (or the video-only and
+   default-audio equivalents) in the background and discards them. The engine's
+   transcode-ahead window (upstream #79, [[process/engine-upstream-prs]]) doesn't
+   replace this: it is an engine-wide setting (`RIVULET_HLS_TRANSCODE_AHEAD`),
+   not a master-request parameter, core can't detect it, and it reads ahead only
+   once a segment has been requested. With it on, the warm-up's requests are
+   that first request, in order, so they don't count as a seek. As built: from the master, every variant
    playlist and the default audio rendition, then the first three segments of
    each, read to the end chunk by chunk and kept nowhere (the engine caches a
    segment only once its transcode completes); failures are logged at `debug`

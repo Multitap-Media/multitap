@@ -23,7 +23,8 @@ Source of truth for engine session lifecycle during playback  Interface and over
 - **No seek prewarm from core.** The engine dedupes concurrent segment requests,
   and a client's buffering handling (a watch-party client's, for example) covers the ~1–3 s to
   transcode the first segment after a seek. Reading ahead after a seek is the
-  engine's job (the transcode-ahead window, [[process/engine-upstream-prs]]), not core's.
+  engine's job (the transcode-ahead window, upstream #79, opt-in with
+  `RIVULET_HLS_TRANSCODE_AHEAD`, [[process/engine-upstream-prs]]), not core's.
 - **Admission against `liveConcurrency`** (as built, 2026-10-01). Core never
   sent `liveConcurrency` to the engine or used it before. It counts
   simultaneous transcodes, not sessions: a paused or idle session costs the

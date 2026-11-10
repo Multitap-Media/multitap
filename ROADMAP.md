@@ -416,27 +416,30 @@ info findings stay in each area's progress concept.
 
 ### Engine: small fixes (upstream, accepted in #43)
 
-- [ ] **Short-segment check** · S · `engine` — a segment whose video ends early
-  is still cached. _Source: #43 item 1; okf:process/engine-upstream-prs._
-- [ ] **A distinguishable status when the source fails mid-transcode** · S ·
-  `engine` — `502`/`504` with a reason instead of `404`; Multitap retries an engine
-  `404` on a segment once meanwhile. _Source: #43 item 2; okf:process/upstream-engine-asks._
-- [ ] **Allowlist of private hosts/CIDRs** · S · `engine` — read media from a
-  NAS or LAN host; empty by default, checked at dial time. _Source: #43 item
+- [x] **Short-segment check** · S · `engine` — a segment whose video ends early
+  is no longer cached (upstream #52, #57). _Source: #43 item 1; okf:process/engine-upstream-prs._
+- [x] **A distinguishable status when the source fails mid-transcode** · S ·
+  `engine` — `502`/`504` with a reason instead of `404` (upstream #53, #58);
+  Multitap retries each once. _Source: #43 item 2; okf:process/upstream-engine-asks._
+- [x] **Allowlist of private hosts/CIDRs** · S · `engine` — read media from a
+  NAS or LAN host; empty by default, checked at dial time (upstream #49). _Source: #43 item
   3; okf:process/engine-upstream-prs._
-- [ ] **`BANDWIDTH` as the peak in the master playlist** · S · `engine` — it's
-  half the effective maxrate today. _Source: #43 item 4; okf:process/upstream-engine-asks._
+- [x] **`BANDWIDTH` as the peak in the master playlist** · S · `engine` — it was
+  half the effective maxrate (upstream #50, #59). _Source: #43 item 4; okf:process/upstream-engine-asks._
 - [x] **`api_password` in the engine's access-log redaction list** · S ·
   `engine` — fixed upstream (`a038e80`). _Source: #43 item 5._
 
 ### Engine: medium (upstream, welcome in #43)
 
-- [ ] **Engine-side preparation** (`POST /hlsv2/{id}/prepare`) · M–L ·
+- [x] **Engine-side preparation** (`POST /hlsv2/{id}/prepare`) · M–L ·
   `engine` — a background job transcodes a whole session at low priority,
-  reports per-segment cache status and survives restarts. Prerequisite for
+  reports per-segment cache status and survives restarts (upstream #73, #75;
+  Rivulet Engine v0.30.0, opt-in `RIVULET_HLS_PREPARE`). Prerequisite for
   Multitap's prepare jobs (below). _Source: #43 item 6; okf:architecture/engine-prepare-ahead, okf:process/build-plan._
-- [ ] **Header/index cache for HTTP sources** · M · `engine` — one data request
-  per segment instead of about six; makes live debrid playback real time.
+- [x] **Header/index cache for HTTP sources** · M · `engine` — one data request
+  per segment instead of about four (upstream #80; Rivulet Engine v0.31.0,
+  opt-in `RIVULET_HLS_RELAY_CACHE_BYTES`); to be measured on the reference
+  deployment.
   _Source: #43 item 7; okf:process/engine-upstream-prs, R10._
 
 ### Optional module
@@ -482,16 +485,18 @@ info findings stay in each area's progress concept.
 - [ ] **Prepare jobs: `mode: 'full'`, `readyBy`, `prepare.*` events** · L ·
   `multitap` — prepare a source ahead of time (e.g. a 4K film overnight) on top of
   engine-side preparation, with verification and re-queueing of lost
-  preparations; both answer `501` today. _Source: okf:architecture/engine-prepare-ahead,
-  okf:process/build-plan (phase 4)._
-- [ ] **Transcode-ahead window** · M · `engine` — keep the next N segments
+  preparations; both answer `501` today. The engine side is merged, so this
+  is next. _Source: okf:architecture/engine-prepare-ahead,
+  okf:process/phase-4-core-checklist, okf:process/build-plan (phase 4)._
+- [x] **Transcode-ahead window** · M · `engine` — keep the next N segments
   transcoding within free slots; fewer stalls after seeks. Shares
-  preparation's scheduler. _Source: #43 item 8; okf:process/engine-upstream-prs._
+  preparation's scheduler (upstream #79; Rivulet Engine v0.31.0, opt-in
+  `RIVULET_HLS_TRANSCODE_AHEAD`). _Source: #43 item 8; okf:process/engine-upstream-prs._
 
 ### Engine performance and formats
 
 - [ ] **Hardware decode** · L · `engine` — off by default, per codec, software
-  fallback; live 4K on a small iGPU (measured ~1.7 s per 4 s 4K segment with
+  fallback (design issue rivulet-kodi/rivulet-engine#81); live 4K on a small iGPU (measured ~1.7 s per 4 s 4K segment with
   D3D11VA + QSV vs 6–11 s in software); libplacebo for Dolby Vision profile 5.
   Measured on the reference deployment. _Source: #43 item 10;
   okf:process/engine-upstream-prs, R1, R2._
