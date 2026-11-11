@@ -1,15 +1,15 @@
 ---
 type: Process
 title: "Checklist for phase 4 in core: prepare jobs on engine-side preparation, then live HLS"
-description: "What the reference engine needs before phase 4 starts, the ten pieces of core work in build order (engine client and detection, fake engine, mode full in the engine module, the prepare_jobs table, the scheduler and its events, verification, lifting the 501s, retention and admission, live HLS, documents), and the questions open before coding."
+description: "What the reference engine needs before phase 4 starts, the ten pieces of core work in build order (engine client and detection, fake engine, mode full in the engine module, the prepare_jobs table, the scheduler and its events, verification, lifting the 501s, retention and admission, live HLS, documents), what was built on 2026-11-10 and what is still open."
 tags: [phase-4, prepare, checklist, core, process]
 generated: { by: "agent/claude", at: "2026-11-10T12:00:00Z" }
 status: draft
 ---
 
-The work list for phase 4 of [[process/build-plan]], written on 2026-11-10, when items 6, 7 and 8 of the engine tracking issue were done ([[process/upstream-engine-asks]]). The design is [[architecture/engine-prepare-ahead]]; this concept lists what to build and in what order, and it doesn't replace that design. Nothing below is built yet.
+The work list for phase 4 of [[process/build-plan]], written on 2026-11-10, when items 6, 7 and 8 of the engine tracking issue were done ([[process/upstream-engine-asks]]). The design is [[architecture/engine-prepare-ahead]]; this concept lists what to build and in what order, and it doesn't replace that design. Items 1 to 8 were built on 2026-11-10 against the fake engine, with the choices recorded in [[decision/prepare-on-engine-side]]; item 9 (live HLS) is open, and so is a run against the reference engine.
 
-**What exists today.** The API already declares the phase 4 shapes: `mode: 'full'`, `readyBy`, the `preparing` status, `progress.preparedPct` and the four `prepare.*` events (`packages/api/src/sessions.ts`, `events.ts`). Core refuses them: `POST /v1/sessions` with `mode: 'full'` or a `readyBy`, and `PATCH` with a `readyBy`, answer `501` (`sessions/service.ts`), and the engine module rejects `mode: 'full'` (`engines/engine-module.ts`). The `prepare_jobs` table isn't created ([[architecture/core-persistence]]). Phase 4 is therefore additive on `/v1`: no schema is removed and `api:diff` should show no breaking change.
+**What existed before.** The API already declared the phase 4 shapes: `mode: 'full'`, `readyBy`, the `preparing` status, `progress.preparedPct` and the four `prepare.*` events (`packages/api/src/sessions.ts`, `events.ts`). Core refused them: `POST /v1/sessions` with `mode: 'full'` or a `readyBy`, and `PATCH` with a `readyBy`, answer `501` (`sessions/service.ts`), and the engine module rejects `mode: 'full'` (`engines/engine-module.ts`). The `prepare_jobs` table isn't created ([[architecture/core-persistence]]). Phase 4 is therefore additive on `/v1`: no schema is removed and `api:diff` should show no breaking change.
 
 ## Before starting: the reference engine
 
@@ -32,12 +32,20 @@ The work list for phase 4 of [[process/build-plan]], written on 2026-11-10, when
 9. **Live HLS**, the second half of phase 4 and a separate piece of work: a live handle through the engine's HLS proxy under the same media tokens, with no transcode ([[architecture/media-gateway]]). It shares nothing with items 1 to 8 and can ship in its own release.
 10. **Documents.** README (configuration and API), `CHANGELOG.md`, `ROADMAP.md`, and the concepts this changes: [[architecture/engine-prepare-ahead]] (from "not built" to "as built"), [[architecture/playback-session]], [[architecture/engine-module]], [[architecture/core-persistence]], [[architecture/core-events-sse]] and [[process/build-plan]].
 
-## Open before coding
+## The questions that were open, and what was done
 
-1. **An engine without preparation.** The design says the core-driven loop is "built only if a stock engine has to be supported". This checklist assumes it isn't built, so `mode: 'full'` fails there. Confirm.
-2. **New failure reasons.** A `507` and a job that ends `failed` need a reason a client can read. Either new values next to `needs-prepare` (additive) or the existing `engine-error`.
-3. **All audio renditions.** The design names `prepare.allAudio`. Decide whether it is an instance setting, a field on the create request, or both.
-4. **The warm-up for `full` sessions.** The job transcodes in playback order from the start, so the three-segment warm-up adds little there; it stays for `play` sessions either way ([[architecture/engine-prepare-stream]]).
-5. **Order of the two halves.** This checklist puts prepare jobs before live HLS, because the engine work for them just landed.
+The maintainer said to go with the assumptions (2026-11-10); they are recorded in [[decision/prepare-on-engine-side]].
+
+1. **An engine without preparation:** `mode: 'full'` fails there with `prepare-unsupported`; no core-driven loop.
+2. **Failure reasons:** new values, `prepare-unsupported`, `prepare-too-large` and `prepare-failed`.
+3. **All audio renditions:** an instance setting, `MULTITAP_PREPARE_ALL_AUDIO`.
+4. **The warm-up:** none for `full` sessions; unchanged for `play` sessions ([[architecture/engine-prepare-stream]]).
+5. **Order:** prepare jobs first; live HLS is next.
+
+## Still open
+
+- Run it against the reference engine (v0.31.0 or later, set up as above), with a real 4K source and an engine restart mid-job.
+- Live HLS (item 9).
+- Auto-select for a `full` session counts `prepared`-only candidates, but its attempt timeout and attempt count are the ones tuned for live playback.
 
 Related: [[architecture/engine-prepare-ahead]], [[process/build-plan]], [[process/engine-upstream-prs]], [[process/abr-ladder-core-checklist]].

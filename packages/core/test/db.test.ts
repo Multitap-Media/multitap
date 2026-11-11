@@ -93,6 +93,7 @@ describe('database', () => {
       'last_sources',
       'library_items',
       'playback_sessions',
+      'prepare_jobs',
       'profiles',
       'session_subtitle_offsets',
       'settings',
@@ -112,6 +113,7 @@ describe('database', () => {
       '0009_profile_settings_last_source',
       '0010_session_subtitle_offsets',
       '0011_item_player_states',
+      '0012_prepare_jobs',
     ]);
 
     expect(await columns(db, 'addons')).toEqual({

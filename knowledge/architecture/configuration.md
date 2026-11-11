@@ -36,7 +36,10 @@ Every variable but `NODE_ENV` carries the `MULTITAP_` prefix, core's public name
 | `MULTITAP_MEDIA_TOKEN_TTL_MS` / `MULTITAP_MEDIA_TOKEN_MAX_TTL_MS` | `8h` / `7d` | Default (1 min–7 d) and longest (up to 30 d) media token lifetime ([[concept/media-tokens]]); the default may not exceed the longest |
 | engines | `/v1/admin` → `engines` table | None is seeded (since 2026-10-20): add one with `PUT /v1/admin/engines/{id}` ([[concept/engine-descriptor]]). The engine's `proxyPassword` is write-only ([[architecture/secrets-classes-and-engine-password]]), set there or with the CLI |
 | addons | `/v1/admin` → `addons` table | Manifest URLs (secret) |
-| `prepare.leadTime.upTo1080` / `.above1080` | `1h` / `36h` | [[architecture/engine-prepare-ahead]]; phase 4, not a setting yet |
+| `MULTITAP_PREPARE_LEAD_TIME_UP_TO_1080_MS` / `MULTITAP_PREPARE_LEAD_TIME_ABOVE_1080_MS` | `1h` / `36h` | How long before a `full` session's `readyBy` its preparation starts, by the source's height ([[architecture/engine-prepare-ahead]]) |
+| `MULTITAP_PREPARE_POLL_MS` | `15s` | How often running preparations are read from their engines |
+| `MULTITAP_PREPARE_ALL_AUDIO` | `false` | Prepare every audio rendition of a multi-audio source, not only the default one |
+| `MULTITAP_PREPARE_SESSION_TTL_MS` | `7d` | The engine `ttl` (#25) of a prepared session, 60 s–30 d, sent to engines with `sessionOverrides`: once the job is done the engine's idle TTL applies again ([[architecture/engine-retention]]) |
 | `MULTITAP_RETENTION_IDLE_MS` (`retention.idle`) | `1h` | [[architecture/engine-retention]] (enforced with #24's `DELETE`) |
 | `MULTITAP_SESSION_RELEASED_KEEP_MS` / `MULTITAP_RETENTION_SWEEP_MS` | `24h` / `60s` | How long a released session stays readable (and its media answers `410`); how often retention is swept |
 | `MULTITAP_AUTO_SELECT_MAX_ATTEMPTS` / `MULTITAP_AUTO_SELECT_RETRY_AFTER_MS` | `5` / `30s` | Auto-select: candidates tried before giving up; when a failed torrent is retried once ([[decision/auto-select-and-fallback]]) |

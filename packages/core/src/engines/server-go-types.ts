@@ -125,6 +125,22 @@ export interface ServerGoClient {
   deleteSession(sid: string): Promise<DeleteSessionResult>;
   /** Whether the engine has `DELETE /hlsv2/{id}` (probed once, then cached). */
   supportsDelete(): Promise<boolean>;
+  /**
+   * Whether the engine has engine-side preparation (`/hlsv2/{id}/prepare`,
+   * upstream #73 with `RIVULET_HLS_PREPARE`; okf:architecture/engine-prepare-ahead). Probed once, then cached.
+   */
+  supportsPrepare(): Promise<boolean>;
+  /**
+   * `POST /hlsv2/{sid}/prepare?audio=`: starts the session's preparation job,
+   * or leaves a running one with the same `audio` alone; a finished job starts
+   * again and re-checks every segment. The session must exist (the master
+   * request). Rejects with a {@link ServerGoError} on any other answer.
+   */
+  prepareStart(sid: string, audio: PrepareAudio): Promise<PrepareCallResult>;
+  /** `GET /hlsv2/{sid}/prepare`: the job's progress. Not an access to the session. */
+  prepareStatus(sid: string): Promise<PrepareCallResult>;
+  /** `DELETE /hlsv2/{sid}/prepare`: stops the job and unpins its segments; the session stays. */
+  prepareStop(sid: string): Promise<'stopped' | 'not-found'>;
   /** Forgets cached capabilities (the health check calls it when an engine comes back online). */
   resetCapabilities(): void;
   /** The engine's own loopback origin, `http://127.0.0.1:{port}`, which its SSRF guard allows. */
@@ -156,6 +172,37 @@ export interface ServerGoClient {
    */
   openSubHash(mediaURL: string, signal?: AbortSignal): Promise<OpenSubHash | undefined>;
 }
+
+/** Which audio renditions of a multi-audio session a preparation covers besides the video. */
+export type PrepareAudio = 'default' | 'all';
+
+/**
+ * The engine's preparation status (`/hlsv2/{id}/prepare`), the parts Multitap
+ * uses. `done` means the job ran its passes, not that every segment is cached:
+ * compare `cached` with `total`.
+ */
+export interface EnginePrepareStatus {
+  /** `idle`: no job, or stopped. `failed`: stopped after repeated transcode errors. */
+  state: 'idle' | 'running' | 'done' | 'failed';
+  /** Segment files to prepare, across the renditions the job covers. */
+  total: number;
+  cached: number;
+  /** Transcoded but not cached: the output failed the engine's check. */
+  uncached: number;
+  failed: number;
+  /** `failed` only: the last transcode error, made safe to log. */
+  error?: string;
+}
+
+/** What a prepare call found. Anything else rejects. */
+export type PrepareCallResult =
+  | { kind: 'status'; status: EnginePrepareStatus }
+  /** `404`: the engine has no such session (evicted, or lost in a restart). */
+  | { kind: 'not-found' }
+  /** `409`: the session's duration is unknown (its probe failed). */
+  | { kind: 'no-duration' }
+  /** `507`: the prepared session wouldn't fit `RIVULET_HLS_SEGMENT_CACHE_BYTES`. */
+  | { kind: 'too-large' };
 
 /** The engine's answer to `/opensubHash`. */
 export interface OpenSubHash {

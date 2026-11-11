@@ -389,6 +389,77 @@ describe('server-go client against the fake engine', () => {
     ]);
   });
 
+  it('detects engine-side preparation with an invalid id, once, and not on an engine without it', async () => {
+    const { fake, client: c } = client(new FakeEngine({ supportsPrepare: true }));
+    expect(await c.supportsPrepare()).toBe(true);
+    expect(await c.supportsPrepare()).toBe(true);
+    const probes = () =>
+      fake.requests.filter((r) => r.path === '/hlsv2/..capability-probe/prepare');
+    expect(probes().map((r) => r.method)).toEqual(['DELETE']);
+    c.resetCapabilities();
+    await c.supportsPrepare();
+    expect(probes()).toHaveLength(2);
+
+    // Off (the engine's default) the path is Go's 404; a pre-#24 engine has no DELETE at all.
+    expect(await client().client.supportsPrepare()).toBe(false);
+    expect(await client(new FakeEngine({ supportsDelete: false })).client.supportsPrepare()).toBe(
+      false,
+    );
+  });
+
+  it('starts, reads and stops a preparation', async () => {
+    const { fake, client: c } = client(
+      new FakeEngine({ supportsPrepare: true, prepareSegmentsPerPoll: 10 }),
+    );
+    expect(await c.prepareStart('S1', 'default')).toEqual({ kind: 'not-found' });
+    await (await c.master({ sid: 'S1', mediaURL: 'https://m.example/a.mkv' })).text();
+    const idle = { state: 'idle', total: 30, cached: 0, uncached: 0, failed: 0 };
+    expect(await c.prepareStatus('S1')).toEqual({ kind: 'status', status: idle });
+    expect(await c.prepareStart('S1', 'default')).toEqual({
+      kind: 'status',
+      status: { ...idle, state: 'running' },
+    });
+    expect(fake.requests.at(-1)).toMatchObject({
+      method: 'POST',
+      path: '/hlsv2/S1/prepare',
+      query: { audio: 'default' },
+    });
+    expect(await c.prepareStatus('S1')).toEqual({
+      kind: 'status',
+      status: { ...idle, state: 'running', cached: 10 },
+    });
+    await c.prepareStatus('S1');
+    expect(await c.prepareStatus('S1')).toEqual({
+      kind: 'status',
+      status: { ...idle, state: 'done', cached: 30 },
+    });
+    expect(await c.prepareStop('S1')).toBe('stopped');
+    expect((await c.prepareStatus('S1')).kind).toBe('status');
+    expect(await c.prepareStop('nope')).toBe('not-found');
+  });
+
+  it("maps 409 and 507, keeps a failed job's error safe, and prepares every audio rendition when asked", async () => {
+    const fake = new FakeEngine({ supportsPrepare: true });
+    const { client: c } = client(fake);
+    fake.setProbe('https://m.example/zero.mkv', 'zero-duration');
+    await (await c.master({ sid: 'Z', mediaURL: 'https://m.example/zero.mkv' })).text();
+    expect(await c.prepareStart('Z', 'default')).toEqual({ kind: 'no-duration' });
+
+    fake.setProbe('https://m.example/multi.mkv', 'multi-audio');
+    await (await c.master({ sid: 'M', mediaURL: 'https://m.example/multi.mkv' })).text();
+    fake.prepareTooLarge = true;
+    expect(await c.prepareStart('M', 'default')).toEqual({ kind: 'too-large' });
+    fake.prepareTooLarge = false;
+    // 15 segments: the video and the default audio, or the video and both audio renditions.
+    expect(await c.prepareStart('M', 'default')).toMatchObject({ status: { total: 30 } });
+    expect(await c.prepareStart('M', 'all')).toMatchObject({ status: { total: 45 } });
+
+    fake.prepareFailures = 1;
+    const failed = await c.prepareStatus('M');
+    expect(failed).toMatchObject({ status: { state: 'failed', error: 'ffmpeg: exit status 1' } });
+    await expect(c.prepareStart('..bad', 'default')).rejects.toMatchObject({ status: 400 });
+  });
+
   it('does not cache a failed capability probe', async () => {
     const fake = new FakeEngine();
     const { client: c } = client(fake);

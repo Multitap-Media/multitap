@@ -84,12 +84,17 @@ other app. It's the API contract that matters.
 - Operations: database backups (`/v1/admin/backups`), rotating log files
   (`MULTITAP_LOG_DIR`), `MULTITAP_API_BIND`/`MULTITAP_MEDIA_BIND`, engine admission control, a bitrate
   derived from `maxHeight`, and an auto-select attempt timeout.
+- Preparing ahead: a session created with `mode: 'full'` has the engine
+  transcode the whole source before anyone plays it, by its `readyBy` when it
+  has one, with `prepare.*` events. It needs an engine with engine-side
+  preparation (Rivulet Engine v0.30.0 or later with `RIVULET_HLS_PREPARE=1`),
+  and it is how a source taller than the engine's `liveMaxHeight` gets played.
 - Scoped API keys (`client`, `admin`, `metrics`) and Prometheus metrics.
 - CORS, optional built-in TLS and absolute media URLs, so Multitap needs no reverse
   proxy.
 
-Not built yet: preparation ahead of time (`mode: 'full'`, `readyBy`), direct play
-and remux (`delivery: 'direct' | 'remux'`); requests for them get `501`. Known
+Not built yet: live HLS, direct play and remux (`delivery: 'direct' | 'remux'`
+gets `501`). Known
 limits found with real engines and addons (a bad probe cached by the engine,
 anime ids that no stream addon accepts), the untested standalone TLS routes and
 everything else outstanding are in [ROADMAP.md](ROADMAP.md).
@@ -192,8 +197,8 @@ variables named are Rivulet Engine's, `STREMIO_*` on v0.26.0 and earlier):
 | Capability | Meaning |
 |---|---|
 | `hwaccel` | The engine's hardware acceleration: `none` (software x264), `qsv`, `nvenc` or `vaapi` |
-| `liveMaxHeight` | Tallest source it transcodes live. Taller sources are unplayable (`too-high`), or with `highRes` playable only once prepared, which isn't built yet. Use what the box keeps up with in real time |
-| `preparedMaxHeight` | Tallest source it could prepare ahead of time |
+| `liveMaxHeight` | Tallest source it transcodes live. Taller sources are unplayable (`too-high`), or with `highRes` playable only once prepared (a session with `mode: 'full'`). Use what the box keeps up with in real time |
+| `preparedMaxHeight` | Tallest source it prepares ahead of time (`mode: 'full'`) |
 | `tonemap` | It tone-maps HDR to SDR (`RIVULET_TRANSCODE_TONEMAP`); without it HDR sources rank lower |
 | `sessionOverrides` | It accepts per-session quality (`RIVULET_HLS_SESSION_OVERRIDES=1`); without it Multitap sends none |
 | `liveConcurrency` | Live sessions it can transcode at once. Multitap compares it with the sessions actually playing and warns past it (or, with `MULTITAP_ENGINE_ADMISSION=reject`, refuses with `503`) |
@@ -529,6 +534,10 @@ Sessions, media and engines:
 | `MULTITAP_SESSION_BITRATE_BY_HEIGHT` | `240=600k,360=1M,480=1.5M,576=2M,720=3M,1080=6M,1440=10M,2160=16M` | The bitrate Multitap sends for a `quality` with `maxHeight` and no `bitrate`: the first rung at or above the (capped) height, else the top one, at most `MULTITAP_SESSION_MAX_BITRATE` and the engine's `defaultBitrate`. `off` sends none, so the engine's own bitrate applies at every height |
 | `MULTITAP_RETENTION_IDLE_MS` | 1 h | A session is kept until max(retainUntil, last access + this) |
 | `MULTITAP_SESSION_RELEASED_KEEP_MS` / `MULTITAP_RETENTION_SWEEP_MS` | 24 h / 60000 | How long released sessions answer `410`; retention sweep interval |
+| `MULTITAP_PREPARE_LEAD_TIME_UP_TO_1080_MS` / `MULTITAP_PREPARE_LEAD_TIME_ABOVE_1080_MS` | 1 h / 36 h | How long before a `full` session's `readyBy` its preparation starts, by the source's height. Without a `readyBy`, or when that is closer, it starts at once |
+| `MULTITAP_PREPARE_POLL_MS` | 15000 | How often running preparations are read from their engines (progress, and the checks behind `prepare.late` and `prepare.lost`) |
+| `MULTITAP_PREPARE_ALL_AUDIO` | `false` | Prepare every audio rendition of a multi-audio source, not only the default one |
+| `MULTITAP_PREPARE_SESSION_TTL_MS` | 7 d | The engine `ttl` of a prepared session (engines with `sessionOverrides`), 60 s to 30 d: once its job is done the engine's idle TTL applies again, so this must cover the wait until it is watched |
 | `MULTITAP_AUTO_SELECT_MAX_ATTEMPTS` / `MULTITAP_AUTO_SELECT_RETRY_AFTER_MS` | 5 / 30000 | Auto-select: failures before giving up; wait before retrying a failed torrent once |
 | `MULTITAP_AUTO_SELECT_ATTEMPT_TIMEOUT_MS` | 45000 | Auto-select: a candidate not ready by then is abandoned (its engine calls aborted) and the next one tried; `0` = no limit, else at least 5000. A picked source keeps the engine timeouts |
 | `MULTITAP_ENGINE_ADMISSION` | `warn` | A new session on an engine whose resolving and playing sessions already reach its `liveConcurrency`: `off`, `warn` (log a warning, go ahead) or `reject` (`503` with `Retry-After`) |

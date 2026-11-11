@@ -15,6 +15,13 @@ Source of truth for engine session retention  Interface and overview: [[architec
 - **Policy lives in core:**
   - A session is kept until `max(retainUntil, lastAccess + retention.idle)`,
     with `retention.idle = 1h` by default.
+  - A `full` session ([[architecture/engine-prepare-ahead]]) is also kept until
+    `readyBy + retention.idle`, and is never released by retention while it is
+    `preparing`. When its preparation finishes, `lastAccess` moves to that
+    moment. A failed one isn't kept for its `readyBy`. Its engine session gets
+    `MULTITAP_PREPARE_SESSION_TTL_MS` (7 days) as its `ttl` instead of
+    `MULTITAP_ENGINE_SESSION_TTL_MS`, because the engine's idle TTL applies
+    again once the job is done.
   - `DELETE /v1/sessions/{id}` releases it immediately.
   - Clients set `retainUntil` for their own reasons. The client sets it to six hours
     after a party ends (a watch-party client).

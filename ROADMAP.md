@@ -482,11 +482,11 @@ info findings stay in each area's progress concept.
 
 ### Preparation
 
-- [ ] **Prepare jobs: `mode: 'full'`, `readyBy`, `prepare.*` events** · L ·
+- [x] **Prepare jobs: `mode: 'full'`, `readyBy`, `prepare.*` events** · L ·
   `multitap` — prepare a source ahead of time (e.g. a 4K film overnight) on top of
   engine-side preparation, with verification and re-queueing of lost
-  preparations; both answer `501` today. The engine side is merged, so this
-  is next. _Source: okf:architecture/engine-prepare-ahead,
+  preparations. Built against the fake engine; still to be run against the
+  reference engine. _Source: okf:architecture/engine-prepare-ahead,
   okf:process/phase-4-core-checklist, okf:process/build-plan (phase 4)._
 - [x] **Transcode-ahead window** · M · `engine` — keep the next N segments
   transcoding within free slots; fewer stalls after seeks. Shares

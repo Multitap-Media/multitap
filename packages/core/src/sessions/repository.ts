@@ -105,6 +105,33 @@ export interface ChosenSource {
   bingeGroup: string | null;
 }
 
+/**
+ * The preparation of a `full` session (okf:architecture/engine-prepare-ahead), one per
+ * session: the `prepare_jobs` row.
+ */
+export interface PrepareJob {
+  sessionId: string;
+  /** `scheduled` until `startAt`, `running` while the engine's job is, `done` once the session is ready. */
+  state: 'scheduled' | 'running' | 'done';
+  audio: 'default' | 'all';
+  /** The source's probed height, for the lead time. */
+  height: number | null;
+  startAt: number;
+  readyBy: number | null;
+  /** When the engine's job was last started. */
+  startedAt: number | null;
+  /** Segments already cached at `startedAt`. */
+  startSegments: number;
+  totalSegments: number;
+  doneSegments: number;
+  /** Times the engine's job was started again after it failed or left gaps. */
+  restarts: number;
+  /** `prepare.late` was published for this `readyBy`. */
+  lateNotified: boolean;
+  /** When the check before `readyBy` ran. */
+  verifiedAt: number | null;
+}
+
 export interface TokenRevocation {
   sessionId: string;
   subject: string;
@@ -136,7 +163,8 @@ export interface SessionRepository {
   bumpTokenEpoch(id: string, now: number): Promise<number | undefined>;
   /**
    * Sessions not yet released (failed ones included) due for release at
-   * `now`: `max(retainUntil, lastAccess + idleMs) <= now` (okf:architecture/engine-retention). Their ids,
+   * `now`: `max(retainUntil, lastAccess + idleMs, readyBy + idleMs) <= now`
+   * (okf:architecture/engine-retention), never one that is `preparing`; `readyBy` doesn't count for a failed one. Their ids,
    * oldest first: the release reads each row itself.
    */
   listDueForRelease(now: number, idleMs: number): Promise<string[]>;
@@ -146,6 +174,12 @@ export interface SessionRepository {
   listOpen(): Promise<PlaybackSessionRecord[]>;
   /** Deletes released sessions released before `before`; returns how many. */
   purgeReleased(before: number): Promise<number>;
+
+  /** Every preparation job (loaded into memory at startup). */
+  listPrepareJobs(): Promise<PrepareJob[]>;
+  /** Stores a job, replacing the session's earlier one. */
+  savePrepareJob(job: PrepareJob, now: number): Promise<void>;
+  deletePrepareJob(sessionId: string): Promise<void>;
 
   revokeSubject(revocation: TokenRevocation): Promise<void>;
   /** Revocations still in force at `now` (loaded into memory at startup). */

@@ -24,6 +24,8 @@ export interface IdentityParts {
   preferredLanguages?: readonly string[] | undefined;
   /** Auto-select only: the request's `profileId` (its languages and last source change the pick). */
   profileId?: string | undefined;
+  /** `full` counts, so a session to prepare and one to play now never share an identity. */
+  mode?: 'play' | 'full' | undefined;
 }
 
 /** SHA-256 hex over a canonical encoding; null when there is no key. */
@@ -54,5 +56,6 @@ export function sessionIdentity(parts: IdentityParts): string | null {
     fields.push({ preferredLanguages: parts.preferredLanguages });
   }
   if (auto && parts.profileId !== undefined) fields.push({ profileId: parts.profileId });
+  if (parts.mode === 'full') fields.push({ mode: 'full' });
   return createHash('sha256').update(JSON.stringify(fields)).digest('hex');
 }

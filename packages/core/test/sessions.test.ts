@@ -847,27 +847,16 @@ describe('engine admission (okf:architecture/engine-session-lifecycle)', () => {
 });
 
 describe('not built yet (501)', () => {
-  it.each([
-    { mode: 'full' as const },
-    { readyBy: '2026-10-01T20:00:00.000Z' },
-    { delivery: 'direct' as const },
-    { delivery: 'remux' as const },
-  ])('%o', async (extra) => {
-    const r = await rig();
-    await expectSessionError(
-      r.service.create({ item: MOVIE, source: { auto: true }, ...extra }),
-      'not-implemented',
-    );
-  });
-
-  it('PATCH readyBy', async () => {
-    const r = await rig();
-    const { session } = await r.service.create({ item: MOVIE, source: { auto: true } });
-    await expectSessionError(
-      r.service.update(session.id, { readyBy: '2026-10-01T20:00:00.000Z' }),
-      'not-implemented',
-    );
-  });
+  it.each([{ delivery: 'direct' as const }, { delivery: 'remux' as const }])(
+    '%o',
+    async (extra) => {
+      const r = await rig();
+      await expectSessionError(
+        r.service.create({ item: MOVIE, source: { auto: true }, ...extra }),
+        'not-implemented',
+      );
+    },
+  );
 });
 
 // ---- Release and retention -----------------------------------------------------------------------

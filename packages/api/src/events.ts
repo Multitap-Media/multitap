@@ -7,7 +7,7 @@
  * `event:` is its `type`, and `data:` is the whole event as JSON. Event ids
  * increase; `Last-Event-ID` replays from a bounded buffer, and a client that
  * missed more re-reads session state. The type list is declared in full,
- * including `prepare.*`, which phase 4 produces.
+ * including `prepare.*` for `full` sessions.
  */
 import { z } from 'zod';
 import { AddonStatusSchema } from './browse.ts';
@@ -101,7 +101,7 @@ export const StreamsPartialEventSchema = event(
   }),
 ).meta({ id: 'StreamsPartialEvent' });
 
-// ---- Preparation (okf:architecture/engine-prepare-ahead, phase 4) ------------------------------------------------------
+// ---- Preparation (okf:architecture/engine-prepare-ahead) ---------------------------------------------------------------
 
 export const PrepareProgressEventSchema = event(
   'prepare.progress',

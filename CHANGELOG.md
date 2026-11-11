@@ -27,6 +27,40 @@ repository; their tags are not part of this repository's history.
 
 ## Unreleased
 
+### Added
+
+- **Preparing ahead: `mode: 'full'` and `readyBy`.** `POST /v1/sessions` with
+  `mode: 'full'` has the engine transcode the whole source ahead of time
+  (okf:architecture/engine-prepare-ahead). The session is `preparing` once its
+  source is chosen and `ready` when the engine has finished; its media answers
+  `404` until then. With a `readyBy`, preparation starts a lead time before it
+  (`MULTITAP_PREPARE_LEAD_TIME_UP_TO_1080_MS`, `…_ABOVE_1080_MS`); without one,
+  at once. `PATCH /v1/sessions/{id}` moves or clears `readyBy`. The events
+  `prepare.progress`, `prepare.done`, `prepare.late` (it won't finish by
+  `readyBy`) and `prepare.lost` (the engine lost it; it is queued again) are
+  now produced, and `progress.preparedPct` is filled. A prepared session is
+  checked again ten minutes before `readyBy` and when a token is minted for it.
+  Jobs are stored (migration `0012_prepare_jobs`), so a restart of Multitap
+  goes on with them.
+- It needs an engine with engine-side preparation: Rivulet Engine v0.30.0 or
+  later with `RIVULET_HLS_PREPARE=1`, detected at runtime. On any other engine
+  a `full` session fails with `prepare-unsupported`; `play` sessions are
+  unaffected. New `failureReason` values: `prepare-unsupported`,
+  `prepare-too-large` (the engine's segment cache cap can't hold it) and
+  `prepare-failed`.
+- A `full` session takes sources up to the engine's `preparedMaxHeight`, isn't
+  counted against `liveConcurrency`, is never released while `preparing`, and
+  is kept until `readyBy` plus `MULTITAP_RETENTION_IDLE_MS`. Its engine session
+  gets `MULTITAP_PREPARE_SESSION_TTL_MS` (7 days) as its `ttl`.
+  `MULTITAP_PREPARE_ALL_AUDIO` prepares every audio rendition;
+  `MULTITAP_PREPARE_POLL_MS` sets how often engines are read.
+
+### Changed
+
+- `mode: 'full'` and `readyBy` no longer answer `501`. A create with `readyBy`
+  but without `mode: 'full'` gets `400`, and a `readyBy` patch on a `play`
+  session gets `409`.
+
 ## 0.2.2 (2026-11-04)
 
 ### Fixed

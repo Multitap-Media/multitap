@@ -699,7 +699,7 @@ export interface paths {
         put?: never;
         /**
          * Create a playback session
-         * @description Plays a picked source (`source: {key}`, a candidate key from `/v1/streams`; no fallback) or lets Multitap choose (`source: {auto: true}`: rank for the engine, try the playable candidates in order, stop after `MULTITAP_AUTO_SELECT_MAX_ATTEMPTS`, retry a failed torrent once after `MULTITAP_AUTO_SELECT_RETRY_AFTER_MS`). The engine is the candidate's affinity, else `engine`, else the default. `quality` is capped at the engine's `liveMaxHeight` and `MULTITAP_SESSION_MAX_BITRATE`; with `maxHeight` and no `bitrate`, Multitap derives a bitrate from the height (`MULTITAP_SESSION_BITRATE_BY_HEIGHT`). The resulting quality is part of the session's identity. Auto-select abandons a candidate that isn't ready within `MULTITAP_AUTO_SELECT_ATTEMPT_TIMEOUT_MS`. The answer comes at once with `status: 'resolving'`; follow `session.status`, `session.ready` and `session.failed` on `/v1/events?session={id}`, or poll the session. With a `key`, a create matching the key, item, source, delivery and quality of an open session returns that session with `200`. A new session on an engine already at its `liveConcurrency` is logged, or with `MULTITAP_ENGINE_ADMISSION=reject` refused with `503` and `Retry-After`.
+         * @description Plays a picked source (`source: {key}`, a candidate key from `/v1/streams`; no fallback) or lets Multitap choose (`source: {auto: true}`: rank for the engine, try the playable candidates in order, stop after `MULTITAP_AUTO_SELECT_MAX_ATTEMPTS`, retry a failed torrent once after `MULTITAP_AUTO_SELECT_RETRY_AFTER_MS`). The engine is the candidate's affinity, else `engine`, else the default. `quality` is capped at the engine's `liveMaxHeight` and `MULTITAP_SESSION_MAX_BITRATE`; with `maxHeight` and no `bitrate`, Multitap derives a bitrate from the height (`MULTITAP_SESSION_BITRATE_BY_HEIGHT`). The resulting quality is part of the session's identity. Auto-select abandons a candidate that isn't ready within `MULTITAP_AUTO_SELECT_ATTEMPT_TIMEOUT_MS`. The answer comes at once with `status: 'resolving'`; follow `session.status`, `session.ready` and `session.failed` on `/v1/events?session={id}`, or poll the session. With `mode: 'full'` the engine transcodes the whole source ahead of time, by `readyBy` when given: the session is `preparing` once its source is chosen (`prepare.progress`, `prepare.late`, `prepare.lost`) and `ready` when the engine has finished (`prepare.done`); its media answers `404` until then. That needs an engine with preparation, and isn't counted against `liveConcurrency`. With a `key`, a create matching the key, item, source, delivery and quality of an open session returns that session with `200`. A new session on an engine already at its `liveConcurrency` is logged, or with `MULTITAP_ENGINE_ADMISSION=reject` refused with `503` and `Retry-After`.
          */
         post: operations["createSession"];
         delete?: never;
@@ -730,8 +730,8 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Set a playback session's retention
-         * @description A session is kept until `max(retainUntil, lastAccess + MULTITAP_RETENTION_IDLE_MS)`; `null` clears `retainUntil`. Quality can't be changed: create another session.
+         * Set a playback session's retention or preparation deadline
+         * @description A session is kept until `max(retainUntil, lastAccess + MULTITAP_RETENTION_IDLE_MS)`, a `full` one also until `readyBy + MULTITAP_RETENTION_IDLE_MS` and while it is `preparing`; `null` clears `retainUntil`. `readyBy` moves a `full` session's preparation deadline: a preparation that hasn't started is rescheduled (`null`: it starts at once). Quality can't be changed: create another session.
          */
         patch: operations["updateSession"];
         trace?: never;
@@ -1185,7 +1185,7 @@ export interface components {
              */
             delivery?: "auto" | "direct" | "remux" | "transcode";
             /**
-             * @description Default `play`. `full` gets `501` until preparation is built.
+             * @description Default `play`. `full` has the engine transcode every segment ahead of time: the session is `preparing` once its source is chosen and `ready` when the engine has finished (`prepare.progress` and `prepare.done` events). It needs an engine with preparation; without it the session fails with `prepare-unsupported`. A source taller than the engine's `liveMaxHeight`, up to its `preparedMaxHeight`, only plays this way.
              * @enum {string}
              */
             mode?: "play" | "full";
@@ -1197,7 +1197,7 @@ export interface components {
             quality?: components["schemas"]["SessionQuality"];
             /**
              * Format: date-time
-             * @description Preparation deadline. Gets `501` until preparation is built.
+             * @description Preparation deadline, with `mode: 'full'` only (`400` otherwise). Preparation starts early enough to finish by then (`MULTITAP_PREPARE_LEAD_TIME_*`); without it, at once. The session is kept at least until `readyBy` plus `MULTITAP_RETENTION_IDLE_MS`.
              * @example 2026-09-30T20:00:00.000Z
              */
             readyBy?: string;
@@ -1308,7 +1308,7 @@ export interface components {
             peers?: number;
             /** @description Bytes per second; torrents only. */
             downloadSpeed?: number;
-            /** @description Mode `full` only. */
+            /** @description Mode `full` only: the share of the session's segments the engine has cached. */
             preparedPct?: number;
             /** @description The engine's probe of the source. */
             info?: {
@@ -1961,7 +1961,7 @@ export interface components {
             };
             /**
              * Format: date-time
-             * @description Preparation deadline.
+             * @description Preparation deadline (mode `full`).
              * @example 2026-09-30T20:00:00.000Z
              */
             readyBy?: string;
@@ -1974,7 +1974,7 @@ export interface components {
             /** @enum {string} */
             status: "resolving" | "preparing" | "ready" | "failed" | "released";
             /**
-             * @description Coarse reason for `failed`: an engine reason (`unsupported`, `external`, `live`, `needs-prepare`, `probe-failed`, `torrent-failed`, `engine-offline`, `engine-error`, `engine-busy`: the engine is at its torrent cap; try again shortly) or a session one (`no-candidates`, `only-flagged`: every playable source is flagged `destructive` and auto-select skips those, `candidates-exhausted`, `attempts-exhausted`, `interrupted`, `internal-error`).
+             * @description Coarse reason for `failed`: an engine reason (`unsupported`, `external`, `live`, `needs-prepare`, `probe-failed`, `torrent-failed`, `engine-offline`, `engine-error`, `engine-busy`: the engine is at its torrent cap; try again shortly), a preparation reason for a `full` session (`prepare-unsupported`: the engine has no preparation, `prepare-too-large`: the prepared session does not fit the segment cache of the engine, `prepare-failed`: the preparation job failed twice) or a session one (`no-candidates`, `only-flagged`: every playable source is flagged `destructive` and auto-select skips those, `candidates-exhausted`, `attempts-exhausted`, `interrupted`, `internal-error`).
              * @example needs-prepare
              */
             failureReason?: string;
@@ -3014,7 +3014,7 @@ export interface components {
             retainUntil?: string | null;
             /**
              * Format: date-time
-             * @description Gets `501` until preparation is built.
+             * @description A new preparation deadline for a `full` session; `null` clears it, and preparation that hasn't started then starts at once. `409` for a `play` session.
              * @example 2026-09-30T20:00:00.000Z
              */
             readyBy?: string | null;
@@ -5473,7 +5473,7 @@ export interface operations {
                     "application/json": components["schemas"]["PlaybackSession"];
                 };
             };
-            /** @description The request failed validation, or the engine is unknown */
+            /** @description The request failed validation, the engine is unknown, or `readyBy` came without `mode: 'full'` */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -5518,7 +5518,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description Not built yet: `mode: 'full'` and `readyBy`, `delivery` `direct` and `remux` */
+            /** @description Not built yet: `delivery` `direct` and `remux` */
             501: {
                 headers: {
                     [name: string]: unknown;
@@ -5687,8 +5687,8 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description The session has been released */
-            410: {
+            /** @description `readyBy` on a session that wasn't created with `mode: 'full'` */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5696,8 +5696,8 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description `readyBy` needs preparation, which is not built yet */
-            501: {
+            /** @description The session has been released */
+            410: {
                 headers: {
                     [name: string]: unknown;
                 };

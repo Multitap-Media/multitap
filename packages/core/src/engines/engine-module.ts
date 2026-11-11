@@ -41,6 +41,7 @@ import type { Logger } from '../log.ts';
 import type {
   EngineHandle,
   EngineModule,
+  EnginePrepareResult,
   PrepareRequest,
   PrepareResult,
   UnplayableEngineReason,
@@ -58,6 +59,7 @@ import { readEngineDetail } from './server-go.ts';
 import {
   ServerGoError,
   type OpenSubHash,
+  type PrepareAudio,
   type ProbeResult,
   type ProbeStream,
   type ServerGoClient,
@@ -92,6 +94,12 @@ export interface EngineModuleOptions {
    * delete (okf:architecture/engine-retention). Default: none (`MULTITAP_ENGINE_SESSION_TTL_MS` unset).
    */
   sessionTtlSec?: number;
+  /**
+   * Per-session engine TTL in seconds for the session of a `full` playback
+   * session (`MULTITAP_PREPARE_SESSION_TTL_MS`, okf:architecture/engine-prepare-ahead): once
+   * its job is done the engine's idle TTL applies again. Default: `sessionTtlSec`.
+   */
+  preparedSessionTtlSec?: number;
   /** First retry of a failed engine release after this long; doubles per failure. Default 60 s. */
   releaseRetryBaseMs?: number;
   /** Longest wait between release retries. Default 5 min. */
@@ -115,6 +123,8 @@ interface SessionState {
   sid: string;
   mediaURL: string;
   applied: SessionQuality | undefined;
+  /** The engine session of a `full` playback session. */
+  prepared: boolean;
   status: EngineStatus;
   torrent?: { infoHash: string; fileIdx: number };
   statsAt: number;
@@ -329,8 +339,13 @@ export function firstSegments(playlist: string, count: number): string[] {
 export function engineModuleConfig(config: {
   engines: { sessionTtlMs: number | null; healthMaxBackoffMs: number };
   sessions: { sweepIntervalMs: number };
-}): Pick<EngineModuleOptions, 'sessionTtlSec' | 'releaseRetryBaseMs' | 'releaseRetryMaxMs'> {
+  prepare: { sessionTtlMs: number };
+}): Pick<
+  EngineModuleOptions,
+  'sessionTtlSec' | 'preparedSessionTtlSec' | 'releaseRetryBaseMs' | 'releaseRetryMaxMs'
+> {
   return {
+    preparedSessionTtlSec: Math.ceil(config.prepare.sessionTtlMs / 1000),
     ...(config.engines.sessionTtlMs === null
       ? {}
       : { sessionTtlSec: Math.ceil(config.engines.sessionTtlMs / 1000) }),
@@ -374,12 +389,10 @@ export class ServerGoEngineModule implements EngineModule {
   }
 
   prepare(request: PrepareRequest): Promise<PrepareResult> {
-    if (request.mode !== 'play') {
-      return Promise.reject(new Error("engine module: mode 'full' is phase 4"));
-    }
     const key = [
       request.engineId,
       request.sessionKey,
+      request.mode,
       toStreamHash(request.stream),
       JSON.stringify(request.quality ?? null),
     ].join('\u0000');
@@ -509,6 +522,18 @@ export class ServerGoEngineModule implements EngineModule {
     }
     const { engine, client } = entry;
     ctx.client = client;
+    const full = request.mode === 'full';
+    if (full) {
+      // Nothing is prepared by Multitap itself: without engine-side preparation
+      // a `full` session can't be made (okf:architecture/engine-prepare-ahead).
+      let supported: boolean;
+      try {
+        supported = await client.supportsPrepare();
+      } catch (err) {
+        return failed(await this.#engineFailure(request.engineId, err, request.signal), err);
+      }
+      if (!supported) return failed(fail('prepare-unsupported', false));
+    }
     const password = entry.proxyPassword?.reveal();
     if (password !== undefined) ctx.secret = password;
     const plan = planStream(request.stream);
@@ -611,12 +636,17 @@ export class ServerGoEngineModule implements EngineModule {
       return failed(fail('probe-failed', plan.kind === 'torrent'));
     }
     const info = mediaInfo(probe);
-    if (info.height !== undefined && info.height > engine.capabilities.liveMaxHeight) {
+    if (full) {
+      if (info.height !== undefined && info.height > engine.capabilities.preparedMaxHeight) {
+        log.info({ height: info.height }, "source is taller than the engine's preparedMaxHeight");
+        return failed(fail('unsupported', false));
+      }
+    } else if (info.height !== undefined && info.height > engine.capabilities.liveMaxHeight) {
       return failed(fail('needs-prepare', false));
     }
 
     // Step 4: create the session.
-    const overrides = this.#overrides(engine, applied);
+    const overrides = this.#overrides(engine, applied, full);
     let master: string;
     try {
       const res = await client.master({
@@ -663,6 +693,7 @@ export class ServerGoEngineModule implements EngineModule {
           media_url: mediaURL,
           created_at: now,
           last_used: now,
+          prepared: full ? 1 : 0,
         })
         .execute();
     } else {
@@ -672,6 +703,7 @@ export class ServerGoEngineModule implements EngineModule {
           media_url: mediaURL,
           applied_quality_json: appliedJson,
           last_used: now,
+          prepared: full ? 1 : 0,
           // Wanted again: a release still pending for it is cancelled.
           release_pending_since: null,
           release_attempts: 0,
@@ -690,6 +722,7 @@ export class ServerGoEngineModule implements EngineModule {
       sid,
       mediaURL,
       applied,
+      prepared: full,
       status,
       statsAt: 0,
       statsRefreshing: false,
@@ -700,8 +733,9 @@ export class ServerGoEngineModule implements EngineModule {
     report(status);
     log.debug({ sid, mediaURL, applied }, 'engine session created');
 
-    // Step 5: warm the start in the background.
-    if (this.#warmSegments > 0) this.#track(this.#warm(client, state, master));
+    // Step 5: warm the start in the background. Not for a session to prepare:
+    // its job transcodes from the start, at low priority.
+    if (!full && this.#warmSegments > 0) this.#track(this.#warm(client, state, master));
 
     const handle: EngineHandle =
       applied === undefined
@@ -764,12 +798,15 @@ export class ServerGoEngineModule implements EngineModule {
     }
   }
 
-  #overrides(engine: EngineDescriptor, applied: SessionQuality | undefined) {
+  #overrides(engine: EngineDescriptor, applied: SessionQuality | undefined, prepared: boolean) {
     if (!engine.capabilities.sessionOverrides) return undefined;
     const overrides: { maxHeight?: number; bitrate?: number; ttlSec?: number } = {};
     if (applied?.maxHeight !== undefined) overrides.maxHeight = applied.maxHeight;
     if (applied?.bitrate !== undefined) overrides.bitrate = applied.bitrate;
-    if (this.#o.sessionTtlSec !== undefined) overrides.ttlSec = this.#o.sessionTtlSec;
+    const ttlSec = prepared
+      ? (this.#o.preparedSessionTtlSec ?? this.#o.sessionTtlSec)
+      : this.#o.sessionTtlSec;
+    if (ttlSec !== undefined) overrides.ttlSec = ttlSec;
     return Object.keys(overrides).length === 0 ? undefined : overrides;
   }
 
@@ -980,15 +1017,17 @@ export class ServerGoEngineModule implements EngineModule {
     const state = this.#sessions.get(handleKey(handle.engineId, handle.sid));
     let mediaURL = state?.mediaURL;
     let applied = state?.applied;
+    let prepared = state?.prepared ?? false;
     if (mediaURL === undefined) {
       const row = await db
         .selectFrom('engine_sessions')
-        .select(['media_url', 'applied_quality_json'])
+        .select(['media_url', 'applied_quality_json', 'prepared'])
         .where('engine_id', '=', handle.engineId)
         .where('sid', '=', handle.sid)
         .executeTakeFirst();
       if (row === undefined) throw new EngineSessionNotFoundError(handle);
       mediaURL = row.media_url;
+      prepared = row.prepared !== 0;
       applied =
         row.applied_quality_json === null
           ? undefined
@@ -999,7 +1038,7 @@ export class ServerGoEngineModule implements EngineModule {
     const res = await entry.client.master({
       sid: handle.sid,
       mediaURL: withPassword(entry, mediaURL),
-      overrides: this.#overrides(entry.engine, applied),
+      overrides: this.#overrides(entry.engine, applied, prepared),
       signal,
     });
     void db
@@ -1012,6 +1051,45 @@ export class ServerGoEngineModule implements EngineModule {
         logger.warn({ err }, 'engine session: storing last_used failed');
       });
     return res;
+  }
+
+  async startPrepare(handle: EngineHandle, audio: PrepareAudio): Promise<EnginePrepareResult> {
+    const entry = await this.#o.registry.get(handle.engineId);
+    if (entry === undefined) return { kind: 'lost' };
+    if (!(await entry.client.supportsPrepare())) return { kind: 'unsupported' };
+    let result = await entry.client.prepareStart(handle.sid, audio);
+    if (result.kind === 'not-found') {
+      // Evicted, or lost in an engine restart: made again as a master request
+      // does (self-heal), then started.
+      let res: Response;
+      try {
+        res = await this.fetchMedia(handle, 'master.m3u8');
+      } catch (err) {
+        if (err instanceof EngineSessionNotFoundError) return { kind: 'lost' };
+        throw err;
+      }
+      if (res.status !== 200) {
+        const detail = await readEngineDetail(res);
+        const err = new ServerGoError(
+          'master',
+          `engine answered ${String(res.status)}`,
+          res.status,
+        );
+        if (detail !== '') err.detail = detail;
+        throw err;
+      }
+      await res.body?.cancel().catch(() => undefined);
+      result = await entry.client.prepareStart(handle.sid, audio);
+    }
+    return result.kind === 'not-found' ? { kind: 'lost' } : result;
+  }
+
+  async prepareStatus(handle: EngineHandle): Promise<EnginePrepareResult> {
+    const entry = await this.#o.registry.get(handle.engineId);
+    if (entry === undefined) return { kind: 'lost' };
+    if (!(await entry.client.supportsPrepare())) return { kind: 'unsupported' };
+    const result = await entry.client.prepareStatus(handle.sid);
+    return result.kind === 'not-found' ? { kind: 'lost' } : result;
   }
 
   async openSubHash(handle: EngineHandle, signal?: AbortSignal): Promise<OpenSubHash | undefined> {

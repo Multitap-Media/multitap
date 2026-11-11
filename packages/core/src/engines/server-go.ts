@@ -10,7 +10,10 @@ import {
   ZERO_INFO_HASH,
   type DeleteSessionResult,
   type MasterRequest,
+  type EnginePrepareStatus,
   type OpenSubHash,
+  type PrepareAudio,
+  type PrepareCallResult,
   type ProbeResult,
   type ProbeStream,
   type ProxyStreamRequest,
@@ -81,6 +84,17 @@ const ProbeSchema = z.looseObject({
     )
     .nullish()
     .transform((streams) => streams ?? []),
+});
+
+// Loose, so fields the engine adds later don't break Multitap; counts default to 0.
+const prepareCount = z.number().int().nonnegative().catch(0);
+const PrepareStatusSchema = z.looseObject({
+  state: z.enum(['idle', 'running', 'done', 'failed']),
+  total: prepareCount,
+  cached: prepareCount,
+  uncached: prepareCount,
+  failed: prepareCount,
+  error: z.string().optional().catch(undefined),
 });
 
 const OpenSubHashSchema = z.looseObject({
@@ -196,6 +210,7 @@ export function createServerGoClient(options: ServerGoClientOptions): ServerGoCl
   const { engineId, transport, timeouts } = options;
   const selfBase = options.selfBase ?? `http://127.0.0.1:${String(DEFAULT_ENGINE_PORT)}`;
   let deleteSupport: Promise<boolean> | undefined;
+  let prepareSupport: Promise<boolean> | undefined;
   let openSubHashSupported = true;
 
   const checkInfoHash = (infoHash: string) => {
@@ -218,6 +233,38 @@ export function createServerGoClient(options: ServerGoClientOptions): ServerGoCl
     if (res.status === 400) return true;
     if (res.status === 404 || res.status === 405) return false;
     throw new ServerGoError('delete-probe', `engine answered ${String(res.status)}`, res.status);
+  };
+
+  // `DELETE /hlsv2/{invalid id}/prepare`: the prepare route refuses the id
+  // (`400`); an engine without preparation, or with it off, has no such route
+  // (`404`), and one without any `DELETE` answers `405`. A `GET` can't tell:
+  // without the feature it is a file request, which refuses the id too.
+  const probePrepare = async (): Promise<boolean> => {
+    const res = await transport.request(`/hlsv2/${encodeURIComponent(DELETE_PROBE_ID)}/prepare`, {
+      method: 'DELETE',
+      timeoutMs: timeouts.control,
+    });
+    await discard(res);
+    if (res.status === 400) return true;
+    if (res.status === 404 || res.status === 405) return false;
+    throw new ServerGoError('prepare-probe', `engine answered ${String(res.status)}`, res.status);
+  };
+
+  const prepareResult = async (res: Response, endpoint: string): Promise<PrepareCallResult> => {
+    if (res.status === 404 || res.status === 409 || res.status === 507) {
+      await discard(res);
+      if (res.status === 404) return { kind: 'not-found' };
+      return { kind: res.status === 409 ? 'no-duration' : 'too-large' };
+    }
+    if (res.status !== 200 && res.status !== 202) throw await unexpected(res, endpoint);
+    const parsed = PrepareStatusSchema.safeParse(await readJson(res, endpoint));
+    if (!parsed.success) {
+      throw new ServerGoError(endpoint, 'unexpected prepare status shape', res.status);
+    }
+    const { state, total, cached, uncached, failed, error } = parsed.data;
+    const status: EnginePrepareStatus = { state, total, cached, uncached, failed };
+    if (error !== undefined && error !== '') status.error = safeEngineText(error);
+    return { kind: 'status', status };
   };
 
   const client: ServerGoClient = {
@@ -336,8 +383,51 @@ export function createServerGoClient(options: ServerGoClientOptions): ServerGoCl
       return deleteSupport;
     },
 
+    supportsPrepare(): Promise<boolean> {
+      if (prepareSupport === undefined) {
+        const attempt = probePrepare();
+        prepareSupport = attempt;
+        attempt.catch(() => {
+          if (prepareSupport === attempt) prepareSupport = undefined;
+        });
+      }
+      return prepareSupport;
+    },
+
+    async prepareStart(sid: string, audio: PrepareAudio): Promise<PrepareCallResult> {
+      const res = await transport.request(`/hlsv2/${sidPath(sid)}/prepare?audio=${audio}`, {
+        method: 'POST',
+        timeoutMs: timeouts.control,
+      });
+      return prepareResult(res, 'prepare');
+    },
+
+    async prepareStatus(sid: string): Promise<PrepareCallResult> {
+      const res = await transport.request(`/hlsv2/${sidPath(sid)}/prepare`, {
+        timeoutMs: timeouts.control,
+      });
+      return prepareResult(res, 'prepare-status');
+    },
+
+    async prepareStop(sid: string): Promise<'stopped' | 'not-found'> {
+      const res = await transport.request(`/hlsv2/${sidPath(sid)}/prepare`, {
+        method: 'DELETE',
+        timeoutMs: timeouts.control,
+      });
+      if (res.status === 204 || res.status === 200) {
+        await discard(res);
+        return 'stopped';
+      }
+      if (res.status === 404) {
+        await discard(res);
+        return 'not-found';
+      }
+      throw await unexpected(res, 'prepare-stop');
+    },
+
     resetCapabilities() {
       deleteSupport = undefined;
+      prepareSupport = undefined;
       openSubHashSupported = true;
     },
 

@@ -277,6 +277,8 @@ export function registerMediaTokenRoutes(app: OpenAPIHono<AppEnv>, deps: AppDeps
       media.tokenMaxTtlMs,
     );
     const minted = await tokens.mint(id, body.subject, session.tokenEpoch, ttlMs);
+    // Someone is about to watch a prepared session: check the engine still has it (okf:architecture/engine-prepare-ahead).
+    if (session.mode === 'full') sessionService(deps).prepareJobs.verify(id);
     const entry = session.delivery === 'transcode' ? 'master.m3u8' : 'stream';
     const mediaPath = `${MEDIA_PREFIX}/${minted.token}/${entry}`;
     const out: MediaToken = {

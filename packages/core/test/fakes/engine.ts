@@ -21,6 +21,11 @@
  *   `404` until its master is requested again.
  * - `DELETE /hlsv2/{sid}` like #24 (`204`/`404`/`400`), or the pre-#24 `404`
  *   for everything when `supportsDelete` is off.
+ * - `POST`/`GET`/`DELETE /hlsv2/{sid}/prepare` like upstream #73 when
+ *   `supportsPrepare` is on (off by default, as `RIVULET_HLS_PREPARE` is): a
+ *   job that caches `prepareSegmentsPerPoll` segments each time its status is
+ *   read, with the status JSON, `409` for an unknown duration and `507` when
+ *   `prepareTooLarge` is set. Off, the path answers as before the feature.
  * - `GET /metrics`, `GET /yt/{id}` (a `307`), and `403` to any `Origin` header.
  * - `GET /proxy/stream` with `STREMIO_PROXY_PASSWORD` semantics when
  *   `proxyPassword` is set: `401` without the matching `api_password`. A probe
@@ -206,6 +211,13 @@ export interface FakeEngineOptions {
   supportsDelete?: boolean;
   /** Has `GET /opensubHash` (default true). */
   supportsOpenSubHash?: boolean;
+  /** `RIVULET_HLS_PREPARE`: has `/hlsv2/{id}/prepare` (upstream #73; default false, as in the engine). */
+  supportsPrepare?: boolean;
+  /**
+   * Segments a running preparation caches each time its status is read
+   * (default: all of them, so the first read finds it `done`).
+   */
+  prepareSegmentsPerPoll?: number;
   /** Delay before a segment's bytes are sent, ms (default 0). */
   segmentLatencyMs?: number;
   /** Bytes per segment (default 1880, ten TS packets). */
@@ -253,10 +265,23 @@ export interface MasterRecord {
   status: number;
 }
 
+/** A session's preparation job (upstream #73). */
+export interface FakePrepare {
+  state: 'idle' | 'running' | 'done' | 'failed';
+  audio: 'default' | 'all';
+  /** Segments cached so far, counted in playback order across the renditions. */
+  cached: number;
+  /** `POST`s received. */
+  starts: number;
+  error?: string;
+}
+
 export interface FakeSession {
   sid: string;
   mediaURL: string;
   probe: FakeProbe;
+  /** Set by the first `POST …/prepare`. */
+  prepare?: FakePrepare;
   /** Overrides in effect (empty with the gate off). */
   applied: { maxHeight?: number; bitrate?: number; ttlSec?: number };
 }
@@ -409,6 +434,15 @@ export class FakeEngine {
   readonly proxyRefusals: string[] = [];
   /** Engine restarts so far. */
   restarts = 0;
+  /** While true, `POST …/prepare` answers `507` (the session wouldn't fit the segment cache cap). */
+  prepareTooLarge = false;
+  /** Preparations still to end as `failed` (three transcode errors in a row) on their next status read. */
+  prepareFailures = 0;
+  /**
+   * Segments each preparation's first pass leaves uncached (`u`); a later
+   * `POST` (the re-check) caches them.
+   */
+  prepareGaps = 0;
   /** While false, the in-process transport fails like an unreachable host and `/metrics` is not served. */
   online = true;
 
@@ -422,6 +456,8 @@ export class FakeEngine {
       overrides: options.overrides ?? true,
       supportsDelete: options.supportsDelete ?? true,
       supportsOpenSubHash: options.supportsOpenSubHash ?? true,
+      supportsPrepare: options.supportsPrepare ?? false,
+      prepareSegmentsPerPoll: options.prepareSegmentsPerPoll ?? Number.POSITIVE_INFINITY,
       segmentLatencyMs: options.segmentLatencyMs ?? 0,
       segmentBytes: options.segmentBytes ?? 1880,
       defaultProbe:
@@ -565,6 +601,69 @@ export class FakeEngine {
 
   #audioTracks(session: FakeSession): FakeProbeStream[] {
     return session.probe.streams.filter((s) => s.track === 'audio');
+  }
+
+  /** The playlists a preparation covers: the muxed one, or the video and the chosen audio renditions. */
+  #prepareRenditions(session: FakeSession, audio: 'default' | 'all'): string[] {
+    const tracks = this.#audioTracks(session);
+    if (tracks.length < 2) return ['playlist.m3u8'];
+    const defaultIdx = Math.max(
+      0,
+      tracks.findIndex((s) => s.default === true),
+    );
+    const chosen = audio === 'all' ? tracks.map((_, k) => k) : [defaultIdx];
+    return ['video.m3u8', ...chosen.map((k) => `audio${String(k)}.m3u8`)];
+  }
+
+  /** The status JSON of `/hlsv2/{id}/prepare`, as upstream #73 answers it. */
+  #prepareStatus(session: FakeSession): Record<string, unknown> {
+    const job = session.prepare;
+    const audio = job?.audio ?? 'default';
+    const renditions = this.#prepareRenditions(session, audio);
+    const perRendition = this.#segmentCount(session);
+    const total = perRendition * renditions.length;
+    const cached = Math.min(job?.cached ?? 0, total);
+    // The gaps a finished first pass left are its last segments.
+    const uncached = job?.state === 'done' ? total - cached : 0;
+    const bytes = this.options.segmentBytes;
+    const status: Record<string, unknown> = {
+      state: job?.state ?? 'idle',
+      audio,
+      segments: perRendition,
+      total,
+      cached,
+      uncached,
+      failed: 0,
+      cachedBytes: cached * bytes,
+      estimatedBytes: total * bytes,
+      renditions: renditions.map((playlist, r) => ({
+        playlist,
+        map: Array.from({ length: perRendition }, (_, i) => {
+          const position = i * renditions.length + r;
+          if (position < cached) return 'c';
+          return job?.state === 'done' ? 'u' : '-';
+        }).join(''),
+      })),
+    };
+    if (job?.state === 'failed') status.error = job.error ?? 'transcode failed';
+    return status;
+  }
+
+  /** One read of a running job: it caches the next segments, and ends when none is left. */
+  #advancePrepare(session: FakeSession): void {
+    const job = session.prepare;
+    if (job?.state !== 'running') return;
+    if (this.prepareFailures > 0) {
+      this.prepareFailures -= 1;
+      job.state = 'failed';
+      job.error = 'ffmpeg: exit status 1';
+      return;
+    }
+    const total = this.#segmentCount(session) * this.#prepareRenditions(session, job.audio).length;
+    // The first pass leaves `prepareGaps` segments uncached; a re-check caches them.
+    const goal = job.starts > 1 ? total : Math.max(0, total - this.prepareGaps);
+    job.cached = Math.min(goal, job.cached + this.options.prepareSegmentsPerPoll);
+    if (job.cached >= goal) job.state = 'done';
   }
 
   #master(session: FakeSession): string {
@@ -769,6 +868,57 @@ export class FakeEngine {
         'Content-Type': 'application/vnd.apple.mpegurl',
         'Cache-Control': 'no-cache',
       });
+    });
+
+    // Upstream #73. Off: `GET` and `POST` fall through to the file route and
+    // `DELETE` is Go's generic 404, exactly as before the feature.
+    app.all('/hlsv2/:sid/prepare', async (c, next) => {
+      const method = c.req.method;
+      if (!this.options.supportsPrepare) {
+        if (method === 'GET') {
+          await next();
+          return;
+        }
+        return c.text('404 page not found', 404);
+      }
+      if (method !== 'GET' && method !== 'POST' && method !== 'DELETE') {
+        return c.text('method not allowed', 405);
+      }
+      const sid = c.req.param('sid');
+      if (sid === '' || sid === '.' || sid.includes('..') || sid.includes('/')) {
+        return c.text(`hls: invalid session id "${sid}"`, 400);
+      }
+      const audio = c.req.query('audio') ?? '';
+      if (method === 'POST' && audio !== '' && audio !== 'default' && audio !== 'all') {
+        return c.text('hls: invalid per-session option: audio', 400);
+      }
+      const session = this.sessions.get(sid);
+      if (session === undefined) return c.text(`hls: session not found ${sid}`, 404);
+      if (method === 'DELETE') {
+        if (session.prepare !== undefined) session.prepare.state = 'idle';
+        return c.body(null, 204);
+      }
+      if (method === 'GET') {
+        this.#advancePrepare(session);
+        return c.json(this.#prepareStatus(session), 200);
+      }
+      if (!(session.probe.duration > 0))
+        return c.text(`hls: session duration unknown: ${sid}`, 409);
+      if (this.prepareTooLarge) {
+        return c.text('hls: prepared session would exceed the segment cache cap', 507);
+      }
+      const wanted = audio === 'all' ? 'all' : 'default';
+      const job = session.prepare;
+      if (job === undefined) {
+        session.prepare = { state: 'running', audio: wanted, cached: 0, starts: 1 };
+      } else if (job.state !== 'running' || job.audio !== wanted) {
+        // A finished or stopped job starts again and re-checks; another `audio` replaces it.
+        job.state = 'running';
+        job.audio = wanted;
+        job.starts += 1;
+        delete job.error;
+      }
+      return c.json(this.#prepareStatus(session), 202);
     });
 
     app.get('/hlsv2/:sid/:file', async (c) => {

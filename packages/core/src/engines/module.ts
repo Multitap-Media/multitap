@@ -7,7 +7,7 @@
  */
 import type { EngineStatus, SessionQuality, SessionTracks } from '@multitap/api';
 import type { Stream } from '@multitap/addon-protocol';
-import type { OpenSubHash } from './server-go-types.ts';
+import type { EnginePrepareStatus, OpenSubHash, PrepareAudio } from './server-go-types.ts';
 
 /**
  * Identifies one engine session. Opaque outside the engine module: callers
@@ -26,7 +26,12 @@ export interface PrepareRequest {
   sessionKey: string;
   /** Raw, exactly as the addon returned it. Secret. */
   stream: Stream;
-  /** Phase 2 only calls with `play`; `full` is phase 4. */
+  /**
+   * `full` makes a session to prepare ahead (okf:architecture/engine-prepare-ahead): the source may
+   * be as tall as `preparedMaxHeight`, nothing is warmed, the engine must have
+   * preparation, and the session gets the prepared `ttl`. The job itself is
+   * started with {@link EngineModule.startPrepare}.
+   */
   mode: 'play' | 'full';
   /**
    * Requested overrides, already capped by the caller at `liveMaxHeight` and
@@ -52,6 +57,8 @@ export interface PrepareRequest {
  * - `engine-error`: the engine answered with an unexpected status
  * - `engine-busy`: the engine refused a torrent create with `503` (at its
  *   `STREMIO_MAX_ENGINES` cap), again after waiting its `Retry-After` once
+ * - `prepare-unsupported`: mode `full` on an engine without engine-side
+ *   preparation (okf:architecture/engine-prepare-ahead)
  */
 export const UNPLAYABLE_ENGINE_REASONS = [
   'unsupported',
@@ -63,6 +70,7 @@ export const UNPLAYABLE_ENGINE_REASONS = [
   'engine-offline',
   'engine-error',
   'engine-busy',
+  'prepare-unsupported',
 ] as const;
 export type UnplayableEngineReason = (typeof UNPLAYABLE_ENGINE_REASONS)[number];
 
@@ -75,6 +83,18 @@ export type PrepareResult =
       tracks?: SessionTracks;
     }
   | { ok: false; reason: UnplayableEngineReason; retryable: boolean };
+
+/** What the engine said about a session's preparation job (okf:architecture/engine-prepare-ahead). */
+export type EnginePrepareResult =
+  | { kind: 'status'; status: EnginePrepareStatus }
+  /** The engine has no such session, and it couldn't be made again. */
+  | { kind: 'lost' }
+  /** The engine has no engine-side preparation. */
+  | { kind: 'unsupported' }
+  /** The session's duration is unknown to the engine. */
+  | { kind: 'no-duration' }
+  /** The prepared session wouldn't fit the engine's segment cache cap. */
+  | { kind: 'too-large' };
 
 export interface EngineModule {
   /**
@@ -108,6 +128,17 @@ export interface EngineModule {
    * unbuffered; the caller streams it and decides what an abort does.
    */
   fetchMedia(handle: EngineHandle, file: string, signal?: AbortSignal): Promise<Response>;
+
+  /**
+   * Starts (or re-checks) the engine's preparation job of a session made with
+   * mode `full`. A session the engine no longer has is made again first, as
+   * for a master request. Rejects when the engine doesn't answer or answers
+   * unexpectedly. Optional: without it nothing can be prepared.
+   */
+  startPrepare?(handle: EngineHandle, audio: PrepareAudio): Promise<EnginePrepareResult>;
+
+  /** The engine's progress on a session's preparation job. Rejects like {@link startPrepare}. */
+  prepareStatus?(handle: EngineHandle): Promise<EnginePrepareResult>;
 
   /**
    * The OpenSubtitles hash and size of the session's source, read by the

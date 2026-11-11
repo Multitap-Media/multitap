@@ -42,7 +42,7 @@ export type Delivery = (typeof DELIVERIES)[number];
 export const DELIVERY_REQUESTS = ['auto', ...DELIVERIES] as const;
 export type DeliveryRequest = (typeof DELIVERY_REQUESTS)[number];
 
-/** `full` transcodes every segment ahead of time (okf:architecture/engine-prepare-ahead, phase 4). */
+/** `full` transcodes every segment ahead of time (okf:architecture/engine-prepare-ahead). */
 export const SESSION_MODES = ['play', 'full'] as const;
 export type SessionMode = (typeof SESSION_MODES)[number];
 
@@ -149,7 +149,9 @@ export const EngineStatusSchema = z
       .nonnegative()
       .optional()
       .meta({ description: 'Bytes per second; torrents only.' }),
-    preparedPct: z.number().min(0).max(100).optional().meta({ description: 'Mode `full` only.' }),
+    preparedPct: z.number().min(0).max(100).optional().meta({
+      description: "Mode `full` only: the share of the session's segments the engine has cached.",
+    }),
     info: EngineMediaInfoSchema.optional().meta({
       description: "The engine's probe of the source.",
     }),
@@ -234,12 +236,12 @@ export const PlaybackSessionSchema = z
       description:
         'What the engine applied. Absent when nothing was requested or the engine has no `sessionOverrides`.',
     }),
-    readyBy: timestamp.optional().meta({ description: 'Preparation deadline.' }),
+    readyBy: timestamp.optional().meta({ description: 'Preparation deadline (mode `full`).' }),
     retainUntil: timestamp.optional().meta({ description: 'Client-set retention floor.' }),
     status: z.enum(PLAYBACK_SESSION_STATUSES),
     failureReason: z.string().optional().meta({
       description:
-        'Coarse reason for `failed`: an engine reason (`unsupported`, `external`, `live`, `needs-prepare`, `probe-failed`, `torrent-failed`, `engine-offline`, `engine-error`, `engine-busy`: the engine is at its torrent cap; try again shortly) or a session one (`no-candidates`, `only-flagged`: every playable source is flagged `destructive` and auto-select skips those, `candidates-exhausted`, `attempts-exhausted`, `interrupted`, `internal-error`).',
+        'Coarse reason for `failed`: an engine reason (`unsupported`, `external`, `live`, `needs-prepare`, `probe-failed`, `torrent-failed`, `engine-offline`, `engine-error`, `engine-busy`: the engine is at its torrent cap; try again shortly), a preparation reason for a `full` session (`prepare-unsupported`: the engine has no preparation, `prepare-too-large`: the prepared session does not fit the segment cache of the engine, `prepare-failed`: the preparation job failed twice) or a session one (`no-candidates`, `only-flagged`: every playable source is flagged `destructive` and auto-select skips those, `candidates-exhausted`, `attempts-exhausted`, `interrupted`, `internal-error`).',
       example: 'needs-prepare',
     }),
     progress: EngineStatusSchema.optional(),
@@ -271,14 +273,16 @@ export const CreateSessionSchema = z
       description: 'Default `auto` (always `transcode` for now). `direct` and `remux` get `501`.',
     }),
     mode: z.enum(SESSION_MODES).optional().meta({
-      description: 'Default `play`. `full` gets `501` until preparation is built.',
+      description:
+        "Default `play`. `full` has the engine transcode every segment ahead of time: the session is `preparing` once its source is chosen and `ready` when the engine has finished (`prepare.progress` and `prepare.done` events). It needs an engine with preparation; without it the session fails with `prepare-unsupported`. A source taller than the engine's `liveMaxHeight`, up to its `preparedMaxHeight`, only plays this way.",
     }),
     highRes: z.enum(HIGH_RES_POLICIES).optional().meta({
       description: 'Default `MULTITAP_SELECTION_DEFAULT_HIGH_RES`.',
     }),
     quality: SessionQualitySchema.optional(),
     readyBy: timestamp.optional().meta({
-      description: 'Preparation deadline. Gets `501` until preparation is built.',
+      description:
+        "Preparation deadline, with `mode: 'full'` only (`400` otherwise). Preparation starts early enough to finish by then (`MULTITAP_PREPARE_LEAD_TIME_*`); without it, at once. The session is kept at least until `readyBy` plus `MULTITAP_RETENTION_IDLE_MS`.",
     }),
     retainUntil: timestamp.optional(),
     preferredLanguage: PreferredLanguagesSchema.optional().meta({
@@ -312,7 +316,8 @@ export const UpdateSessionSchema = z
   .object({
     retainUntil: timestamp.nullable().optional(),
     readyBy: timestamp.nullable().optional().meta({
-      description: 'Gets `501` until preparation is built.',
+      description:
+        "A new preparation deadline for a `full` session; `null` clears it, and preparation that hasn't started then starts at once. `409` for a `play` session.",
     }),
   })
   .meta({ id: 'UpdateSession' });
