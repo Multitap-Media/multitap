@@ -12,6 +12,7 @@ export interface Database {
   engine_sessions: EngineSessionsTable;
   token_revocations: TokenRevocationsTable;
   session_subtitle_offsets: SessionSubtitleOffsetsTable;
+  prepare_jobs: PrepareJobsTable;
   profiles: ProfilesTable;
   library_items: LibraryItemsTable;
   last_sources: LastSourcesTable;
@@ -94,6 +95,7 @@ export const ENGINE_SESSION_PUBLIC_COLUMNS = [
   'release_pending_since',
   'release_attempts',
   'release_next_at',
+  'prepared',
 ] as const satisfies readonly Exclude<keyof EngineSessionsTable, SecretColumn<'engine_sessions'>>[];
 
 export interface AddonsTable {
@@ -228,6 +230,11 @@ export interface EngineSessionsTable {
   release_attempts: Generated<number>;
   /** When the next release attempt is due, Unix ms. */
   release_next_at: number | null;
+  /**
+   * 1 for the engine session of a `full` playback session (migration 0012):
+   * its master requests carry the prepared `ttl` (okf:architecture/engine-prepare-ahead).
+   */
+  prepared: Generated<number>;
 }
 
 export type EngineSessionRow = Selectable<EngineSessionsTable>;
@@ -237,6 +244,39 @@ export interface TokenRevocationsTable {
   session_id: string;
   subject: string;
   until: number;
+}
+
+export type PrepareJobStateValue = 'scheduled' | 'running' | 'done';
+
+/**
+ * The preparation of a `full` playback session (migration 0012,
+ * okf:architecture/engine-prepare-ahead): when it starts, how far the engine's job is, and
+ * what was told about it. Deleted with its session; a failed preparation
+ * fails the session and leaves no row.
+ */
+export interface PrepareJobsTable {
+  session_id: string;
+  /** `scheduled` until `start_at`, `running` while the engine's job is, `done` once the session is ready. */
+  state: PrepareJobStateValue;
+  /** `default` or `all`: the audio renditions prepared besides the video. */
+  audio: string;
+  /** The source's height from the probe, for the lead time; null when unknown. */
+  height: number | null;
+  start_at: number;
+  ready_by: number | null;
+  /** When the engine's job was last started. */
+  started_at: number | null;
+  /** Segments already cached at `started_at` (the rate behind `prepare.late`). */
+  start_segments: Generated<number>;
+  total_segments: Generated<number>;
+  done_segments: Generated<number>;
+  /** Times the engine's job was started again after it failed or left gaps. */
+  restarts: Generated<number>;
+  /** 1 once `prepare.late` was published for this `ready_by`. */
+  late_notified: Generated<number>;
+  /** When the check before `ready_by` ran. */
+  verified_at: number | null;
+  updated_at: number;
 }
 
 /** A session's timing offset for one subtitle file (migration 0010); no row = 0. */

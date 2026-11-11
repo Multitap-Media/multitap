@@ -38,6 +38,7 @@ interface SetupOptions {
   fake?: FakeEngineOptions;
   caps?: Partial<EngineCapabilities>;
   sessionTtlSec?: number;
+  preparedSessionTtlSec?: number;
   warmSegments?: number;
   busyRetryMaxMs?: number;
   /** The engine descriptor's proxy password (stored like `PUT` does). */
@@ -92,6 +93,9 @@ async function setup(options: SetupOptions = {}) {
       ids,
       privateHosts: PUBLIC_DNS_GUARD,
       ...(options.sessionTtlSec === undefined ? {} : { sessionTtlSec: options.sessionTtlSec }),
+      ...(options.preparedSessionTtlSec === undefined
+        ? {}
+        : { preparedSessionTtlSec: options.preparedSessionTtlSec }),
       ...(options.warmSegments === undefined ? {} : { warmSegments: options.warmSegments }),
       ...(options.busyRetryMaxMs === undefined ? {} : { busyRetryMaxMs: options.busyRetryMaxMs }),
     });
@@ -540,10 +544,93 @@ describe('engine availability', () => {
       }),
     ).toEqual({ ok: false, reason: 'engine-offline', retryable: false });
   });
+});
 
-  it("mode 'full' is phase 4 and rejects", async () => {
-    const { prepare } = await setup();
-    await expect(prepare({ url: MOVIE }, { mode: 'full' })).rejects.toThrow(/phase 4/);
+describe("mode 'full' (okf:architecture/engine-prepare-ahead)", () => {
+  it('needs an engine with preparation', async () => {
+    const { fake, prepare } = await setup();
+    expect(await prepare({ url: MOVIE }, { mode: 'full' })).toEqual({
+      ok: false,
+      reason: 'prepare-unsupported',
+      retryable: false,
+    });
+    expect(fake.masterRequests).toHaveLength(0);
+  });
+
+  it('makes the session without warming it, with the prepared ttl on every master request', async () => {
+    const { db, fake, prepare, module, make } = await setup({
+      fake: { supportsPrepare: true },
+      sessionTtlSec: 3_600,
+      preparedSessionTtlSec: 604_800,
+    });
+    const result = await prepare({ url: MOVIE }, { mode: 'full' });
+    if (!result.ok) throw new Error(result.reason);
+    await module.idle();
+    expect(fake.fileRequests.size).toBe(0);
+    expect(fake.masterRequests.map((m) => m.overrides.ttl)).toEqual(['604800']);
+    expect(await db.selectFrom('engine_sessions').select(['sid', 'prepared']).execute()).toEqual([
+      { sid: result.handle.sid, prepared: 1 },
+    ]);
+    // Self-heal, from memory and (after a restart of Multitap) from the row.
+    await (await module.fetchMedia(result.handle, 'master.m3u8')).text();
+    await (await make().fetchMedia(result.handle, 'master.m3u8')).text();
+    expect(fake.masterRequests.map((m) => m.overrides.ttl)).toEqual(['604800', '604800', '604800']);
+
+    // A session to play keeps the ordinary ttl.
+    const play = await prepare({ url: MOVIE }, { sessionKey: 'ps_two' });
+    if (!play.ok) throw new Error(play.reason);
+    expect(fake.mastersFor(play.handle.sid).map((m) => m.overrides.ttl)).toEqual(['3600']);
+  });
+
+  it('takes a source up to preparedMaxHeight, which mode play refuses', async () => {
+    const { fake, prepare } = await setup({ fake: { supportsPrepare: true } });
+    fake.setProbe(MOVIE, 'hdr-4k');
+    expect(await prepare({ url: MOVIE })).toMatchObject({ ok: false, reason: 'needs-prepare' });
+    expect(await prepare({ url: MOVIE }, { mode: 'full' })).toMatchObject({
+      ok: true,
+      status: { phase: 'ready', info: { height: 2160 } },
+    });
+    const small = await setup({
+      fake: { supportsPrepare: true },
+      caps: { preparedMaxHeight: 1080 },
+    });
+    small.fake.setProbe(MOVIE, 'hdr-4k');
+    expect(await small.prepare({ url: MOVIE }, { mode: 'full' })).toEqual({
+      ok: false,
+      reason: 'unsupported',
+      retryable: false,
+    });
+  });
+
+  it('starts and reads the job; a session the engine lost is made again first', async () => {
+    const { fake, prepare, module } = await setup({
+      fake: { supportsPrepare: true, prepareSegmentsPerPoll: 20 },
+    });
+    const result = await prepare({ url: MOVIE }, { mode: 'full' });
+    if (!result.ok) throw new Error(result.reason);
+    const { handle } = result;
+    expect(await module.startPrepare(handle, 'default')).toMatchObject({
+      kind: 'status',
+      status: { state: 'running', total: 30, cached: 0 },
+    });
+    expect(await module.prepareStatus(handle)).toMatchObject({ status: { cached: 20 } });
+
+    fake.restart();
+    expect(await module.prepareStatus(handle)).toEqual({ kind: 'lost' });
+    expect(await module.startPrepare(handle, 'default')).toMatchObject({
+      status: { state: 'running', cached: 0 },
+    });
+    expect(fake.mastersFor(handle.sid).map((m) => m.created)).toEqual([true, true]);
+
+    // A handle Multitap has no engine session for, and an engine without the feature.
+    expect(await module.startPrepare({ engineId: 'home', sid: 'unknown' }, 'default')).toEqual({
+      kind: 'lost',
+    });
+    const off = await setup();
+    const play = await off.prepare({ url: MOVIE });
+    if (!play.ok) throw new Error(play.reason);
+    expect(await off.module.startPrepare(play.handle, 'default')).toEqual({ kind: 'unsupported' });
+    expect(await off.module.prepareStatus(play.handle)).toEqual({ kind: 'unsupported' });
   });
 });
 
@@ -877,6 +964,7 @@ describe('release', () => {
 describe('configuration', () => {
   it('MULTITAP_ENGINE_SESSION_TTL_MS becomes the per-session ttl; the sweep interval and health backoff pace release retries', () => {
     expect(engineModuleConfig(loadConfig({}))).toEqual({
+      preparedSessionTtlSec: 7 * 86_400,
       releaseRetryBaseMs: 60_000,
       releaseRetryMaxMs: 60_000,
     });
@@ -887,7 +975,16 @@ describe('configuration', () => {
           MULTITAP_RETENTION_SWEEP_MS: '5000',
         }),
       ),
-    ).toEqual({ sessionTtlSec: 172_800, releaseRetryBaseMs: 5_000, releaseRetryMaxMs: 60_000 });
+    ).toEqual({
+      sessionTtlSec: 172_800,
+      preparedSessionTtlSec: 7 * 86_400,
+      releaseRetryBaseMs: 5_000,
+      releaseRetryMaxMs: 60_000,
+    });
+    expect(
+      engineModuleConfig(loadConfig({ MULTITAP_PREPARE_SESSION_TTL_MS: '3600500' }))
+        .preparedSessionTtlSec,
+    ).toBe(3601);
     expect(
       engineModuleConfig(loadConfig({ MULTITAP_ENGINE_SESSION_TTL_MS: '3600500' })).sessionTtlSec,
     ).toBe(3601);

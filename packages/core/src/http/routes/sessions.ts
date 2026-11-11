@@ -83,6 +83,8 @@ const STATUS: Record<SessionErrorCode, ContentfulStatusCode> = {
   'candidate-mismatch': 422,
   'unknown-engine': 400,
   'not-implemented': 501,
+  'ready-by-needs-full': 400,
+  'not-full': 409,
   'engine-busy': 503,
   'shutting-down': 503,
   'unknown-profile': 400,
@@ -120,6 +122,9 @@ const createSessionRoute = createRoute({
     '`MULTITAP_AUTO_SELECT_ATTEMPT_TIMEOUT_MS`. ' +
     "The answer comes at once with `status: 'resolving'`; follow `session.status`, " +
     '`session.ready` and `session.failed` on `/v1/events?session={id}`, or poll the session. ' +
+    "With `mode: 'full'` the engine transcodes the whole source ahead of time, by `readyBy` when given: " +
+    'the session is `preparing` once its source is chosen (`prepare.progress`, `prepare.late`, `prepare.lost`) and `ready` ' +
+    "when the engine has finished (`prepare.done`); its media answers `404` until then. That needs an engine with preparation, and isn't counted against `liveConcurrency`. " +
     'With a `key`, a create matching the key, item, source, delivery and quality of an open session ' +
     'returns that session with `200`. A new session on an engine already at its `liveConcurrency` is logged, or with `MULTITAP_ENGINE_ADMISSION=reject` refused with `503` and `Retry-After`.',
   tags,
@@ -136,13 +141,13 @@ const createSessionRoute = createRoute({
       ...json('The new session, resolving', PlaybackSessionSchema),
       links: sessionLinks(fromBody),
     },
-    400: problemContent('The request failed validation, or the engine is unknown'),
+    400: problemContent(
+      "The request failed validation, the engine is unknown, or `readyBy` came without `mode: 'full'`",
+    ),
     ...authResponses,
     409: problemContent('The candidate key has expired or is unknown: list the sources again'),
     422: problemContent("The candidate key belongs to another item's source list"),
-    501: problemContent(
-      "Not built yet: `mode: 'full'` and `readyBy`, `delivery` `direct` and `remux`",
-    ),
+    501: problemContent('Not built yet: `delivery` `direct` and `remux`'),
     503: {
       ...problemContent(
         "With `MULTITAP_ENGINE_ADMISSION=reject`, the engine's resolving and playing sessions already reach its `liveConcurrency`; or Multitap is shutting down",
@@ -180,9 +185,10 @@ const updateSessionRoute = createRoute({
   method: 'patch',
   path: '/v1/sessions/{id}',
   operationId: 'updateSession',
-  summary: "Set a playback session's retention",
+  summary: "Set a playback session's retention or preparation deadline",
   description:
-    'A session is kept until `max(retainUntil, lastAccess + MULTITAP_RETENTION_IDLE_MS)`; `null` clears `retainUntil`. ' +
+    'A session is kept until `max(retainUntil, lastAccess + MULTITAP_RETENTION_IDLE_MS)`, a `full` one also until `readyBy + MULTITAP_RETENTION_IDLE_MS` and while it is `preparing`; `null` clears `retainUntil`. ' +
+    "`readyBy` moves a `full` session's preparation deadline: a preparation that hasn't started is rescheduled (`null`: it starts at once). " +
     "Quality can't be changed: create another session.",
   tags,
   security: BEARER_SECURITY,
@@ -195,8 +201,8 @@ const updateSessionRoute = createRoute({
     ...validationResponse,
     ...authResponses,
     404: problemContent(noSession),
+    409: problemContent("`readyBy` on a session that wasn't created with `mode: 'full'`"),
     410: problemContent('The session has been released'),
-    501: problemContent('`readyBy` needs preparation, which is not built yet'),
   },
 });
 

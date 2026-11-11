@@ -45,6 +45,12 @@ describe('loadConfig', () => {
         releasedKeepMs: 86_400_000,
         sweepIntervalMs: 60_000,
       },
+      prepare: {
+        leadTimeMs: { upTo1080: 3_600_000, above1080: 36 * 3_600_000 },
+        pollMs: 15_000,
+        allAudio: false,
+        sessionTtlMs: 7 * 86_400_000,
+      },
       selection: {
         defaultHighRes: 'off',
         defaultEngine: undefined,
@@ -128,6 +134,11 @@ describe('loadConfig', () => {
         MULTITAP_RETENTION_IDLE_MS: '7200000',
         MULTITAP_SESSION_RELEASED_KEEP_MS: '3600000',
         MULTITAP_RETENTION_SWEEP_MS: '5000',
+        MULTITAP_PREPARE_LEAD_TIME_UP_TO_1080_MS: '1800000',
+        MULTITAP_PREPARE_LEAD_TIME_ABOVE_1080_MS: '86400000',
+        MULTITAP_PREPARE_POLL_MS: '5000',
+        MULTITAP_PREPARE_ALL_AUDIO: 'true',
+        MULTITAP_PREPARE_SESSION_TTL_MS: '172800000',
         MULTITAP_AUTO_SELECT_MAX_ATTEMPTS: '3',
         MULTITAP_AUTO_SELECT_RETRY_AFTER_MS: '0',
         MULTITAP_AUTO_SELECT_ATTEMPT_TIMEOUT_MS: '30000',
@@ -189,6 +200,12 @@ describe('loadConfig', () => {
         retentionIdleMs: 7_200_000,
         releasedKeepMs: 3_600_000,
         sweepIntervalMs: 5_000,
+      },
+      prepare: {
+        leadTimeMs: { upTo1080: 1_800_000, above1080: 86_400_000 },
+        pollMs: 5_000,
+        allAudio: true,
+        sessionTtlMs: 172_800_000,
       },
       subtitles: { timeoutMs: 2_000, maxBytes: 1_048_576 },
       engines: {

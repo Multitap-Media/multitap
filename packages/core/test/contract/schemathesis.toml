@@ -71,18 +71,18 @@ checks.positive_data_acceptance.expected-statuses = ["2xx", 400, 404, 409]
 
 # The engine is any well-formed engine id (an unknown one is a documented
 # 400). A picked `source.key` that schemathesis makes up is unknown (409) or,
-# from a link, belongs to another item (422); `mode: 'full'`, `readyBy`,
-# `direct` and `remux` are documented 501s.
+# from a link, belongs to another item (422); a `readyBy` without
+# `mode: 'full'` is a documented 400, `direct` and `remux` documented 501s.
 [[operations]]
 include-operation-id = "createSession"
 checks.positive_data_acceptance.expected-statuses = ["2xx", 400, 404, 409, 422, 501]
 checks.not_a_server_error.expected-statuses = ["2xx", "3xx", "4xx", 501]
 
-# `readyBy` is a documented 501 until phase 4; a released session is a 410.
+# `readyBy` on a session that isn't `full` is a documented 409; a released
+# session is a 410.
 [[operations]]
 include-operation-id = "updateSession"
-checks.positive_data_acceptance.expected-statuses = ["2xx", 400, 404, 409, 410, 501]
-checks.not_a_server_error.expected-statuses = ["2xx", "3xx", "4xx", 501]
+checks.positive_data_acceptance.expected-statuses = ["2xx", 400, 404, 409, 410]
 
 # A released session answers 410 on the routes that act on it, and Schemathesis
 # treats 410 for schema-valid input as a bug unless it is listed.

@@ -1,13 +1,13 @@
 ---
 type: Process
 title: Upstream asks for stremio-server-go and maintainer answers
-description: "The engine asks tracked in upstream issue rivulet-kodi/rivulet-engine#43: merged items, maintainer answers from 2026-10-05, the 2026-10-13 re-check, the 2026-10-15 and 2026-10-16 reviews (#49–#53 and #57–#61 merged; #54 changes requested; post-merge nits), and the open asks in priority order."
+description: "The engine asks tracked in upstream issue rivulet-kodi/rivulet-engine#43: merged items, maintainer answers from 2026-10-05, the 2026-10-13 re-check, the 2026-10-15 and 2026-10-16 reviews (#49–#53 and #57–#61 merged; #54 changes requested; post-merge nits), the 2026-11-04 checklist (items 1–8 done), and the open asks in priority order."
 tags: [engine, upstream, issue-43, process]
 generated: { by: "agent/claude-opus-5.5", at: "2026-11-03T12:00:00Z" }
 status: stable
 ---
 
-Source: the former design document; AGENTS.md "Open work". Tracker: rivulet-kodi/rivulet-engine#43, M0Rf30/stremio-server-go#43 before the rename (posted 2026-10-05; closed by the maintainer 2026-10-09 with "feel free to re-open"; checklist posted 2026-10-13 with a request to re-open; re-opened since. The checklist comment was updated 2026-10-16 against `efa1b78`: items 1–5 done, plus a "related" list of #54, #66, #63, #64, #65 and #48). Check the issue and the maintainer's answers before starting a branch, and keep its checklist current.
+Source: the former design document; AGENTS.md "Open work". Tracker: rivulet-kodi/rivulet-engine#43, M0Rf30/stremio-server-go#43 before the rename (posted 2026-10-05; closed by the maintainer 2026-10-09 with "feel free to re-open"; checklist posted 2026-10-13 with a request to re-open; re-opened since. The checklist comment was updated 2026-10-16 against `efa1b78`: items 1–5 done, plus a "related" list of #54, #66, #63, #64, #65 and #48; and again 2026-11-04 against `a61eaf8`: items 1–8 done, item 10's design issue filed as #81, the ladder's design issue still to file, and #54, #63, #64, #66, #67, #68 and #82 merged on the related list, with issues #48 and #65 closed). Check the issue and the maintainer's answers before starting a branch, and keep its checklist current.
 
 **Maintainer answers (2026-10-05):** item 5 (api_password redaction) fixed upstream in `a038e80`. Small items 1–4 fine as described, with the private-host allowlist checked at dial time, and keep `BANDWIDTH` legacy strings without a knob. Medium items 6–9 welcome; preparation and transcode-ahead share one low-priority scheduler. Hardware decode accepted (off by default, per codec, software fallback). ABR ladder accepted as a new session shape behind a setting, design issue first. **Remux stays on the fork.** Event stream later. Order: small fixes, preparation, hardware decode, ladder. One area per PR.
 
@@ -34,11 +34,11 @@ Still true: stage engine paths explicitly, never `git add -A`; `GOOS=android go 
 2. A distinguishable status when a source fails mid-stream (item 2). Done: #53, #58. Core's gateway retries a segment 502/504 once, and a 404 once for known-good sessions (2026-10-14).
 3. Private-host allowlist for HLS `mediaURL`s (item 3). Done: `STREMIO_HLS_PRIVATE_ALLOW` (#49); `/proxy` has upstream's `STREMIO_PROXY_PRIVATE_ALLOW`.
 4. `BANDWIDTH` reflects the real peak (item 4). Done: #50, #59; README rewrap pending.
-5. Header/index cache for HTTP sources (item 7).
+5. Header/index cache for HTTP sources (item 7). Done: #80 (merged 2026-11-04, Rivulet Engine v0.31.0), opt-in `RIVULET_HLS_RELAY_CACHE_BYTES`.
 6. Engine-side preparation, `POST /hlsv2/{id}/prepare` with per-segment cache status (the one ask phase 4 needs). Done: #73 (merged 2026-11-03, Rivulet Engine v0.30.0), #75.
-7. Transcode-ahead window (item 8).
+7. Transcode-ahead window (item 8). Done: #79 (merged 2026-11-04, v0.31.0), opt-in `RIVULET_HLS_TRANSCODE_AHEAD`, a lane ahead of preparation on the same low-priority scheduler.
 8. YouTube through DASH formats (item 9).
-9. Hardware decode (item 10, accepted). Hardware tone mapping also an ask.
+9. Hardware decode (item 10, accepted; design issue #81). Hardware tone mapping also an ask, deferred there.
 10. ABR ladder (item 11, accepted; design issue first).
 11. Remux (item 12; keep on fork).
 12. An event stream from the engine (item 13; low priority).

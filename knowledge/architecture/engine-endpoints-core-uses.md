@@ -22,6 +22,7 @@ Source of truth for the engine surface core depends on  Only core talks to engin
 | `GET /hlsv2/{sid}/master.m3u8?mediaURL=` | Create or reuse the HLS session (with #25's overrides on creation). Also self-heal. |
 | `GET /hlsv2/{sid}/{file}` | Media playlists, segments, subtitle VTT (proxied by the gateway) |
 | `DELETE /hlsv2/{sid}` | Release a session (#24) |
+| `POST`/`GET`/`DELETE /hlsv2/{sid}/prepare` | Engine-side preparation (#73, `RIVULET_HLS_PREPARE`): start or re-check the job (`?audio=default\|all`), read its status, stop it. Detected with `DELETE /hlsv2/{invalid id}/prepare`: `400` with the feature, `404` or `405` without ([[architecture/engine-prepare-ahead]]) |
 | `GET /yt/{id}` | yt-dlp resolve → 307 to a progressive format (usable as `mediaURL`) |
 | `GET /proxy/stream?d=…&h_<Header>=…&r_<Header>=…[&api_password=…]` | Wrap HTTP sources that need `behaviorHints.proxyHeaders`. With `STREMIO_PROXY_PASSWORD` set, a request without the matching `api_password` is refused ([[architecture/secrets-policy]]). |
 | `GET /proxy/hls/manifest.m3u8?d=…` + `POST /generate_url` | Live HLS passthrough (phase 4) |

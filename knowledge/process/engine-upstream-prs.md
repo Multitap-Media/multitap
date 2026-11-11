@@ -1,7 +1,7 @@
 ---
 type: Process
 title: "Engine upstream PRs: what merged and what each adds"
-description: "The stremio-server-go PRs by Multitap's maintainer (#24 to #36, #49, #52, #57 and #73), merge dates and releases, what each gives core, the #33 pre-roll design, and the rule that every design falls back on an engine without them."
+description: "The stremio-server-go PRs by Multitap's maintainer (#24 to #36, #49, #52, #57, #73, #79 and #80), merge dates and releases, what each gives core, the #33 pre-roll design, and the rule that every design falls back on an engine without them."
 tags: [engine, upstream, prs, process]
 generated: { by: "agent/claude-opus-5.5", at: "2026-11-03T12:00:00Z" }
 code_refs:
@@ -11,7 +11,7 @@ status: stable
 
 Source of truth for the engine upstream contributions (migrated from the former design document; AGENTS.md "Working on the engine"). The still-planned engine work is in Planned engine changes; upstream review notes are in [[process/upstream-engine-asks]] and Engine verification details and open work.
 
-Every PR was one commit, opt-in or bug-fix only, with defaults unchanged. Each was reviewed independently and passed the same steps as upstream CI on Linux (Verification setup for engine PRs). The maintainer merged #24–#29 on 2026-09-29, rebasing the stack and resolving the overlaps (for example, #27's tone-map trim now follows each attempt of #29's pre-roll retry). #33, #34, #35 and #36 followed on 2026-09-30. Later merges: the short-segment check (#52, with its follow-up #57) and the private-host allowlist for `mediaURL` (#49, merged 2026-10-16).
+Every PR was one commit, opt-in or bug-fix only, with defaults unchanged. Each was reviewed independently and passed the same steps as upstream CI on Linux (Verification setup for engine PRs). The maintainer merged #24–#29 on 2026-09-29, rebasing the stack and resolving the overlaps (for example, #27's tone-map trim now follows each attempt of #29's pre-roll retry). #33, #34, #35 and #36 followed on 2026-09-30. Later merges: the short-segment check (#52, with its follow-up #57) the private-host allowlist for `mediaURL` (#49, merged 2026-10-16), engine-side preparation (#73, 2026-11-03), and the header/index cache and the transcode-ahead window (#80 and #79, 2026-11-04). With those, items 1 to 8 of the tracking issue are done ([[process/upstream-engine-asks]]).
 
 **The reference engine should run upstream v0.18.1 or later**, which has all of #24–#36. (v0.18.0 lacks the #34 fix that persistent preparations rely on.) Since 2026-09-30 the reference engine host runs `main` at `11be9eb` (v0.18.1 plus a CI-only commit); a session idle 95 s survived a service restart there. Phase 0 ran a local build with #24–#29 merged locally; the reference engine host now builds from an upstream tag or `main`, plus any change of ours still in review. The design still works on an engine without these changes (the fallback paths stay), and core detects each feature at runtime.
 
@@ -28,6 +28,8 @@ Every PR was one commit, opt-in or bug-fix only, with defaults unchanged. Each w
 | #35 (v0.18.1) | Closes disk piece storage on `Close`; the engine's test suite passes on Windows | Engine changes can be checked on the dev machine's Windows too (Verification setup for engine PRs) |
 | #36 | A `windows-latest` job in upstream's CI (merged after v0.18.1) | Windows regressions in the engine show up in CI |
 | #73 (v0.30.0, 2026-11-03) | Opt-in engine-side preparation (`RIVULET_HLS_PREPARE`): `POST`/`GET`/`DELETE /hlsv2/{id}/prepare`, a low-priority background job, prepared segments pinned outside the per-session cap, a per-segment status map, resume with #26. The maintainer's follow-ups are #75 | Phase 4's preparation runs in the engine with exact verification ([[architecture/engine-prepare-ahead]]) |
+| #80 (v0.31.0, 2026-11-04) | Opt-in header/index cache in the media relay (`RIVULET_HLS_RELAY_CACHE_BYTES`, memory, LRU across sources): the range reads ffmpeg repeats on every segment of a remote source (container header, Matroska Cues or MP4 `moov`, first-cluster probe) are answered from memory, compared on total length, `ETag` and `Last-Modified` | A segment of a debrid or other HTTP source makes one upstream request instead of about four (R10, [[process/risk-register]]). An engine-wide setting: core sends nothing and can't detect it |
+| #79 (v0.31.0, 2026-11-04) | Opt-in transcode-ahead window (`RIVULET_HLS_TRANSCODE_AHEAD=N`, at most 30): once a segment request is answered, a worker per session and rendition transcodes the next `N` segments; a seek out of the window cancels it. It shares preparation's low-priority scheduler as a lane ahead of it (`RIVULET_HLS_TRANSCODE_AHEAD_CONCURRENCY`) | Fewer stalls after a seek and at the start, with no reading ahead from core ([[architecture/engine-session-lifecycle]]). Engine-wide too, not a per-session parameter, and it starts only after a first segment request, so core's warm-up stays ([[architecture/engine-prepare-stream]]) |
 
 No engine PR of ours is open (the former design document as of its last edit; later upstream review notes are in [[process/upstream-engine-asks]]).
 

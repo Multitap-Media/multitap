@@ -85,6 +85,24 @@ export interface Config {
     /** How often retention is swept (default 1 min). */
     sweepIntervalMs: number;
   };
+  /** Preparing `full` sessions ahead of time (okf:architecture/engine-prepare-ahead). */
+  prepare: {
+    /**
+     * How long before a session's `readyBy` its preparation starts, by the
+     * source's height (defaults 1 h up to 1080, 36 h above).
+     */
+    leadTimeMs: { upTo1080: number; above1080: number };
+    /** How often running preparations are read from their engines (default 15 s). */
+    pollMs: number;
+    /** Prepare every audio rendition of a multi-audio source, not only the default one. */
+    allAudio: boolean;
+    /**
+     * The engine `ttl` (#25) of a prepared session, sent to engines with
+     * `sessionOverrides`: once its job is done, the engine's idle TTL applies
+     * again, and this covers the wait until it is watched (default 7 d).
+     */
+    sessionTtlMs: number;
+  };
   selection: {
     /** Used when a request doesn't set `highRes` (okf:concept/source-ranking). */
     defaultHighRes: HighResPolicy;
@@ -466,6 +484,21 @@ const EnvSchema = z.object({
     durationMs(60_000, 30 * DAY).default(DAY),
   ),
   MULTITAP_RETENTION_SWEEP_MS: z.preprocess(blankAsUnset, durationMs(1_000, HOUR).default(60_000)),
+  MULTITAP_PREPARE_LEAD_TIME_UP_TO_1080_MS: z.preprocess(
+    blankAsUnset,
+    durationMs(0, 30 * DAY).default(HOUR),
+  ),
+  MULTITAP_PREPARE_LEAD_TIME_ABOVE_1080_MS: z.preprocess(
+    blankAsUnset,
+    durationMs(0, 30 * DAY).default(36 * HOUR),
+  ),
+  MULTITAP_PREPARE_POLL_MS: z.preprocess(blankAsUnset, durationMs(1_000, HOUR).default(15_000)),
+  MULTITAP_PREPARE_ALL_AUDIO: z.preprocess(blankAsUnset, booleanFlag.default(false)),
+  // #25 accepts 60 s to 30 d; whole seconds are sent.
+  MULTITAP_PREPARE_SESSION_TTL_MS: z.preprocess(
+    blankAsUnset,
+    durationMs(60_000, 30 * DAY).default(7 * DAY),
+  ),
   MULTITAP_SELECTION_DEFAULT_HIGH_RES: z.preprocess(
     blankAsUnset,
     z.enum(HIGH_RES_POLICIES).default('off'),
@@ -766,6 +799,15 @@ export function loadConfig(
       retentionIdleMs: e.MULTITAP_RETENTION_IDLE_MS,
       releasedKeepMs: e.MULTITAP_SESSION_RELEASED_KEEP_MS,
       sweepIntervalMs: e.MULTITAP_RETENTION_SWEEP_MS,
+    },
+    prepare: {
+      leadTimeMs: {
+        upTo1080: e.MULTITAP_PREPARE_LEAD_TIME_UP_TO_1080_MS,
+        above1080: e.MULTITAP_PREPARE_LEAD_TIME_ABOVE_1080_MS,
+      },
+      pollMs: e.MULTITAP_PREPARE_POLL_MS,
+      allAudio: e.MULTITAP_PREPARE_ALL_AUDIO,
+      sessionTtlMs: e.MULTITAP_PREPARE_SESSION_TTL_MS,
     },
     selection: {
       defaultHighRes: e.MULTITAP_SELECTION_DEFAULT_HIGH_RES,

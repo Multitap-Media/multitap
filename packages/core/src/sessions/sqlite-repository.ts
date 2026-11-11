@@ -19,6 +19,7 @@ import { PLAYBACK_SESSION_PUBLIC_COLUMNS, type PlaybackSessionsTable } from '../
 import type {
   ChosenSource,
   NewPlaybackSession,
+  PrepareJob,
   PlaybackSessionPatch,
   PlaybackSessionRecord,
   SessionRepository,
@@ -197,6 +198,52 @@ export class SqliteSessionRepository implements SessionRepository {
       .execute();
   }
 
+  async listPrepareJobs(): Promise<PrepareJob[]> {
+    const rows = await this.#db.selectFrom('prepare_jobs').selectAll().execute();
+    return rows.map((row) => ({
+      sessionId: row.session_id,
+      state: row.state,
+      audio: row.audio === 'all' ? 'all' : 'default',
+      height: row.height,
+      startAt: row.start_at,
+      readyBy: row.ready_by,
+      startedAt: row.started_at,
+      startSegments: row.start_segments,
+      totalSegments: row.total_segments,
+      doneSegments: row.done_segments,
+      restarts: row.restarts,
+      lateNotified: row.late_notified !== 0,
+      verifiedAt: row.verified_at,
+    }));
+  }
+
+  async savePrepareJob(job: PrepareJob, now: number): Promise<void> {
+    const values = {
+      state: job.state,
+      audio: job.audio,
+      height: job.height,
+      start_at: job.startAt,
+      ready_by: job.readyBy,
+      started_at: job.startedAt,
+      start_segments: job.startSegments,
+      total_segments: job.totalSegments,
+      done_segments: job.doneSegments,
+      restarts: job.restarts,
+      late_notified: job.lateNotified ? 1 : 0,
+      verified_at: job.verifiedAt,
+      updated_at: now,
+    };
+    await this.#db
+      .insertInto('prepare_jobs')
+      .values({ session_id: job.sessionId, ...values })
+      .onConflict((oc) => oc.column('session_id').doUpdateSet(values))
+      .execute();
+  }
+
+  async deletePrepareJob(sessionId: string): Promise<void> {
+    await this.#db.deleteFrom('prepare_jobs').where('session_id', '=', sessionId).execute();
+  }
+
   async listSubtitleOffsets(sessionId: string): Promise<Map<string, number>> {
     const rows = await this.#db
       .selectFrom('session_subtitle_offsets')
@@ -243,8 +290,13 @@ export class SqliteSessionRepository implements SessionRepository {
     const rows = await this.#db
       .selectFrom('playback_sessions')
       .select('id')
-      .where('status', '!=', 'released')
-      .where(sql<number>`max(coalesce(retain_until, 0), last_access + ${idleMs})`, '<=', now)
+      .where('status', 'not in', ['released', 'preparing'])
+      .where(
+        // A failed session has nothing to keep for its deadline.
+        sql<number>`max(coalesce(retain_until, 0), last_access + ${idleMs}, case when status = 'failed' then 0 else coalesce(ready_by + ${idleMs}, 0) end)`,
+        '<=',
+        now,
+      )
       .orderBy('created_at')
       .execute();
     return rows.map((row) => row.id);

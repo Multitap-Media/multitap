@@ -80,7 +80,7 @@ describe('/v1/sessions', () => {
     expect(gone.type).toBe(PROBLEM_CONTENT_TYPE);
   });
 
-  it('answers problems: 409 expired key, 422 other item, 400 unknown engine or bad body, 501, 404', async () => {
+  it('answers problems: 409 expired key, 422 other item, 400 unknown engine, bad body or a readyBy without mode full, 501, 404', async () => {
     const { r, call } = await setup();
     const expired = await call('POST', '/v1/sessions', { item: MOVIE, source: { key: 'gone' } });
     expect(expired.status).toBe(409);
@@ -102,12 +102,7 @@ describe('/v1/sessions', () => {
     ]) {
       expect((await call('POST', '/v1/sessions', bad)).status).toBe(400);
     }
-    for (const extra of [
-      { mode: 'full' },
-      { readyBy: '2026-10-01T20:00:00.000Z' },
-      { delivery: 'direct' },
-      { delivery: 'remux' },
-    ]) {
+    for (const extra of [{ delivery: 'direct' }, { delivery: 'remux' }]) {
       const res = await call('POST', '/v1/sessions', {
         item: MOVIE,
         source: { auto: true },
@@ -116,12 +111,13 @@ describe('/v1/sessions', () => {
       expect(res.status).toBe(501);
       expect(res.type).toBe(PROBLEM_CONTENT_TYPE);
     }
-    const full = await call('POST', '/v1/sessions', {
+    const deadline = await call('POST', '/v1/sessions', {
       item: MOVIE,
       source: { auto: true },
-      mode: 'full',
+      readyBy: '2026-10-01T20:00:00.000Z',
     });
-    expect(full.json().detail).toContain('not built yet');
+    expect(deadline.status).toBe(400);
+    expect(deadline.json().detail).toContain("mode 'full'");
 
     expect((await call('GET', '/v1/sessions/ps_nope')).status).toBe(404);
     expect((await call('PATCH', '/v1/sessions/ps_nope', { retainUntil: null })).status).toBe(404);
@@ -131,7 +127,10 @@ describe('/v1/sessions', () => {
     const ready = await call('PATCH', `/v1/sessions/${session.id}`, {
       readyBy: '2026-10-01T20:00:00.000Z',
     });
-    expect(ready.status).toBe(501);
+    expect(ready.status).toBe(409);
+    expect(ready.type).toBe(PROBLEM_CONTENT_TYPE);
+    // Clearing a deadline a `play` session never had changes nothing.
+    expect((await call('PATCH', `/v1/sessions/${session.id}`, { readyBy: null })).status).toBe(200);
   });
 
   it('needs a key', async () => {
@@ -151,7 +150,7 @@ describe('sessions and events in the OpenAPI document', () => {
     );
     expect(codes(paths['/v1/sessions/{id}']?.get)).toEqual(['200', '400', '403', '404']);
     expect(codes(paths['/v1/sessions/{id}']?.patch)).toEqual(
-      ['200', '400', '403', '404', '410', '501'].sort(),
+      ['200', '400', '403', '404', '409', '410'].sort(),
     );
     expect(codes(paths['/v1/sessions/{id}']?.delete)).toEqual(['204', '400', '403', '404']);
     expect(codes(paths['/v1/events']?.get)).toEqual(['200', '400', '403', '404', '503']);

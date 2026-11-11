@@ -5,7 +5,9 @@
  *
  * A create answers at once with `status: 'resolving'`; the engine work runs in
  * the background and ends in `ready` (`session.ready`) or `failed`
- * (`session.failed`). Status changes of one session are serialized, so a
+ * (`session.failed`). A `full` session (okf:architecture/engine-prepare-ahead) is `preparing`
+ * in between, from its source being chosen until the engine has transcoded it
+ * ({@link PrepareJobs}). Status changes of one session are serialized, so a
  * release racing a resolution never leaves an engine session behind.
  *
  * The gateway uses {@link SessionService.mediaTarget}, {@link SessionService.touch}
@@ -40,6 +42,7 @@ import { sortByRank } from '../selection/rank.ts';
 import type { StreamStore } from '../selection/stream-store.ts';
 import type { SubtitleHints } from '../subtitles/index.ts';
 import { sessionIdentity } from './identity.ts';
+import { PrepareJobs } from './prepare-jobs.ts';
 import type { PlaybackSessionRecord, SessionRepository } from './repository.ts';
 import { SubtitleHintResolver } from './subtitle-hints.ts';
 
@@ -51,6 +54,10 @@ export type SessionErrorCode =
   | 'candidate-mismatch'
   | 'unknown-engine'
   | 'not-implemented'
+  /** A create with `readyBy` but not `mode: 'full'`. */
+  | 'ready-by-needs-full'
+  /** A `readyBy` patch on a session that isn't `full`. */
+  | 'not-full'
   /** `MULTITAP_ENGINE_ADMISSION=reject` and the engine is at its `liveConcurrency` (okf:architecture/engine-session-lifecycle). */
   | 'engine-busy'
   /** Multitap is shutting down (after {@link SessionService.stop}): no new sessions. */
@@ -124,7 +131,7 @@ export interface SessionServiceDeps {
   /** Raw streams behind candidate keys (okf:architecture/normalized-addon-types). */
   streams: StreamStore;
   autoSources: AutoSources;
-  config: Pick<Config, 'sessions' | 'selection'> & {
+  config: Pick<Config, 'sessions' | 'selection' | 'prepare'> & {
     engines: Pick<Config['engines'], 'admission' | 'loadWindowMs'>;
   };
   clock: Clock;
@@ -327,6 +334,8 @@ export class SessionService {
   readonly #loadReported = new Set<string>();
   readonly #listeners = new Set<(record: PlaybackSessionRecord) => void>();
   readonly #attemptTimer: (ms: number, signal: AbortSignal) => Promise<void>;
+  /** Preparations of `full` sessions (okf:architecture/engine-prepare-ahead). */
+  readonly #prepare: PrepareJobs;
   #subtitleHints: SubtitleHintResolver | undefined;
   #timer: NodeJS.Timeout | undefined;
   #sweeping: Promise<{ released: number; purged: number }> | undefined;
@@ -337,19 +346,55 @@ export class SessionService {
     this.#o = deps;
     this.#sleep = deps.sleep ?? realSleep;
     this.#attemptTimer = deps.attemptTimer ?? realSleep;
+    this.#prepare = new PrepareJobs({
+      repo: deps.repo,
+      engines: deps.engines,
+      config: deps.config.prepare,
+      clock: deps.clock,
+      logger: deps.logger,
+      events: deps.events,
+      host: {
+        handle: async (id) => {
+          const record = await deps.repo.get(id);
+          if (record === undefined) return undefined;
+          if (record.status !== 'preparing' && record.status !== 'ready') return undefined;
+          return handleOf(record);
+        },
+        prepared: (id) => this.#prepareDone(id),
+        failed: (id, reason) => this.#prepareFailed(id, reason),
+        requeued: (id) => this.#prepareRequeued(id),
+      },
+    });
+  }
+
+  /** The preparations of `full` sessions: tests run its passes by hand; the token route asks for checks. */
+  get prepareJobs(): PrepareJobs {
+    return this.#prepare;
   }
 
   // ---- Lifecycle -------------------------------------------------------------------
 
   /**
    * Fails sessions a previous run left resolving, loads ready ones for the
-   * gateway, sweeps once and then every `MULTITAP_RETENTION_SWEEP_MS`.
+   * gateway, takes up the preparations again (a `preparing` session keeps
+   * going when its job was stored), sweeps once and then every
+   * `MULTITAP_RETENTION_SWEEP_MS`.
    */
   async start(): Promise<void> {
     this.#stopped = false;
     const now = this.#o.clock();
-    for (const record of await this.#o.repo.listOpen()) {
-      if (record.status === 'resolving' || record.status === 'preparing') {
+    const preparing = await this.#prepare.load();
+    const open = await this.#o.repo.listOpen();
+    const live = new Set(
+      open.filter((r) => r.status === 'preparing' || r.status === 'ready').map((r) => r.id),
+    );
+    // A job whose session failed or is gone has nothing left to prepare.
+    for (const id of preparing) if (!live.has(id)) await this.#prepare.cancel(id);
+    for (const record of open) {
+      if (
+        record.status === 'resolving' ||
+        (record.status === 'preparing' && !preparing.has(record.id))
+      ) {
         const failed = await this.#o.repo.update(
           record.id,
           { status: 'failed', failureReason: 'interrupted' },
@@ -370,6 +415,7 @@ export class SessionService {
       this.#track(this.sweep());
     }, this.#o.config.sessions.sweepIntervalMs);
     this.#timer.unref();
+    this.#prepare.start();
   }
 
   /**
@@ -381,12 +427,17 @@ export class SessionService {
     this.#stopped = true;
     if (this.#timer !== undefined) clearInterval(this.#timer);
     this.#timer = undefined;
+    this.#prepare.stop();
     for (const job of this.#jobs.values()) job.controller.abort(shuttingDown());
   }
 
-  /** Resolves when background work (resolutions, sweeps, metrics) has finished. */
+  /** Resolves when background work (resolutions, sweeps, preparation passes, metrics) has finished. */
   async idle(): Promise<void> {
-    while (this.#background.size > 0) await Promise.allSettled([...this.#background]);
+    for (;;) {
+      await this.#prepare.idle();
+      if (this.#background.size === 0) return;
+      await Promise.allSettled([...this.#background]);
+    }
   }
 
   /** Called with the latest record after every change (status, epoch, retention). */
@@ -401,18 +452,19 @@ export class SessionService {
    * `POST /v1/sessions`. Returns an open session with the same identity
    * (`created: false`) or a new one in `resolving`.
    *
-   * @throws {SessionError} `not-implemented`, `candidate-expired`,
-   *   `candidate-mismatch`, `unknown-engine`, `engine-busy` (admission
-   *   `reject` only; an idempotent match is never refused), `shutting-down`
-   *   (after {@link stop}).
+   * @throws {SessionError} `not-implemented`, `ready-by-needs-full`,
+   *   `candidate-expired`, `candidate-mismatch`, `unknown-engine`,
+   *   `engine-busy` (admission `reject` only; never for a `full` session or an
+   *   idempotent match), `shutting-down` (after {@link stop}).
    */
   async create(request: CreateSession): Promise<{ session: PlaybackSession; created: boolean }> {
     const { config } = this.#o;
     this.#refuseIfStopped();
-    if ((request.mode ?? 'play') !== 'play' || request.readyBy !== undefined) {
+    const mode = request.mode ?? 'play';
+    if (mode !== 'full' && request.readyBy !== undefined) {
       throw new SessionError(
-        'not-implemented',
-        "Preparation ahead of time (mode 'full', readyBy) is not built yet.",
+        'ready-by-needs-full',
+        "readyBy is a preparation deadline: it needs mode 'full'.",
       );
     }
     const delivery = request.delivery ?? 'auto';
@@ -504,6 +556,7 @@ export class SessionService {
       // Only the request's own list: the instance default isn't part of the identity.
       preferredLanguages: request.preferredLanguage === undefined ? undefined : preferredLanguages,
       profileId: request.profileId,
+      mode,
     });
 
     const make = async () => {
@@ -514,7 +567,8 @@ export class SessionService {
         }
       }
       this.#refuseIfStopped();
-      this.#admit(engine);
+      // A session to prepare is no live load: the engine runs its job at low priority.
+      if (mode !== 'full') this.#admit(engine);
       const now = this.#o.clock();
       const record = await this.#o.repo.create(
         {
@@ -526,10 +580,10 @@ export class SessionService {
           candidates: null,
           engineId: engine.id,
           delivery: 'transcode',
-          mode: 'play',
+          mode,
           highRes: request.highRes ?? config.selection.defaultHighRes,
           requestedQuality: requestedQuality ?? null,
-          readyBy: null,
+          readyBy: request.readyBy === undefined ? null : Date.parse(request.readyBy),
           retainUntil: request.retainUntil === undefined ? null : Date.parse(request.retainUntil),
           profileId: request.profileId ?? null,
         },
@@ -615,31 +669,40 @@ export class SessionService {
   }
 
   /**
-   * `PATCH /v1/sessions/{id}`: `retainUntil` (null clears). `readyBy` other
-   * than null is phase 4.
+   * `PATCH /v1/sessions/{id}`: `retainUntil` (null clears) and, for a `full`
+   * session, `readyBy` (null clears: a preparation that hasn't started then
+   * starts at once).
    *
-   * @throws {SessionError} `not-found`, `released`, `not-implemented`.
+   * @throws {SessionError} `not-found`, `released`, `not-full`.
    */
   async update(id: string, patch: UpdateSession): Promise<PlaybackSession> {
-    if (patch.readyBy !== undefined && patch.readyBy !== null) {
-      throw new SessionError(
-        'not-implemented',
-        'readyBy needs preparation, which is not built yet.',
-      );
-    }
     return this.#locked(`id:${id}`, async () => {
       const record = await this.#o.repo.get(id);
       if (record === undefined) throw new SessionError('not-found', 'No session with this id.');
       if (record.status === 'released') {
         throw new SessionError('released', 'This session has been released.');
       }
-      if (patch.retainUntil === undefined) return this.#view(record);
-      const updated = await this.#o.repo.update(
-        id,
-        { retainUntil: patch.retainUntil === null ? null : Date.parse(patch.retainUntil) },
-        this.#o.clock(),
-      );
+      if (patch.readyBy != null && record.mode !== 'full') {
+        throw new SessionError(
+          'not-full',
+          "readyBy is a preparation deadline: only a session created with mode 'full' has one.",
+        );
+      }
+      const set: { retainUntil?: number | null; readyBy?: number | null } = {};
+      if (patch.retainUntil !== undefined) {
+        set.retainUntil = patch.retainUntil === null ? null : Date.parse(patch.retainUntil);
+      }
+      // Clearing the `readyBy` of a session that never had one changes nothing.
+      if (patch.readyBy !== undefined && record.mode === 'full') {
+        set.readyBy = patch.readyBy === null ? null : Date.parse(patch.readyBy);
+      }
+      if (set.retainUntil === undefined && set.readyBy === undefined) return this.#view(record);
+      const updated = await this.#o.repo.update(id, set, this.#o.clock());
       if (updated === undefined) throw new SessionError('not-found', 'No session with this id.');
+      if (set.readyBy !== undefined) {
+        await this.#prepare.setReadyBy(id, set.readyBy);
+        this.#prepare.kick();
+      }
       this.#changed(updated);
       return this.#view(updated);
     });
@@ -662,6 +725,8 @@ export class SessionService {
     const record = await this.#o.repo.get(id);
     if (record === undefined || record.status === 'released') return record;
     this.#jobs.get(id)?.controller.abort(new Error('session released'));
+    // The engine's job ends with its session.
+    await this.#prepare.cancel(id);
     const handle = handleOf(record);
     if (handle !== undefined) await this.#releaseEngine(handle, id);
     const now = this.#o.clock();
@@ -690,7 +755,8 @@ export class SessionService {
 
   /**
    * One retention pass (okf:architecture/engine-retention): releases sessions past
-   * `max(retainUntil, lastAccess + MULTITAP_RETENTION_IDLE_MS)`, retries engine
+   * `max(retainUntil, lastAccess + MULTITAP_RETENTION_IDLE_MS, readyBy + MULTITAP_RETENTION_IDLE_MS)`
+   * (never one that is `preparing`), retries engine
    * releases that failed earlier, purges released ones older than
    * `MULTITAP_SESSION_RELEASED_KEEP_MS` and ended token revocations.
    * Releases run {@link SWEEP_RELEASE_CONCURRENCY} at a time; one that fails
@@ -948,9 +1014,11 @@ export class SessionService {
       lastSource,
     });
     if (aborted()) return;
-    // Playable now: `prepared`-only sources need mode 'full' (phase 4). Flagged
+    // Playable now: `prepared`-only sources need mode 'full'. Flagged
     // sources (`destructive`, okf:decision/destructive-items-flagged) are never picked automatically.
-    const playable = sortByRank(listed).filter((c) => c.playable && c.playableWhen !== 'prepared');
+    const playable = sortByRank(listed).filter(
+      (c) => c.playable && (record.mode === 'full' || c.playableWhen !== 'prepared'),
+    );
     const candidates = playable.filter((c) => c.flags === undefined);
     await this.#locked(`id:${record.id}`, async () => {
       if (aborted()) return;
@@ -1109,7 +1177,7 @@ export class SessionService {
       engineId: engine.id,
       sessionKey: record.id,
       stream,
-      mode: 'play',
+      mode: record.mode,
       ...(record.requestedQuality === null ? {} : { quality: record.requestedQuality }),
       signal,
       onStatus: (status) => {
@@ -1163,6 +1231,38 @@ export class SessionService {
         },
         now,
       );
+      const chosen = await this.#o.repo.get(id);
+      if (chosen?.mode === 'full') {
+        // The source is chosen and its engine session made; the engine's job
+        // makes it ready (okf:architecture/engine-prepare-ahead).
+        const preparing = await this.#o.repo.update(
+          id,
+          { status: 'preparing', failureReason: null },
+          now,
+        );
+        if (preparing === undefined) return;
+        await this.#prepare.enqueue(preparing, prepared.status.info?.height);
+        this.#o.logger.info(
+          { sessionId: id, engineId: handle.engineId, quality: handle.quality },
+          'playback session preparing',
+        );
+        this.#emit({
+          type: 'session.status',
+          data: {
+            sessionId: id,
+            status: 'preparing',
+            progress: this.#view(preparing).progress ?? { phase: 'preparing' },
+            chosen: key,
+          },
+        });
+        this.#changed(preparing);
+        this.#metrics();
+        if (preparing.profileId !== null) {
+          await this.#recordLastSource(preparing, key, stream, origin);
+        }
+        this.#prepare.kick();
+        return;
+      }
       const ready = await this.#o.repo.update(id, { status: 'ready', failureReason: null }, now);
       if (ready === undefined) return;
       this.#cache(ready);
@@ -1235,15 +1335,83 @@ export class SessionService {
     });
   }
 
+  // ---- Preparation (okf:architecture/engine-prepare-ahead) -----------------------------------------
+
+  /** The engine finished a `full` session's job: `preparing` becomes `ready`. */
+  async #prepareDone(id: string): Promise<void> {
+    await this.#locked(`id:${id}`, async () => {
+      const record = await this.#o.repo.get(id);
+      if (record?.status !== 'preparing') return;
+      const now = this.#o.clock();
+      // Idle retention counts from now, not from when the preparation was asked for.
+      await this.#o.repo.touch(id, now);
+      const ready = await this.#o.repo.update(id, { status: 'ready', failureReason: null }, now);
+      if (ready === undefined) return;
+      this.#cache(ready);
+      this.#o.logger.info({ sessionId: id, engineId: ready.engineId }, 'playback session prepared');
+      this.#emit({ type: 'session.ready', data: { sessionId: id, session: this.#view(ready) } });
+      this.#changed(ready);
+      this.#metrics();
+    });
+  }
+
+  /** A preparation that can't be done fails its session and frees its engine session. */
+  async #prepareFailed(id: string, reason: string): Promise<void> {
+    await this.#locked(`id:${id}`, async () => {
+      const record = await this.#o.repo.get(id);
+      if (record === undefined) return;
+      if (record.status !== 'preparing' && record.status !== 'ready') return;
+      const handle = handleOf(record);
+      if (handle !== undefined) await this.#releaseEngine(handle, id);
+      const failed = await this.#o.repo.update(
+        id,
+        { status: 'failed', failureReason: reason },
+        this.#o.clock(),
+      );
+      if (failed === undefined) return;
+      this.#ready.delete(id);
+      this.#o.logger.info({ sessionId: id, reason }, 'playback session failed');
+      this.#emit({ type: 'session.failed', data: { sessionId: id, reason } });
+      this.#changed(failed);
+      this.#metrics();
+    });
+  }
+
+  /** A finished preparation was lost and is queued again: `ready` goes back to `preparing`. */
+  async #prepareRequeued(id: string): Promise<void> {
+    await this.#locked(`id:${id}`, async () => {
+      const record = await this.#o.repo.get(id);
+      if (record?.status !== 'ready') return;
+      const preparing = await this.#o.repo.update(id, { status: 'preparing' }, this.#o.clock());
+      if (preparing === undefined) return;
+      this.#ready.delete(id);
+      this.#emit({
+        type: 'session.status',
+        data: {
+          sessionId: id,
+          status: 'preparing',
+          progress: this.#view(preparing).progress ?? { phase: 'preparing' },
+        },
+      });
+      this.#changed(preparing);
+      this.#metrics();
+    });
+  }
+
   // ---- Helpers ----------------------------------------------------------------------
 
   #view(record: PlaybackSessionRecord): PlaybackSession {
     let progress: EngineStatus | undefined;
     if (record.status === 'resolving') {
       progress = this.#jobs.get(record.id)?.progress;
+    } else if (record.status === 'preparing') {
+      progress = this.#prepare.progress(record.id);
     } else if (record.status === 'ready') {
       const handle = handleOf(record);
-      if (handle !== undefined) progress = this.#o.engines.status(handle);
+      if (handle !== undefined) {
+        // A prepared session says so: the engine's status only knows `ready`.
+        progress = { ...this.#o.engines.status(handle), ...this.#prepare.progress(record.id) };
+      }
     }
     return sessionView(record, progress);
   }
