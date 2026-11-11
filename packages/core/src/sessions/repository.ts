@@ -57,6 +57,8 @@ export interface PlaybackSessionRecord {
   bingeGroup: string | null;
   /** The profile the session was created for (its `lastSource` is recorded when ready). */
   profileId: string | null;
+  /** The chosen source is live: played through the engine's HLS proxy, no transcode. */
+  live: boolean;
 }
 
 /** Fields fixed at creation. Status starts at `resolving`, epoch at 0. */
@@ -103,6 +105,8 @@ export interface ChosenSource {
   tracks: SessionTracks | null;
   audioTrack: number | null;
   bingeGroup: string | null;
+  /** A live source: the session's delivery becomes `direct`. */
+  live?: boolean;
 }
 
 /**

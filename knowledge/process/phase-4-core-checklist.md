@@ -7,7 +7,7 @@ generated: { by: "agent/claude", at: "2026-11-10T12:00:00Z" }
 status: draft
 ---
 
-The work list for phase 4 of [[process/build-plan]], written on 2026-11-10, when items 6, 7 and 8 of the engine tracking issue were done ([[process/upstream-engine-asks]]). The design is [[architecture/engine-prepare-ahead]]; this concept lists what to build and in what order, and it doesn't replace that design. Items 1 to 8 were built on 2026-11-10 against the fake engine, with the choices recorded in [[decision/prepare-on-engine-side]]; item 9 (live HLS) is open, and so is a run against the reference engine.
+The work list for phase 4 of [[process/build-plan]], written on 2026-11-10, when items 6, 7 and 8 of the engine tracking issue were done ([[process/upstream-engine-asks]]). The design is [[architecture/engine-prepare-ahead]]; this concept lists what to build and in what order, and it doesn't replace that design. Items 1 to 8 were built on 2026-11-10 against the fake engine, with the choices recorded in [[decision/prepare-on-engine-side]]; item 9 (live HLS) was built on 2026-11-11 ([[decision/live-hls-sealed-paths]]). A run against the reference engine is still open.
 
 **What existed before.** The API already declared the phase 4 shapes: `mode: 'full'`, `readyBy`, the `preparing` status, `progress.preparedPct` and the four `prepare.*` events (`packages/api/src/sessions.ts`, `events.ts`). Core refused them: `POST /v1/sessions` with `mode: 'full'` or a `readyBy`, and `PATCH` with a `readyBy`, answer `501` (`sessions/service.ts`), and the engine module rejects `mode: 'full'` (`engines/engine-module.ts`). The `prepare_jobs` table isn't created ([[architecture/core-persistence]]). Phase 4 is therefore additive on `/v1`: no schema is removed and `api:diff` should show no breaking change.
 
@@ -40,12 +40,12 @@ The maintainer said to go with the assumptions (2026-11-10); they are recorded i
 2. **Failure reasons:** new values, `prepare-unsupported`, `prepare-too-large` and `prepare-failed`.
 3. **All audio renditions:** an instance setting, `MULTITAP_PREPARE_ALL_AUDIO`.
 4. **The warm-up:** none for `full` sessions; unchanged for `play` sessions ([[architecture/engine-prepare-stream]]).
-5. **Order:** prepare jobs first; live HLS is next.
+5. **Order:** prepare jobs first, then live HLS.
 
 ## Still open
 
 - Run it against the reference engine (v0.31.0 or later, set up as above), with a real 4K source and an engine restart mid-job.
-- Live HLS (item 9).
+- A real live source through the reference engine (a channel with a master playlist, one with `proxyHeaders`, an engine with a proxy password).
 - Auto-select for a `full` session counts `prepared`-only candidates, but its attempt timeout and attempt count are the ones tuned for live playback.
 
 Related: [[architecture/engine-prepare-ahead]], [[process/build-plan]], [[process/engine-upstream-prs]], [[process/abr-ladder-core-checklist]].

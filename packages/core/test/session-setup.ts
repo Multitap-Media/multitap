@@ -130,6 +130,7 @@ export async function sessionRig(options: RigOptions = {}): Promise<Rig> {
     clock,
     ids,
     privateHosts: PUBLIC_DNS_GUARD,
+    liveSecret: config.media.tokenSecret,
     warmSegments: 0,
     busyRetryMaxMs: 0,
   });

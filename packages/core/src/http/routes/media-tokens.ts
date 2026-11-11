@@ -19,6 +19,7 @@ import { MEDIA_PREFIX } from '../../gateway/app.ts';
 import { authResponses, BEARER_SECURITY, validationResponse } from '../openapi.ts';
 import { problemContent, ProblemError } from '../problem.ts';
 import { gatewayServices, sessionService } from '../selection-deps.ts';
+import { mediaEntryOf } from '../../sessions/service.ts';
 import type { AppDeps, AppEnv } from '../types.ts';
 
 const tags = ['sessions'];
@@ -279,7 +280,7 @@ export function registerMediaTokenRoutes(app: OpenAPIHono<AppEnv>, deps: AppDeps
     const minted = await tokens.mint(id, body.subject, session.tokenEpoch, ttlMs);
     // Someone is about to watch a prepared session: check the engine still has it (okf:architecture/engine-prepare-ahead).
     if (session.mode === 'full') sessionService(deps).prepareJobs.verify(id);
-    const entry = session.delivery === 'transcode' ? 'master.m3u8' : 'stream';
+    const entry = mediaEntryOf(session);
     const mediaPath = `${MEDIA_PREFIX}/${minted.token}/${entry}`;
     const out: MediaToken = {
       token: minted.token,

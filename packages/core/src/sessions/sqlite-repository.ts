@@ -65,6 +65,7 @@ function fromRow(row: PublicRow): PlaybackSessionRecord {
     audioTrack: row.audio_track,
     bingeGroup: row.binge_group,
     profileId: row.profile_id,
+    live: row.live !== 0,
   };
 }
 
@@ -174,6 +175,8 @@ export class SqliteSessionRepository implements SessionRepository {
         tracks_json: json(chosen.tracks),
         audio_track: chosen.audioTrack,
         binge_group: chosen.bingeGroup,
+        // A live source isn't transcoded: the engine only proxies it (okf:concept/delivery-modes).
+        ...(chosen.live === true ? { live: 1, delivery: 'direct' as const } : {}),
         updated_at: now,
       })
       .where('id', '=', id)

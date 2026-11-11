@@ -162,6 +162,18 @@ export interface ServerGoClient {
    * right before sending, so a changed password applies to existing sessions.
    */
   withApiPassword(mediaURL: string, apiPassword: string | undefined): string;
+  /**
+   * The engine-local `/proxy/hls/manifest.m3u8?d=…&h_…=…&r_…=…` URL of a live
+   * playlist, without a password: what a live session stores as its `mediaURL`.
+   */
+  proxyHlsMediaURL(request: ProxyStreamRequest): string;
+  /**
+   * `GET` on one of the engine's proxy endpoints for a live session
+   * (okf:architecture/media-gateway): `endpoint` with `d` = `dest`, the header
+   * parameters of `source` (a {@link proxyHlsMediaURL}), and `api_password`
+   * when given. `range` is passed on. Returns the raw response.
+   */
+  liveFetch(request: LiveFetchRequest): Promise<Response>;
   /** `GET /metrics` (Prometheus text), for health. */
   metrics(): Promise<string>;
   /**
@@ -171,6 +183,19 @@ export interface ServerGoClient {
    * with a {@link ServerGoError} on any other failure.
    */
   openSubHash(mediaURL: string, signal?: AbortSignal): Promise<OpenSubHash | undefined>;
+}
+
+export interface LiveFetchRequest {
+  /** `/proxy/hls/manifest.m3u8`, `/proxy/stream` or `/proxy/stream/segment.{ext}`. */
+  endpoint: string;
+  /** The upstream URL to fetch. Secret. */
+  dest: string;
+  /** The session's {@link ServerGoClient.proxyHlsMediaURL}: its `h_`/`r_` parameters apply to every child. */
+  source: string;
+  apiPassword?: string | undefined;
+  /** A `Range` header to pass on (segments with `EXT-X-BYTERANGE`). */
+  range?: string | undefined;
+  signal?: AbortSignal | undefined;
 }
 
 /** Which audio renditions of a multi-audio session a preparation covers besides the video. */

@@ -46,7 +46,9 @@ makes the session without warming it, on an engine with engine-side preparation
 only (`prepare-unsupported` otherwise), takes a source up to `preparedMaxHeight`
 and gives the session the prepared `ttl`; `startPrepare(handle, audio)` and
 `prepareStatus(handle)` then drive the engine's job for the prepare jobs
-([[architecture/engine-prepare-ahead]]). Concurrent prepares of the same session, stream and quality
+([[architecture/engine-prepare-ahead]]). With `allowLive`, a live source gets a
+live handle instead of failing, and `fetchMedia` serves its proxied playlists and
+`live/…` children ([[architecture/media-gateway]]). Concurrent prepares of the same session, stream and quality
 share one run. `status` serves the last known status from memory and refreshes
 torrent stats (peers, speed) in the background at most every 5 s; after a core
 restart it knows nothing and reports `ready`. The phases produced are

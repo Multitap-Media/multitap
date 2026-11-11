@@ -39,6 +39,12 @@ export interface PrepareRequest {
    * part of the engine session's identity.
    */
   quality?: SessionQuality;
+  /**
+   * Whether a live source may be played through the engine's HLS proxy,
+   * without a transcode (okf:architecture/media-gateway). Off: a live source is
+   * unplayable (`live`), as it is in mode `full`.
+   */
+  allowLive?: boolean;
   /** Reports `status` changes while preparing, for `session.status` events. */
   onStatus?: (status: EngineStatus) => void;
   signal?: AbortSignal;
@@ -49,7 +55,8 @@ export interface PrepareRequest {
  * whether to fall back.
  * - `unsupported`: a stream kind the module doesn't handle (archives, NZB, …)
  * - `external`: `externalUrl` only
- * - `live`: live HLS (phase 4)
+ * - `live`: a live source where one can't be played: the request asked for a
+ *   transcode or a preparation, or the engine has no HLS proxy
  * - `needs-prepare`: the probe found a height above `liveMaxHeight` in mode `play`
  * - `probe-failed`: the probe failed, or found zero duration for VOD
  * - `torrent-failed`: create timed out or found no file
@@ -81,6 +88,8 @@ export type PrepareResult =
       status: EngineStatus;
       /** The audio and subtitle tracks the session's master offers, in rendition order (from the probe). */
       tracks?: SessionTracks;
+      /** A live source, proxied and not transcoded: no quality, no tracks, no engine HLS session. */
+      live?: boolean;
     }
   | { ok: false; reason: UnplayableEngineReason; retryable: boolean };
 
@@ -126,8 +135,17 @@ export interface EngineModule {
    * `master.m3u8` always goes through `master.m3u8?mediaURL=…` so an evicted
    * session is recreated (self-heal, okf:architecture/engine-session-lifecycle). Returns the engine's response
    * unbuffered; the caller streams it and decides what an abort does.
+   *
+   * For a live session, `master.m3u8` and every `live/…m3u8` are the engine's
+   * proxied playlists with their children renamed to `live/…` files; the other
+   * `live/…` files are passed through, with `options.range` sent on.
    */
-  fetchMedia(handle: EngineHandle, file: string, signal?: AbortSignal): Promise<Response>;
+  fetchMedia(
+    handle: EngineHandle,
+    file: string,
+    signal?: AbortSignal,
+    options?: { range?: string | undefined },
+  ): Promise<Response>;
 
   /**
    * Starts (or re-checks) the engine's preparation job of a session made with

@@ -25,7 +25,7 @@ Source of truth for the engine surface core depends on  Only core talks to engin
 | `POST`/`GET`/`DELETE /hlsv2/{sid}/prepare` | Engine-side preparation (#73, `RIVULET_HLS_PREPARE`): start or re-check the job (`?audio=default\|all`), read its status, stop it. Detected with `DELETE /hlsv2/{invalid id}/prepare`: `400` with the feature, `404` or `405` without ([[architecture/engine-prepare-ahead]]) |
 | `GET /yt/{id}` | yt-dlp resolve → 307 to a progressive format (usable as `mediaURL`) |
 | `GET /proxy/stream?d=…&h_<Header>=…&r_<Header>=…[&api_password=…]` | Wrap HTTP sources that need `behaviorHints.proxyHeaders`. With `STREMIO_PROXY_PASSWORD` set, a request without the matching `api_password` is refused ([[architecture/secrets-policy]]). |
-| `GET /proxy/hls/manifest.m3u8?d=…` + `POST /generate_url` | Live HLS passthrough (phase 4) |
+| `GET /proxy/hls/manifest.m3u8?d=…`, `GET /proxy/stream/segment.{ext}?d=…` | Live HLS ([[architecture/media-gateway]]): the proxied playlist, whose children core renames, and its segments; keys come through `/proxy/stream`. `h_`/`r_` and `api_password` as for `/proxy/stream`. An engine without it answers Go's `404`, and a live source then fails with `live`. `POST /generate_url` (signed URLs) isn't used |
 | `GET /local-addon/…` | Local-files addon (future: engine-local content, [[architecture/future-remote-engines]]) |
 | `GET /metrics` | Prometheus gauges for the admin health view; also core's health check ([[architecture/engine-transport-and-health]]) |
 

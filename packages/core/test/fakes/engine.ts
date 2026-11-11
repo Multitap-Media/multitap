@@ -26,6 +26,11 @@
  *   job that caches `prepareSegmentsPerPoll` segments each time its status is
  *   read, with the status JSON, `409` for an unknown duration and `507` when
  *   `prepareTooLarge` is set. Off, the path answers as before the feature.
+ * - `GET /proxy/hls/manifest.m3u8?d=…` and `GET /proxy/stream/segment.{ext}?d=…`
+ *   for the live channels added with {@link FakeEngine.addLive}: playlists are
+ *   rewritten like the engine's HLS proxy does, every child an absolute
+ *   `/proxy/…` URL carrying `d`, the `h_`/`r_` parameters and `api_password`.
+ *   Off with `supportsLiveProxy: false`.
  * - `GET /metrics`, `GET /yt/{id}` (a `307`), and `403` to any `Origin` header.
  * - `GET /proxy/stream` with `STREMIO_PROXY_PASSWORD` semantics when
  *   `proxyPassword` is set: `401` without the matching `api_password`. A probe
@@ -40,7 +45,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { AddressInfo } from 'node:net';
 import { serve, type ServerType } from '@hono/node-server';
-import { Hono } from 'hono';
+import { Hono, type Context } from 'hono';
 import {
   EngineTransportError,
   type EngineRequestInit,
@@ -211,6 +216,8 @@ export interface FakeEngineOptions {
   supportsDelete?: boolean;
   /** Has `GET /opensubHash` (default true). */
   supportsOpenSubHash?: boolean;
+  /** Has the HLS proxy, `/proxy/hls/manifest.m3u8` (default true). */
+  supportsLiveProxy?: boolean;
   /** `RIVULET_HLS_PREPARE`: has `/hlsv2/{id}/prepare` (upstream #73; default false, as in the engine). */
   supportsPrepare?: boolean;
   /**
@@ -263,6 +270,16 @@ export interface MasterRecord {
   /** This request created the session (the only time quality overrides apply). */
   created: boolean;
   status: number;
+}
+
+/** A live channel at an origin the fake stands in for ({@link FakeEngine.addLive}). */
+export interface FakeLive {
+  /** A key line in the media playlists (`#EXT-X-KEY`, fetched through `/proxy/stream`). */
+  encrypted?: boolean;
+  /** The first segment's sequence number; a test raises it to move the live edge. */
+  sequence?: number;
+  /** A line the origin's media playlists end with (e.g. a URL the engine wouldn't rewrite). */
+  extraLine?: string;
 }
 
 /** A session's preparation job (upstream #73). */
@@ -434,6 +451,15 @@ export class FakeEngine {
   readonly proxyRefusals: string[] = [];
   /** Engine restarts so far. */
   restarts = 0;
+  /** Live channels by the URL of their master playlist. */
+  readonly live = new Map<string, FakeLive>();
+  /** Every request the HLS proxy got, with what it carried. */
+  readonly liveRequests: {
+    path: string;
+    dest: string;
+    headers: Record<string, string>;
+    range?: string;
+  }[] = [];
   /** While true, `POST …/prepare` answers `507` (the session wouldn't fit the segment cache cap). */
   prepareTooLarge = false;
   /** Preparations still to end as `failed` (three transcode errors in a row) on their next status read. */
@@ -456,6 +482,7 @@ export class FakeEngine {
       overrides: options.overrides ?? true,
       supportsDelete: options.supportsDelete ?? true,
       supportsOpenSubHash: options.supportsOpenSubHash ?? true,
+      supportsLiveProxy: options.supportsLiveProxy ?? true,
       supportsPrepare: options.supportsPrepare ?? false,
       prepareSegmentsPerPoll: options.prepareSegmentsPerPoll ?? Number.POSITIVE_INFINITY,
       segmentLatencyMs: options.segmentLatencyMs ?? 0,
@@ -478,6 +505,59 @@ export class FakeEngine {
   /** Sets the probe fixture for a `mediaURL` (exact match). */
   setProbe(mediaURL: string, probe: ProbeFixtureName | FakeProbe): void {
     this.#probes.set(mediaURL, typeof probe === 'string' ? PROBE_FIXTURES[probe] : probe);
+  }
+
+  /**
+   * A live channel whose master playlist is at `url` (`…/master.m3u8`): one
+   * variant (`high/index.m3u8`) and one audio rendition (`audio/index.m3u8`),
+   * each a playlist without an end listing three segments from `sequence`.
+   */
+  addLive(url: string, live: FakeLive = {}): FakeLive {
+    this.live.set(url, live);
+    return live;
+  }
+
+  /** What the origin serves at `dest`: a playlist's text, bytes, or nothing. */
+  #liveOrigin(dest: string): { playlist: string } | { bytes: Uint8Array<ArrayBuffer> } | undefined {
+    for (const [master, live] of this.live) {
+      const base = master.slice(0, master.lastIndexOf('/') + 1);
+      if (dest === master) {
+        return {
+          playlist: [
+            '#EXTM3U',
+            '#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="aud",NAME="Audio",DEFAULT=YES,URI="audio/index.m3u8"',
+            '#EXT-X-STREAM-INF:BANDWIDTH=6000000,RESOLUTION=1920x1080,AUDIO="aud"',
+            'high/index.m3u8',
+            '',
+          ].join('\n'),
+        };
+      }
+      if (!dest.startsWith(base)) continue;
+      const rest = dest.slice(base.length);
+      const media = /^(high|audio)\/index\.m3u8$/.exec(rest);
+      if (media !== null) {
+        const first = live.sequence ?? 100;
+        const lines = [
+          '#EXTM3U',
+          '#EXT-X-VERSION:3',
+          `#EXT-X-TARGETDURATION:${String(FAKE_SEGMENT_SECONDS)}`,
+          `#EXT-X-MEDIA-SEQUENCE:${String(first)}`,
+        ];
+        if (live.encrypted === true) lines.push('#EXT-X-KEY:METHOD=AES-128,URI="key.bin"');
+        for (let n = first; n < first + 3; n += 1) {
+          lines.push(
+            `#EXTINF:${FAKE_SEGMENT_SECONDS.toFixed(3)},`,
+            `seg${String(n)}.ts?sig=origin-token`,
+          );
+        }
+        if (live.extraLine !== undefined) lines.push(live.extraLine);
+        return { playlist: `${lines.join('\r\n')}\r\n` };
+      }
+      if (/^(high|audio)\/(seg\d+\.ts\?sig=origin-token|key\.bin)$/.test(rest)) {
+        return { bytes: this.segmentBody('live', rest) };
+      }
+    }
+    return undefined;
   }
 
   addTorrent(infoHash: string, torrent: FakeTorrent): void {
@@ -761,11 +841,105 @@ export class FakeEngine {
 
     app.get('/yt/:id', (c) => c.redirect(`https://video.invalid/${c.req.param('id')}`, 307));
 
+    // The HLS proxy (live): what the request carries, and whether it may pass.
+    const liveRequest = (c: Context) => {
+      const url = new URL(c.req.url);
+      const d = url.searchParams.get('d') ?? '';
+      const dest = /^https?:\/\//.test(d) ? d : Buffer.from(d, 'base64url').toString('utf8');
+      const headers: Record<string, string> = {};
+      const carried: string[] = [];
+      for (const [name, value] of url.searchParams) {
+        if (/^[hr]_/.test(name)) {
+          headers[name] = value;
+          carried.push(`${encodeURIComponent(name)}=${encodeURIComponent(value)}`);
+        }
+      }
+      const given = url.searchParams.get('api_password');
+      if (given !== null) carried.push(`api_password=${encodeURIComponent(given)}`);
+      const range = c.req.header('range');
+      this.liveRequests.push({
+        path: url.pathname,
+        dest,
+        headers,
+        ...(range === undefined ? {} : { range }),
+      });
+      const password = this.options.proxyPassword;
+      const allowed = password === undefined || password === '' || given === password;
+      if (!allowed) this.proxyRefusals.push(url.pathname);
+      return { dest, tail: carried.map((part) => `&${part}`).join(''), allowed, range };
+    };
+    const liveBytes = (c: Context, bytes: Uint8Array<ArrayBuffer>, range: string | undefined) => {
+      const match = range === undefined ? null : /^bytes=(\d+)-(\d*)$/.exec(range);
+      if (match === null) return c.body(bytes, 200, { 'Content-Type': 'video/mp2t' });
+      const start = Number(match[1]);
+      const end = match[2] === '' ? bytes.length - 1 : Math.min(Number(match[2]), bytes.length - 1);
+      return c.body(bytes.slice(start, end + 1), 206, {
+        'Content-Type': 'video/mp2t',
+        'Content-Range': `bytes ${String(start)}-${String(end)}/${String(bytes.length)}`,
+      });
+    };
+
+    app.get('/proxy/hls/manifest.m3u8', (c) => {
+      if (!this.options.supportsLiveProxy) return c.text('404 page not found', 404);
+      const { dest, tail, allowed } = liveRequest(c);
+      if (!allowed) return c.text('unauthorized', 401);
+      const origin = this.#liveOrigin(dest);
+      if (origin === undefined || !('playlist' in origin)) {
+        return c.text('upstream returned status 404', 502);
+      }
+      // As the engine's hlsRewrite: every http(s) URI becomes one of its own proxy URLs.
+      const proxied = (endpoint: string, ref: string) =>
+        `${FAKE_SELF_BASE}${endpoint}?d=${Buffer.from(new URL(ref, dest).toString(), 'utf8').toString('base64url')}${tail}`;
+      let variantNext = false;
+      const lines = origin.playlist.split('\n').map((raw) => {
+        const line = raw.trim();
+        if (line === '') return '';
+        if (!line.startsWith('#')) {
+          if (/^[a-z][a-z0-9+.-]*:/i.test(line) && !/^https?:/i.test(line)) return line;
+          const manifest = variantNext || line.includes('.m3u8');
+          variantNext = false;
+          return proxied(manifest ? '/proxy/hls/manifest.m3u8' : '/proxy/stream/segment.ts', line);
+        }
+        if (line.startsWith('#EXT-X-STREAM-INF')) variantNext = true;
+        if (line.startsWith('#EXT-X-KEY')) {
+          return line.replace(
+            /URI="([^"]*)"/,
+            (_m, uri: string) => `URI="${proxied('/proxy/stream', uri)}"`,
+          );
+        }
+        if (line.startsWith('#EXT-X-MEDIA')) {
+          return line.replace(
+            /URI="([^"]*)"/,
+            (_m, uri: string) => `URI="${proxied('/proxy/hls/manifest.m3u8', uri)}"`,
+          );
+        }
+        return line;
+      });
+      return c.text(lines.join('\n'), 200, { 'Content-Type': 'application/vnd.apple.mpegurl' });
+    });
+
+    app.get('/proxy/stream/:segment', (c) => {
+      if (!this.options.supportsLiveProxy) return c.text('404 page not found', 404);
+      const { dest, allowed, range } = liveRequest(c);
+      if (!allowed) return c.text('unauthorized', 401);
+      const origin = this.#liveOrigin(dest);
+      if (origin === undefined || !('bytes' in origin)) return c.text('upstream fetch failed', 502);
+      return liveBytes(c, origin.bytes, range);
+    });
+
     app.get('/proxy/stream', (c) => {
       const password = this.options.proxyPassword;
       if (password !== undefined && password !== '' && c.req.query('api_password') !== password) {
         this.proxyRefusals.push('/proxy/stream');
         return c.text('unauthorized', 401);
+      }
+      // A live channel's key; anything else is the generic stream.
+      const d = c.req.query('d') ?? '';
+      const origin = this.#liveOrigin(
+        /^https?:\/\//.test(d) ? d : Buffer.from(d, 'base64url').toString('utf8'),
+      );
+      if (origin !== undefined && 'bytes' in origin) {
+        return c.body(origin.bytes, 200, { 'Content-Type': 'application/octet-stream' });
       }
       return c.body(this.segmentBody('proxy', 'stream'), 200, {
         'Content-Type': 'video/x-matroska',

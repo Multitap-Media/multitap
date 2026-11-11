@@ -1,7 +1,7 @@
 ---
 type: Architecture
 title: "Media gateway: URL scheme, status codes, retry, cost and live"
-description: "Core's media listener on its own port: the /media URL scheme with its filename allowlist, relative playlists, check order and status codes, the one-time segment retry (2026-10-14), Range handling, cost, and live (phase 4). Proxy behaviour is a separate concept."
+description: "Core's media listener on its own port: the /media URL scheme with its filename allowlist, relative playlists, check order and status codes, the one-time segment retry (2026-10-14), Range handling, cost, and live HLS as built (sealed child names, what is checked). Proxy behaviour is a separate concept."
 tags: [core, gateway, media, architecture]
 generated: { by: "agent/claude-sonnet-5.5", at: "2026-10-17T02:10:23Z" }
 code_refs:
@@ -75,5 +75,56 @@ For live HLS, the engine module returns a live handle that uses server-go's
 `/media/…` scheme, allowing the proxy's rewritten child paths. There's no
 transcode. The player detects a live playlist (no `EXT-X-ENDLIST`); the client
 switches the room to live sync.
+
+**As built (2026-11-11;** [[decision/live-hls-sealed-paths]]**).**
+
+- **When.** A source whose probe finds zero duration on an HLS playlist is
+  live. With `delivery: 'auto'` and `mode: 'play'` it becomes a live session;
+  with `delivery: 'transcode'` or `mode: 'full'`, or on an engine without the
+  HLS proxy, it fails with `live` as before ([[architecture/engine-prepare-stream]]).
+- **The session** is `ready` with `live: true`, `delivery: 'direct'` and
+  `mediaEntry: 'master.m3u8'`, without `quality` or `tracks`
+  ([[architecture/playback-session]], [[concept/delivery-modes]]). The engine holds no
+  HLS session for it. Core keeps an `engine_sessions` row with `live = 1` whose
+  `media_url` is the proxy URL of the top playlist with the addon's
+  `proxyHeaders` as `h_`/`r_` parameters, never the password
+  ([[architecture/core-persistence]]). Releasing it deletes the row and sends
+  the engine nothing.
+- **Why core rewrites the playlist again.** The engine's proxy answers a playlist
+  whose children are its own absolute `/proxy/…` URLs, each carrying the
+  upstream URL (`d`), the header parameters and, on a protected engine,
+  `api_password`. None of that may reach a player ([[architecture/secrets-policy]]).
+  Core replaces each one with `live/{sealed}.{ext}`, relative to the playlist
+  being served: `master.m3u8` is the top playlist, and every other file is under
+  `/media/{token}/live/`.
+- **Sealed names.** `sealed` is the child's upstream URL under AES-256-GCM. The
+  key is derived from the media token secret, so names survive a restart of
+  core exactly when tokens do ([[concept/media-tokens]]); without a configured
+  secret the key is random per process. The nonce is derived from the content,
+  so one URL has one name per session and a playlist reload repeats them. The
+  session's engine session id and the extension are authenticated, so a name
+  opens only under its own session and as its own kind. Nothing is stored per
+  segment.
+- **The extension says which engine endpoint serves it:** `m3u8` is
+  `/proxy/hls/manifest.m3u8` (and its answer is rewritten the same way), `bin`
+  is `/proxy/stream` (keys), anything else is `/proxy/stream/segment.{ext}`.
+- **Fail closed.** A playlist that isn't one, is larger than 2 MiB, or holds an
+  http(s) URL that isn't one of the engine's proxy URLs is answered `502`
+  whole. URIs the engine leaves alone because they aren't http(s) (`data:`,
+  `skd:`) stay as they are.
+- **Private hosts.** The top URL at create and every child at request time are
+  checked against `MULTITAP_ADDON_PRIVATE_ALLOW`, and against the engine's own
+  address, before the engine is asked ([[architecture/addon-private-host-guard]]);
+  a refused child is `404`. A host found allowed isn't resolved again for a
+  minute.
+- **The gateway** admits `live/{sealed}.{ext}` next to the engine file names.
+  For a live session it passes a single `Range` on and answers `206` with
+  `Content-Range`, cancels the engine request when the viewer leaves (nothing is
+  transcoded), retries a `502`/`504` once but not a `404`, doesn't count the
+  session as engine load ([[architecture/engine-session-lifecycle]]), and
+  reports `live/playlist` or `live/segment` as a viewer's last file.
+- **Not yet:** run against a real live source on the reference engine; the
+  engine's signed URLs (`RIVULET_PROXY_SECRET`) aren't used, core authenticates
+  with the proxy password; a watch-party client's live sync is the client's.
 
 Related: [[architecture/media-gateway-proxy]], [[concept/media-tokens]], [[architecture/core-deployment]], [[architecture/engine-module]], [[concept/delivery-modes]].
