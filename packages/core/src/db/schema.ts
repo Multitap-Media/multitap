@@ -66,6 +66,7 @@ export const PLAYBACK_SESSION_PUBLIC_COLUMNS = [
   'audio_track',
   'binge_group',
   'profile_id',
+  'live',
 ] as const satisfies readonly Exclude<
   keyof PlaybackSessionsTable,
   SecretColumn<'playback_sessions'>
@@ -96,6 +97,7 @@ export const ENGINE_SESSION_PUBLIC_COLUMNS = [
   'release_attempts',
   'release_next_at',
   'prepared',
+  'live',
 ] as const satisfies readonly Exclude<keyof EngineSessionsTable, SecretColumn<'engine_sessions'>>[];
 
 export interface AddonsTable {
@@ -200,6 +202,8 @@ export interface PlaybackSessionsTable {
   binge_group: string | null;
   /** The create request's `profileId` (migration 0009); no foreign key. */
   profile_id: string | null;
+  /** 1 once a live source was chosen (migration 0013): played through the engine's HLS proxy. */
+  live: Generated<number>;
 }
 
 export type PlaybackSessionRow = Selectable<PlaybackSessionsTable>;
@@ -235,6 +239,12 @@ export interface EngineSessionsTable {
    * its master requests carry the prepared `ttl` (okf:architecture/engine-prepare-ahead).
    */
   prepared: Generated<number>;
+  /**
+   * 1 for a live source (migration 0013, okf:architecture/media-gateway): `media_url`
+   * is then the engine's `/proxy/hls/manifest.m3u8` URL of the top playlist,
+   * and the engine holds no HLS session under `sid`.
+   */
+  live: Generated<number>;
 }
 
 export type EngineSessionRow = Selectable<EngineSessionsTable>;

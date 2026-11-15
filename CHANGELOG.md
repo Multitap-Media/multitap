@@ -55,6 +55,23 @@ repository; their tags are not part of this repository's history.
   `MULTITAP_PREPARE_ALL_AUDIO` prepares every audio rendition;
   `MULTITAP_PREPARE_POLL_MS` sets how often engines are read.
 
+- **Live HLS.** A live source (zero duration on an HLS playlist) used to fail
+  with `live`. With the default `delivery: 'auto'` it now plays through the
+  engine's HLS proxy, without a transcode (okf:architecture/media-gateway). The
+  session is `ready` with the new field `live: true` and `delivery: 'direct'`;
+  its `mediaEntry` is still `master.m3u8`, and it has no `quality` and no
+  `tracks`. The playlists a player gets list their children as
+  `live/{name}.{ext}` under the same `/media/{token}/`, where the name is the
+  upstream URL encrypted for that session: the origin's URLs, the addon's
+  `proxyHeaders` and the engine's proxy password never leave Multitap. A
+  single `Range` on a live segment is passed on (`206`). A live session isn't
+  counted as engine load.
+- A live source still fails with `live` when the request asks for
+  `delivery: 'transcode'` or `mode: 'full'`, or on an engine without
+  `/proxy/hls/manifest.m3u8`. Every child a live playlist names is checked
+  against `MULTITAP_ADDON_PRIVATE_ALLOW` before the engine is asked for it.
+  Migration `0013_live_sessions`.
+
 ### Changed
 
 - `mode: 'full'` and `readyBy` no longer answer `501`. A create with `readyBy`

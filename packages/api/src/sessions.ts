@@ -34,11 +34,14 @@ export const PLAYBACK_SESSION_STATUSES = [
 ] as const;
 export type PlaybackSessionStatus = (typeof PLAYBACK_SESSION_STATUSES)[number];
 
-/** How a session's media reaches players (okf:concept/delivery-modes). Phase 2 builds only `transcode`. */
+/**
+ * How a session's media reaches players (okf:concept/delivery-modes). Built: `transcode`, and
+ * `direct` for a live source only (the engine's HLS proxy).
+ */
 export const DELIVERIES = ['direct', 'remux', 'transcode'] as const;
 export type Delivery = (typeof DELIVERIES)[number];
 
-/** Requested delivery: `auto` lets Multitap choose (always `transcode` in phase 2). */
+/** Requested delivery: `auto` lets Multitap choose (`transcode`, or `direct` for a live source). */
 export const DELIVERY_REQUESTS = ['auto', ...DELIVERIES] as const;
 export type DeliveryRequest = (typeof DELIVERY_REQUESTS)[number];
 
@@ -224,17 +227,22 @@ export const PlaybackSessionSchema = z
         "Index into `tracks.audio` of the track to start with: the first track in the create request's `audioLanguage`, else in its preferred languages (request, else the profile's, else the instance default), default-marked tracks first. Absent with fewer than two audio tracks or no match. The engine can't choose the default audio track, so clients select it (hls.js `audioTrack = audioTrack`).",
     }),
     delivery: z.enum(DELIVERIES).meta({
-      description: 'How media reaches players. Fixed once `ready`.',
+      description:
+        'How media reaches players: `transcode`, or `direct` once a live source was chosen (it is proxied, not transcoded). Fixed once `ready`.',
     }),
     mediaEntry: z.enum(MEDIA_ENTRIES).meta({
       description:
-        'The file a player opens under `/media/{token}/`: `master.m3u8` for `transcode`, `stream` for `direct` and `remux`. A token response gives the full `mediaPath`.',
+        'The file a player opens under `/media/{token}/`: `master.m3u8` for `transcode` and for a `live` session, `stream` for any other `direct` and for `remux`. A token response gives the full `mediaPath`.',
     }),
     mode: z.enum(SESSION_MODES),
     highRes: z.enum(HIGH_RES_POLICIES),
     quality: SessionQualitySchema.optional().meta({
       description:
         'What the engine applied. Absent when nothing was requested or the engine has no `sessionOverrides`.',
+    }),
+    live: z.boolean().optional().meta({
+      description:
+        "Present and `true` when the chosen source is live. It is played through the engine's HLS proxy without a transcode: `delivery` is `direct`, there is no `quality` and no `tracks`, the playlists have no end, and the player follows the live edge.",
     }),
     readyBy: timestamp.optional().meta({ description: 'Preparation deadline (mode `full`).' }),
     retainUntil: timestamp.optional().meta({ description: 'Client-set retention floor.' }),
@@ -270,7 +278,8 @@ export const CreateSessionSchema = z
         "Engine to play on. A candidate's engine affinity wins; default `MULTITAP_SELECTION_DEFAULT_ENGINE`, else the only engine there is.",
     }),
     delivery: z.enum(DELIVERY_REQUESTS).optional().meta({
-      description: 'Default `auto` (always `transcode` for now). `direct` and `remux` get `501`.',
+      description:
+        'Default `auto`: `transcode`, or for a live source the HLS proxy of the engine with no transcode (the session then says `live: true` and `delivery: direct`). `transcode` refuses a live source (`failureReason: live`). `direct` and `remux` get `501`.',
     }),
     mode: z.enum(SESSION_MODES).optional().meta({
       description:
@@ -363,7 +372,7 @@ export const MediaTokenSchema = z
     sessionId: z.string(),
     mediaPath: z.string().meta({
       description:
-        'Path on the media listener, depending on `delivery`: `/media/{token}/master.m3u8` for transcode, `/media/{token}/stream` for direct and remux.',
+        'Path on the media listener: `/media/{token}/master.m3u8` for a transcode and for a live session, `/media/{token}/stream` for any other direct delivery and for remux.',
       example: '/media/eyJhbGciOiJIUzI1NiJ9.e30.sig/master.m3u8',
     }),
     mediaUrl: z.string().optional().meta({

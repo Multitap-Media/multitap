@@ -1,6 +1,6 @@
 ---
 type: Architecture
-title: "Core persistence: tables, migrations 0001 to 0012, backups and restart"
+title: "Core persistence: tables, migrations 0001 to 0013, backups and restart"
 description: "Core's SQLite tables (addons, engines, api_keys, profiles, last_sources, item_player_states, library_items, playback_sessions, engine_sessions, session_subtitle_offsets, prepare_jobs, token_revocations, settings), the full migrations list, online backups and restore, and restart behaviour."
 tags: [persistence, sqlite, migrations, backup, core, architecture]
 generated: { by: "agent/claude-sonnet-5.5", at: "2026-10-17T02:19:10Z" }
@@ -22,7 +22,7 @@ Source of truth for this topic ((docs:check reads the migrations list from this 
 | `item_player_states` | profile_id + item_id (key; deleted with the profile), audio_language, subtitle_json (`ItemSubtitleChoice`), subtitle_offset_ms, playback_speed, updated_at: the per-item player state (stremio-core's `StreamItemState`, [[architecture/core-v1-api]]) |
 | `library_items` | profile_id + item_id (key), type, name, poster, poster_shape, removed, temp, state_json and behavior_hints_json (stremio-core's `LibraryItem` field names, [[architecture/library-and-profiles]]), ctime, mtime |
 | `playback_sessions` | id, key, item_type, item_id, video_id, source_json, identity (idempotency hash, [[architecture/playback-session]]), candidates_json, chosen_key, stream_json (the raw Stream; secret), engine_id, sid, delivery, mode, high_res, requested_quality_json, quality_json (applied), ready_by, retain_until, status, failure_reason, token_epoch, created_at, updated_at, last_access, released_at, tracks_json, audio_track, binge_group, profile_id |
-| `engine_sessions` | engine_id + sid (key), session_key, stream_hash, quality_key (unique together with engine_id, session_key and stream_hash), applied_quality_json, media_url (secret), created_at, last_used, release_pending_since, release_attempts, release_next_at (a pending release, [[architecture/engine-retention]]), prepared (1 for the engine session of a `full` playback session, which gets the prepared `ttl`) |
+| `engine_sessions` | engine_id + sid (key), session_key, stream_hash, quality_key (unique together with engine_id, session_key and stream_hash), applied_quality_json, media_url (secret), created_at, last_used, release_pending_since, release_attempts, release_next_at (a pending release, [[architecture/engine-retention]]), prepared (1 for the engine session of a `full` playback session, which gets the prepared `ttl`), live (1 for a live source: `media_url` is then the engine's HLS proxy URL of the top playlist, and the engine holds no session) |
 | `session_subtitle_offsets` | session_id (deleted with its session) + file_id (key), offset_ms: a session-wide subtitle timing offset, only rows that are not 0 ([[architecture/core-v1-api]]) |
 | `prepare_jobs` | session_id (key; deleted with its session), state (`scheduled`, `running`, `done`), audio, height, start_at, ready_by, started_at, start_segments, total_segments, done_segments, restarts, late_notified, verified_at, updated_at: the preparation of a `full` session ([[architecture/engine-prepare-ahead]]). A failed preparation fails its session and leaves no row |
 | `token_revocations` | session_id (deleted with its session), subject, until |
@@ -39,7 +39,7 @@ scope), `0006_engine_proxy_password` ([[architecture/secrets-policy]]) and
 `0007_engine_session_release_retry` (pending releases, [[architecture/engine-retention]]),
 `0008_session_tracks_binge`, `0009_profile_settings_last_source` ([[architecture/library-and-profiles]], [[architecture/library-and-profiles]])
 and `0010_session_subtitle_offsets` ([[architecture/core-v1-api]]), `0011_item_player_states`
-(the per-item player state, [[architecture/core-v1-api]]) and `0012_prepare_jobs` (the `prepare_jobs` table and `engine_sessions.prepared`, [[architecture/engine-prepare-ahead]]). The secret columns are listed once in code (`SECRET_COLUMNS`), and a
+(the per-item player state, [[architecture/core-v1-api]]) and `0012_prepare_jobs` (the `prepare_jobs` table and `engine_sessions.prepared`, [[architecture/engine-prepare-ahead]]), and `0013_live_sessions` (`live` on `playback_sessions` and `engine_sessions`, [[architecture/media-gateway]]). The secret columns are listed once in code (`SECRET_COLUMNS`), and a
 test keeps them out of every API view.
 
 **The connection** (`openDatabase`, `packages/core/src/db/index.ts`): WAL mode

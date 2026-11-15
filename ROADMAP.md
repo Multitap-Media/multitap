@@ -307,8 +307,8 @@ info findings stay in each area's progress concept.
   drop such candidates. Was under Ideas as "Opt-in exposure of `externalUrl`
   sources". _Source: okf:core-review/parity-external-url-hidden; gap
   (Streams)._
-- [ ] **Live sources rank playable but fail** · S · `multitap` — mark live
-  candidates unplayable (`live`) until Live HLS (Later) lands. _Source:
+- [x] **Live sources rank playable but fail** · S · `multitap` — they play
+  now (Live HLS, Later). _Source:
   okf:core-review/parity-live-sources._
 - [ ] **New-episode notifications and a calendar per profile** · M · `multitap` —
   Multitap computes them (stremio-core's `lastVideosIds` / `calendarVideosIds`
@@ -476,9 +476,10 @@ info findings stay in each area's progress concept.
   admission counting rungs, the fake engine's ladder; seven checklist items.
   Built against the fake engine first. _Source: okf:process/abr-ladder-core-checklist;
   ladder §6._
-- [ ] **Live HLS** · M · `multitap` — live sources through the engine's HLS proxy
-  under the same media token scheme, no transcode; live is unplayable today.
-  _Source: okf:architecture/media-gateway._
+- [x] **Live HLS** · M · `multitap` — live sources through the engine's HLS proxy
+  under the same media token scheme, no transcode. Built against the fake
+  engine; still to be run against a real live source on the reference engine.
+  _Source: okf:architecture/media-gateway, okf:decision/live-hls-sealed-paths._
 
 ### Preparation
 

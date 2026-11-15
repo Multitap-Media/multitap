@@ -114,6 +114,7 @@ describe('database', () => {
       '0010_session_subtitle_offsets',
       '0011_item_player_states',
       '0012_prepare_jobs',
+      '0013_live_sessions',
     ]);
 
     expect(await columns(db, 'addons')).toEqual({

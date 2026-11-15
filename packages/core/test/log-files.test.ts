@@ -52,10 +52,19 @@ async function open(env: Record<string, string> = {}) {
   file = await openLogFile(config.logging);
 }
 
-/** Lets the file stream's asynchronous writes finish. */
+/**
+ * Lets the file stream's asynchronous writes finish. Every caller has logged a
+ * line first, so this waits until a log file holds something: the stream opens
+ * its file asynchronously, and on a loaded Windows runner that has taken longer
+ * than a fixed 100 ms.
+ */
 async function settle() {
-  await new Promise((resolve) => setTimeout(resolve, 100));
-  flushLogFile(file);
+  const deadline = Date.now() + 10_000;
+  for (;;) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    flushLogFile(file);
+    if (readAll() !== '' || Date.now() > deadline) return;
+  }
 }
 
 // Real file I/O: the first test took 6.4 s under the full suite's parallel load

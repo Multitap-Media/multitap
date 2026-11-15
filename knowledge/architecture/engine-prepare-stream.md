@@ -71,7 +71,7 @@ retries only torrents.
 |---|---|---|
 | `unsupported` | A kind the module doesn't handle: archives, NZB, player frames, a non-http(s) URL, an invalid stream, an all-zero info hash ([[architecture/engine-endpoints-core-uses]]) | no |
 | `external` | `externalUrl` only | no |
-| `live` | Zero duration on an HLS source (phase 4) | no |
+| `live` | Zero duration on an HLS source where it can't be proxied: the request asked for `delivery: 'transcode'` or `mode: 'full'`, or the engine has no HLS proxy. Otherwise it plays live ([[architecture/media-gateway]]) | no |
 | `needs-prepare` | The probed height is above `liveMaxHeight` in mode `play` | no |
 | `probe-failed` | The probe failed, or found zero duration for VOD | torrents only (peers may still arrive) |
 | `torrent-failed` | No metadata within `STREMIO_CREATE_METADATA_TIMEOUT` (`504`, retryable), or no usable file index (not retryable) | see left |
@@ -92,7 +92,7 @@ engine's own point of view, with the port from its `address`, [[architecture/eng
 | `url`, direct file (debrid, HTTP) | The URL itself, in its parsed form (what the loopback check compared, [[core-review/sec-input-engine-proxy-password]]); it must resolve to a public IP. All fetches come from the engine's IP, which suits debrid providers. |
 | `url` + `behaviorHints.proxyHeaders` | `http://127.0.0.1:11470/proxy/stream?d=<b64url>&h_…=…&r_…=…`, plus `&api_password=…` when the descriptor has a `proxyPassword` ([[architecture/secrets-policy]]). The password is added on the way out (probe and master requests), not stored with the `mediaURL`. |
 | `url` VOD HLS (`.m3u8`, probe has a duration) | The URL itself |
-| `url` live HLS (probe duration 0) | Live mode ([[architecture/media-gateway]], phase 4). Until then → unplayable. |
+| `url` live HLS (probe duration 0) | Live mode ([[architecture/media-gateway]]): the engine's `/proxy/hls/manifest.m3u8`, with the `proxyHeaders` when the stream has them. No engine HLS session, no warm-up. |
 | `ytId` | `http://127.0.0.1:11470/yt/{ytId}` (yt-dlp → 307). Progressive formats only. |
 | `url` on the engine's own `local-addon` | The URL itself: an HTTP URL with #32 and `STREMIO_LOCAL_FILES_PUBLIC_URL` set, otherwise a `file://` path. Must run on that engine ([[architecture/future-remote-engines]]). |
 | `externalUrl` | unplayable |

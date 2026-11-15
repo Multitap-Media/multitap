@@ -89,12 +89,15 @@ other app. It's the API contract that matters.
   has one, with `prepare.*` events. It needs an engine with engine-side
   preparation (Rivulet Engine v0.30.0 or later with `RIVULET_HLS_PREPARE=1`),
   and it is how a source taller than the engine's `liveMaxHeight` gets played.
+- Live HLS: a live source (a channel, a stream) plays through the engine's HLS
+  proxy with no transcode, behind the same media tokens. The session says
+  `live: true`; no upstream URL, header or engine password reaches the player.
 - Scoped API keys (`client`, `admin`, `metrics`) and Prometheus metrics.
 - CORS, optional built-in TLS and absolute media URLs, so Multitap needs no reverse
   proxy.
 
-Not built yet: live HLS, direct play and remux (`delivery: 'direct' | 'remux'`
-gets `501`). Known
+Not built yet: direct play and remux of a source that isn't live
+(`delivery: 'direct' | 'remux'` gets `501`). Known
 limits found with real engines and addons (a bad probe cached by the engine,
 anime ids that no stream addon accepts), the untested standalone TLS routes and
 everything else outstanding are in [ROADMAP.md](ROADMAP.md).

@@ -166,6 +166,8 @@ async function startLocked(
     clock,
     ids,
     ...engineModuleConfig(config),
+    // Live child paths are sealed with the token secret: they last as long as tokens do.
+    liveSecret: config.media.tokenSecret,
     privateHosts: addons.guard,
   });
   // Aborted by close(): ends open /v1/events streams (okf:architecture/core-events-sse).

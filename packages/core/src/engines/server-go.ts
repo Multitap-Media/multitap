@@ -11,6 +11,7 @@ import {
   type DeleteSessionResult,
   type MasterRequest,
   type EnginePrepareStatus,
+  type LiveFetchRequest,
   type OpenSubHash,
   type PrepareAudio,
   type PrepareCallResult,
@@ -453,6 +454,35 @@ export function createServerGoClient(options: ServerGoClientOptions): ServerGoCl
         `${selfBase}/proxy/stream?${parts.join('&')}`,
         request.apiPassword,
       );
+    },
+
+    proxyHlsMediaURL(request: ProxyStreamRequest): string {
+      const parts = [`d=${Buffer.from(request.url, 'utf8').toString('base64url')}`];
+      for (const [name, value] of Object.entries(request.requestHeaders ?? {})) {
+        parts.push(`h_${encodeURIComponent(name)}=${encodeURIComponent(value)}`);
+      }
+      for (const [name, value] of Object.entries(request.responseHeaders ?? {})) {
+        parts.push(`r_${encodeURIComponent(name)}=${encodeURIComponent(value)}`);
+      }
+      return `${selfBase}/proxy/hls/manifest.m3u8?${parts.join('&')}`;
+    },
+
+    liveFetch(request: LiveFetchRequest): Promise<Response> {
+      const parts = [`d=${Buffer.from(request.dest, 'utf8').toString('base64url')}`];
+      // Only the header parameters carry over: the engine applies them to every child.
+      for (const [name, value] of new URL(request.source).searchParams) {
+        if (/^[hr]_/.test(name)) {
+          parts.push(`${encodeURIComponent(name)}=${encodeURIComponent(value)}`);
+        }
+      }
+      if (request.apiPassword !== undefined && request.apiPassword !== '') {
+        parts.push(`api_password=${encodeURIComponent(request.apiPassword)}`);
+      }
+      return transport.request(`${request.endpoint}?${parts.join('&')}`, {
+        timeoutMs: timeouts.media,
+        signal: request.signal,
+        ...(request.range === undefined ? {} : { headers: { Range: request.range } }),
+      });
     },
 
     withApiPassword(mediaURL: string, apiPassword: string | undefined): string {

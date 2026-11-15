@@ -1,6 +1,7 @@
 import { Hono, type Context } from 'hono';
 import type { Config } from '../config.ts';
 import { EngineSessionNotFoundError } from '../engines/engine-module.ts';
+import { LIVE_FILE } from '../engines/live.ts';
 import type { EngineModule } from '../engines/module.ts';
 import { EngineTransportError } from '../engines/transport.ts';
 import { allowlistCors } from '../http/cors.ts';
@@ -34,6 +35,9 @@ export const MEDIA_PREFIX = '/media';
 
 /** Methods a media request may use; the preflight answer for `/media/…`. */
 const MEDIA_METHODS = ['GET', 'HEAD'] as const;
+
+/** A single byte range, as a player sends it for an `EXT-X-BYTERANGE` segment. */
+const BYTE_RANGE = /^bytes=\d{0,15}-\d{0,15}$/;
 
 /**
  * The engine files a token may reach (okf:architecture/media-gateway): the master, media playlists,
@@ -156,6 +160,11 @@ class KnownGood {
  * `401` expired, `410` released, `404` for everything else that can't be
  * served. `Range` is ignored (the whole file, `200`); `HEAD` gets the headers.
  *
+ * A live session (okf:architecture/media-gateway "Live") also serves `live/{sealed}.{ext}`:
+ * the children of its proxied playlists. Those are passed through from the
+ * engine's HLS proxy, a single `Range` included (`206`), are cancelled when
+ * the viewer leaves (nothing is transcoded), and don't count as engine load.
+ *
  * Logging at `info` names the session id and subject, never the path or the
  * token (okf:architecture/secrets-policy); the path is logged at `debug` only.
  */
@@ -231,8 +240,11 @@ async function serveMedia(
   const file = match?.[2];
   if (token === undefined || file === undefined) return done(notFoundResponse(c), 'bad-path');
   const subtitle = EXT_SUBTITLE.exec(file);
-  if (subtitle === null && !ENGINE_FILE.test(file)) return done(notFoundResponse(c), 'not-allowed');
-  const kind = kindOf(file);
+  const liveFile = subtitle === null && LIVE_FILE.test(file);
+  if (subtitle === null && !liveFile && !ENGINE_FILE.test(file)) {
+    return done(notFoundResponse(c), 'not-allowed');
+  }
+  const kind: FileKind = liveFile && !file.endsWith('.m3u8') ? 'segment' : kindOf(file);
   who.kind = kind;
 
   // `?offsetMs=` shifts an addon subtitle (okf:architecture/core-subtitles-and-player-state); the query isn't part of the allowlisted path.
@@ -256,8 +268,12 @@ async function serveMedia(
   const target = await services.sessions.mediaTarget(sid);
   if (target.kind === 'released') return empty(410, 'released');
   if (target.kind === 'not-found') return done(notFoundResponse(c), 'unknown-session');
-  void services.sessions.touch(sid, kind === 'segment' ? 'segment' : 'read');
-  gateway.viewers.request(sid, sub, subtitle === null ? file : 'ext/sub');
+  // A live session's files are proxied, not transcoded: no engine load.
+  const live = target.session.live;
+  void services.sessions.touch(sid, kind === 'segment' && !live ? 'segment' : 'read');
+  // A sealed live name says nothing and never repeats: telemetry gets its kind.
+  const seen = subtitle !== null ? 'ext/sub' : liveFile ? `live/${kind}` : file;
+  gateway.viewers.request(sid, sub, seen);
   const head = c.req.method === 'HEAD';
   const count = (n: number) => {
     gateway.viewers.bytes(sid, sub, n);
@@ -292,31 +308,37 @@ async function serveMedia(
   }
 
   if (target.kind === 'not-ready') return done(notFoundResponse(c), 'not-ready');
+  if (liveFile && !live) return done(notFoundResponse(c), 'not-live');
 
   // Segments ignore the viewer's disconnect (okf:architecture/media-gateway-proxy): the engine kills a
   // transcode whose request goes away, and other viewers may be waiting on it.
+  // A live session's are only proxied, so they end with their viewer.
   const segment = kind === 'segment';
+  const detach = segment && !live;
   const viewerSignal = c.req.raw.signal;
+  const rangeHeader = live && segment ? c.req.header('range') : undefined;
+  const range = rangeHeader !== undefined && BYTE_RANGE.test(rangeHeader) ? rangeHeader : undefined;
+  const fetchFile = (signal: AbortSignal | undefined) =>
+    range === undefined
+      ? services.engines.fetchMedia(target.handle, file, signal)
+      : services.engines.fetchMedia(target.handle, file, signal, { range });
   let upstream: Response;
   try {
-    upstream = await services.engines.fetchMedia(
-      target.handle,
-      file,
-      segment ? undefined : viewerSignal,
-    );
+    upstream = await fetchFile(detach ? undefined : viewerSignal);
     // A source that failed mid-stream (e.g. the origin's 429) may be temporary:
     // retry the segment once. An engine with #53 says so with a 502 or 504; an
     // older one answers 404, which can't be told apart from a missing segment
     // (okf:process/upstream-engine-asks), so a 404 is retried only for a session that has served segments.
     const status = upstream.status;
-    const retry = status === 502 || status === 504 || (status === 404 && servedSegments.has(sid));
+    const retry =
+      status === 502 || status === 504 || (status === 404 && !live && servedSegments.has(sid));
     if (segment && retry && !viewerSignal.aborted) {
       await upstream.body?.cancel().catch(() => undefined);
       logger.info(
         { ...who, method: c.req.method, status },
         'engine error on a segment; retrying once',
       );
-      upstream = await services.engines.fetchMedia(target.handle, file, undefined);
+      upstream = await fetchFile(detach ? undefined : viewerSignal);
     }
   } catch (err) {
     if (err instanceof EngineSessionNotFoundError)
@@ -332,7 +354,7 @@ async function serveMedia(
   if (!upstream.ok || upstream.body === null) {
     // Engine error texts can name the engine session; send none of it.
     if (upstream.body !== null) {
-      if (segment) onDetached(drain(upstream.body));
+      if (detach) onDetached(drain(upstream.body));
       else void upstream.body.cancel().catch(() => undefined);
     }
     // 404: evicted, or past the end; the player reloads the master (okf:architecture/engine-session-lifecycle).
@@ -349,14 +371,17 @@ async function serveMedia(
   };
   const length = upstream.headers.get('content-length');
   if (length !== null) headers['Content-Length'] = length;
+  // A range the engine's proxy honoured for a live segment.
+  const contentRange = upstream.status === 206 ? upstream.headers.get('content-range') : null;
+  if (contentRange !== null) headers['Content-Range'] = contentRange;
 
-  if (head || (segment && viewerSignal.aborted)) {
-    // Nobody reads the body: a segment still runs to its end, anything else stops.
-    if (segment) onDetached(drain(upstream.body));
+  if (head || (detach && viewerSignal.aborted)) {
+    // Nobody reads the body: a transcoded segment still runs to its end, anything else stops.
+    if (detach) onDetached(drain(upstream.body));
     else void upstream.body.cancel().catch(() => undefined);
     return done(new Response(null, { status: upstream.status, headers }));
   }
 
-  const body = passThrough(upstream.body, { detach: segment, onBytes: count, onDetached });
+  const body = passThrough(upstream.body, { detach, onBytes: count, onDetached });
   return done(new Response(body, { status: upstream.status, headers }));
 }

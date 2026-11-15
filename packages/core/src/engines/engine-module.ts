@@ -46,6 +46,16 @@ import type {
   PrepareResult,
   UnplayableEngineReason,
 } from './module.ts';
+import {
+  LIVE_MANIFEST_PATH,
+  LIVE_PLAYLIST_MAX_BYTES,
+  LIVE_PREFIX,
+  LiveSealer,
+  liveEndpoint,
+  parseEngineProxyUrl,
+  rewriteLivePlaylist,
+  type LiveTarget,
+} from './live.ts';
 import type { EngineEntry, EngineRegistry } from './registry.ts';
 import {
   normalizeQuality,
@@ -55,7 +65,7 @@ import {
   trackersOf,
   type StreamPlan,
 } from './resolve.ts';
-import { readEngineDetail } from './server-go.ts';
+import { isRouteNotFound, readEngineDetail } from './server-go.ts';
 import {
   ServerGoError,
   type OpenSubHash,
@@ -100,6 +110,12 @@ export interface EngineModuleOptions {
    * its job is done the engine's idle TTL applies again. Default: `sessionTtlSec`.
    */
   preparedSessionTtlSec?: number;
+  /**
+   * The secret live child paths are sealed with (okf:architecture/media-gateway): the
+   * media token secret, so they survive a restart exactly when tokens do.
+   * Default: a random key for this process.
+   */
+  liveSecret?: string | null;
   /** First retry of a failed engine release after this long; doubles per failure. Default 60 s. */
   releaseRetryBaseMs?: number;
   /** Longest wait between release retries. Default 5 min. */
@@ -125,6 +141,8 @@ interface SessionState {
   applied: SessionQuality | undefined;
   /** The engine session of a `full` playback session. */
   prepared: boolean;
+  /** A live source: `mediaURL` is its `/proxy/hls/manifest.m3u8` URL and the engine holds no session. */
+  live: boolean;
   status: EngineStatus;
   torrent?: { infoHash: string; fileIdx: number };
   statsAt: number;
@@ -241,6 +259,36 @@ async function drainBody(res: Response): Promise<void> {
   } finally {
     reader.releaseLock();
   }
+}
+
+/** A live child whose host was checked this recently isn't resolved again. */
+const LIVE_HOST_CHECK_MS = 60_000;
+const LIVE_HOST_CHECKS_MAX = 1_000;
+
+const emptyResponse = (status: number) => new Response(null, { status });
+
+/** A playlist's text, or undefined when it is larger than {@link LIVE_PLAYLIST_MAX_BYTES}. */
+async function readPlaylist(res: Response): Promise<string | undefined> {
+  const body = res.body as ReadableStream<Uint8Array> | null;
+  if (body === null) return '';
+  const reader = body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > LIVE_PLAYLIST_MAX_BYTES) {
+        await reader.cancel().catch(() => undefined);
+        return undefined;
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  return Buffer.concat(chunks).toString('utf8');
 }
 
 /** The video stream the engine transcodes: the default one, else the first. */
@@ -368,9 +416,15 @@ export class ServerGoEngineModule implements EngineModule {
     { promise: Promise<PrepareResult>; signal: AbortSignal | undefined }
   >();
   readonly #background = new Set<Promise<unknown>>();
+  readonly #sealer: LiveSealer;
+  /** Live sessions read from their row (after a restart): handle key to the stored source. */
+  readonly #liveSources = new Map<string, string>();
+  /** When a live child's host was last found allowed, by host name. */
+  readonly #liveHosts = new Map<string, number>();
 
   constructor(options: EngineModuleOptions) {
     this.#o = options;
+    this.#sealer = new LiveSealer(options.liveSecret);
     this.#warmSegments = options.warmSegments ?? 3;
     this.#statsRefreshMs = options.statsRefreshMs ?? 5_000;
     this.#retryBaseMs = options.releaseRetryBaseMs ?? 60_000;
@@ -632,7 +686,112 @@ export class ServerGoEngineModule implements EngineModule {
     if (!(probe.durationSec > 0)) {
       const hls = (plan.kind === 'url' || plan.kind === 'proxy') && plan.hls;
       const isHlsFormat = probe.formatName?.split(',').includes('hls') === true;
-      if (hls || isHlsFormat) return failed(fail('live', false));
+      if (hls || isHlsFormat) {
+        // Live: proxied, never transcoded or prepared (okf:architecture/media-gateway).
+        if (request.allowLive !== true || full || (plan.kind !== 'url' && plan.kind !== 'proxy')) {
+          return failed(fail('live', false));
+        }
+        const source = client.proxyHlsMediaURL({
+          url: plan.url,
+          ...(plan.kind === 'proxy'
+            ? { requestHeaders: plan.requestHeaders, responseHeaders: plan.responseHeaders }
+            : {}),
+        });
+        // The engine fetches it with its proxy password: the same check a `proxy` plan gets.
+        if (plan.kind === 'url' && !(await this.#liveAllowed(entry, plan.url))) {
+          log.warn(
+            'live stream refused: its url is a private host not in MULTITAP_ADDON_PRIVATE_ALLOW',
+          );
+          return failed(fail('unsupported', false));
+        }
+        let first: Response;
+        try {
+          first = await client.liveFetch({
+            endpoint: LIVE_MANIFEST_PATH,
+            dest: plan.url,
+            source,
+            apiPassword: password,
+            signal: request.signal,
+          });
+        } catch (err) {
+          return failed(await this.#engineFailure(request.engineId, err, request.signal), err);
+        }
+        if (first.status !== 200) {
+          const body = await first.text().catch(() => '');
+          if (first.status === 404 && isRouteNotFound(body)) {
+            log.info('engine has no HLS proxy; a live source cannot be played on it');
+            return failed(fail('live', false));
+          }
+          return failed({
+            ...fail('probe-failed', false),
+            detail: { engineStatus: first.status },
+          });
+        }
+        const playlist = await readPlaylist(first);
+        const usable =
+          playlist !== undefined &&
+          rewriteLivePlaylist(playlist, (t) => this.#sealer.seal(sid, t)) !== undefined;
+        if (!usable) {
+          log.warn("the engine's HLS proxy did not answer with a playlist Multitap can pass on");
+          return failed(fail('probe-failed', false));
+        }
+        const at = clock();
+        if (row === undefined) {
+          await db
+            .insertInto('engine_sessions')
+            .values({
+              sid,
+              engine_id: request.engineId,
+              session_key: request.sessionKey,
+              stream_hash: hash,
+              quality_key: qKey,
+              applied_quality_json: null,
+              media_url: source,
+              created_at: at,
+              last_used: at,
+              live: 1,
+            })
+            .execute();
+        } else {
+          await db
+            .updateTable('engine_sessions')
+            .set({
+              media_url: source,
+              applied_quality_json: null,
+              last_used: at,
+              prepared: 0,
+              live: 1,
+              release_pending_since: null,
+              release_attempts: 0,
+              release_next_at: null,
+            })
+            .where('engine_id', '=', request.engineId)
+            .where('sid', '=', sid)
+            .execute();
+        }
+        const liveStatus: EngineStatus = { phase: 'ready', info: mediaInfo(probe) };
+        this.#sessions.get(handleKey(request.engineId, sid))?.warm.abort();
+        this.#sessions.set(handleKey(request.engineId, sid), {
+          engineId: request.engineId,
+          sid,
+          mediaURL: source,
+          applied: undefined,
+          prepared: false,
+          live: true,
+          status: liveStatus,
+          statsAt: 0,
+          statsRefreshing: false,
+          warm: new AbortController(),
+        });
+        report(liveStatus);
+        log.debug({ sid }, 'live session created');
+        return {
+          ok: true,
+          handle: { engineId: request.engineId, sid },
+          status: liveStatus,
+          live: true,
+        };
+      }
       return failed(fail('probe-failed', plan.kind === 'torrent'));
     }
     const info = mediaInfo(probe);
@@ -704,6 +863,7 @@ export class ServerGoEngineModule implements EngineModule {
           applied_quality_json: appliedJson,
           last_used: now,
           prepared: full ? 1 : 0,
+          live: 0,
           // Wanted again: a release still pending for it is cancelled.
           release_pending_since: null,
           release_attempts: 0,
@@ -723,6 +883,7 @@ export class ServerGoEngineModule implements EngineModule {
       mediaURL,
       applied,
       prepared: full,
+      live: false,
       status,
       statsAt: 0,
       statsRefreshing: false,
@@ -892,8 +1053,15 @@ export class ServerGoEngineModule implements EngineModule {
    */
   async release(handle: EngineHandle): Promise<void> {
     const key = handleKey(handle.engineId, handle.sid);
+    const live = this.#sessions.get(key)?.live === true || (await this.#isLiveRow(handle));
     this.#sessions.get(key)?.warm.abort();
     this.#sessions.delete(key);
+    this.#liveSources.delete(key);
+    if (live) {
+      // The engine holds nothing for a live session: there is only the row.
+      await this.#forgetRow(handle);
+      return;
+    }
     if (this.#o.registry.isOnline(handle.engineId) === false) {
       await this.#markReleasePending(handle);
       throw new EngineTransportError(
@@ -1008,31 +1176,148 @@ export class ServerGoEngineModule implements EngineModule {
       .execute();
   }
 
-  async fetchMedia(handle: EngineHandle, file: string, signal?: AbortSignal): Promise<Response> {
+  async #isLiveRow(handle: EngineHandle): Promise<boolean> {
+    const row = await this.#o.db
+      .selectFrom('engine_sessions')
+      .select('live')
+      .where('engine_id', '=', handle.engineId)
+      .where('sid', '=', handle.sid)
+      .executeTakeFirst();
+    return row !== undefined && row.live !== 0;
+  }
+
+  /**
+   * Whether the engine may be sent to `url` for a live session: not a private
+   * host outside `MULTITAP_ADDON_PRIVATE_ALLOW`, and not the engine itself
+   * (okf:architecture/addon-private-host-guard). A host found allowed isn't resolved
+   * again for {@link LIVE_HOST_CHECK_MS}.
+   */
+  async #liveAllowed(entry: EngineEntry, url: string): Promise<boolean> {
+    let parsed: URL;
+    try {
+      parsed = new URL(url);
+    } catch {
+      return false;
+    }
+    if (pointsAtEngine(url, entry.engine.address)) return false;
+    const now = this.#o.clock();
+    const host = parsed.hostname.toLowerCase();
+    const checked = this.#liveHosts.get(host);
+    if (checked !== undefined && now - checked < LIVE_HOST_CHECK_MS) return true;
+    let allowed: boolean | undefined;
+    try {
+      allowed = await (this.#o.privateHosts ?? defaultPrivateHostGuard).allowsUrl(parsed);
+    } catch {
+      allowed = false;
+    }
+    if (allowed === false) return false;
+    if (this.#liveHosts.size >= LIVE_HOST_CHECKS_MAX) this.#liveHosts.clear();
+    this.#liveHosts.set(host, now);
+    return true;
+  }
+
+  /**
+   * A file of a live session (okf:architecture/media-gateway): the engine's HLS proxy for
+   * the top playlist (`master.m3u8`) or for the upstream URL sealed in a
+   * `live/…` name. Playlists come back with their children renamed to such
+   * names; other files are the engine's response as it is.
+   */
+  async #fetchLive(
+    entry: EngineEntry,
+    handle: EngineHandle,
+    source: string,
+    file: string,
+    signal: AbortSignal | undefined,
+    range: string | undefined,
+  ): Promise<Response> {
+    const log = this.#o.logger.child({ engineId: handle.engineId, sid: handle.sid });
+    let target: LiveTarget | undefined;
+    if (file === 'master.m3u8') {
+      target = parseEngineProxyUrl(source);
+    } else {
+      target = this.#sealer.open(handle.sid, file);
+      if (target !== undefined && !(await this.#liveAllowed(entry, target.dest))) {
+        log.warn('live file refused: it points at a private host or at the engine');
+        return emptyResponse(404);
+      }
+    }
+    if (target === undefined) return emptyResponse(404);
+    const playlist = target.ext === 'm3u8';
+    const res = await entry.client.liveFetch({
+      endpoint: liveEndpoint(target.ext),
+      dest: target.dest,
+      source,
+      apiPassword: entry.proxyPassword?.reveal(),
+      range: playlist ? undefined : range,
+      signal,
+    });
+    if (!playlist) return res;
+    if (res.status !== 200) {
+      await res.body?.cancel().catch(() => undefined);
+      return emptyResponse(res.status === 404 ? 404 : 502);
+    }
+    const text = await readPlaylist(res);
+    // Children of the top playlist are named from `/media/{token}/`, the others from `…/live/`.
+    const prefix = file === 'master.m3u8' ? LIVE_PREFIX : '';
+    const rewritten =
+      text === undefined
+        ? undefined
+        : rewriteLivePlaylist(text, (t) => prefix + this.#sealer.seal(handle.sid, t));
+    if (rewritten === undefined) {
+      log.warn(
+        'live playlist refused: too large, not a playlist, or with a url the engine did not proxy',
+      );
+      return emptyResponse(502);
+    }
+    return new Response(rewritten, {
+      status: 200,
+      headers: { 'Content-Type': 'application/vnd.apple.mpegurl' },
+    });
+  }
+
+  async fetchMedia(
+    handle: EngineHandle,
+    file: string,
+    signal?: AbortSignal,
+    options?: { range?: string | undefined },
+  ): Promise<Response> {
     const { db, registry, clock, logger } = this.#o;
     const entry = await registry.get(handle.engineId);
     if (entry === undefined) throw new EngineSessionNotFoundError(handle);
-    if (file !== 'master.m3u8') return entry.client.file(handle.sid, file, signal);
+    const liveFile = file.startsWith(LIVE_PREFIX);
+    if (file !== 'master.m3u8' && !liveFile) return entry.client.file(handle.sid, file, signal);
 
-    const state = this.#sessions.get(handleKey(handle.engineId, handle.sid));
+    const key = handleKey(handle.engineId, handle.sid);
+    const state = this.#sessions.get(key);
     let mediaURL = state?.mediaURL;
     let applied = state?.applied;
     let prepared = state?.prepared ?? false;
+    let live = state?.live ?? false;
+    const stored = state === undefined ? this.#liveSources.get(key) : undefined;
+    if (stored !== undefined) {
+      mediaURL = stored;
+      live = true;
+    }
     if (mediaURL === undefined) {
       const row = await db
         .selectFrom('engine_sessions')
-        .select(['media_url', 'applied_quality_json', 'prepared'])
+        .select(['media_url', 'applied_quality_json', 'prepared', 'live'])
         .where('engine_id', '=', handle.engineId)
         .where('sid', '=', handle.sid)
         .executeTakeFirst();
       if (row === undefined) throw new EngineSessionNotFoundError(handle);
       mediaURL = row.media_url;
       prepared = row.prepared !== 0;
+      live = row.live !== 0;
+      if (live) this.#liveSources.set(key, mediaURL);
       applied =
         row.applied_quality_json === null
           ? undefined
           : (JSON.parse(row.applied_quality_json) as SessionQuality);
     }
+    if (live) return this.#fetchLive(entry, handle, mediaURL, file, signal, options?.range);
+    // A `live/…` name on a session that isn't live.
+    if (liveFile) return emptyResponse(404);
     // Self-heal (okf:architecture/engine-session-lifecycle): the master request always carries mediaURL and the
     // session's overrides, so an evicted or forgotten session comes back alike.
     const res = await entry.client.master({
@@ -1096,6 +1381,11 @@ export class ServerGoEngineModule implements EngineModule {
     const { db, registry } = this.#o;
     const entry = await registry.get(handle.engineId);
     if (entry === undefined) return undefined;
+    // A live source has no file to hash.
+    const known = this.#sessions.get(handleKey(handle.engineId, handle.sid));
+    if (known?.live === true || (known === undefined && (await this.#isLiveRow(handle)))) {
+      return undefined;
+    }
     let mediaURL = this.#sessions.get(handleKey(handle.engineId, handle.sid))?.mediaURL;
     mediaURL ??= (
       await db

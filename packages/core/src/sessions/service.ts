@@ -254,6 +254,16 @@ export function effectiveQuality(
   return { ...capped, bitrate };
 }
 
+/**
+ * The file a session's media starts from (okf:architecture/media-gateway): the HLS
+ * entry for a transcode and for a live source, which is proxied HLS.
+ */
+export function mediaEntryOf(
+  record: Pick<PlaybackSessionRecord, 'delivery' | 'live'>,
+): 'master.m3u8' | 'stream' {
+  return record.delivery === 'transcode' || record.live ? 'master.m3u8' : 'stream';
+}
+
 /** The API view of a record (`PlaybackSession`). Never includes the raw stream. */
 export function sessionView(
   record: PlaybackSessionRecord,
@@ -264,7 +274,7 @@ export function sessionView(
     item: record.item,
     source: record.source,
     delivery: record.delivery,
-    mediaEntry: record.delivery === 'transcode' ? 'master.m3u8' : 'stream',
+    mediaEntry: mediaEntryOf(record),
     mode: record.mode,
     highRes: record.highRes,
     status: record.status,
@@ -284,6 +294,7 @@ export function sessionView(
   if (record.tracks !== null) view.tracks = record.tracks;
   if (record.audioTrack !== null) view.audioTrack = record.audioTrack;
   if (record.profileId !== null) view.profileId = record.profileId;
+  if (record.live) view.live = true;
   if (progress !== undefined) view.progress = progress;
   if (record.releasedAt !== null) view.releasedAt = iso(record.releasedAt);
   return view;
@@ -318,6 +329,11 @@ interface Job {
   preferredLanguages: readonly string[];
   /** The request's `audioLanguage`: tried first for `audioTrack`. */
   audioLanguage?: string | undefined;
+  /**
+   * A live source may be proxied instead of failing (okf:architecture/media-gateway):
+   * the request left the delivery to Multitap and isn't a preparation.
+   */
+  allowLive: boolean;
 }
 
 export class SessionService {
@@ -613,6 +629,7 @@ export class SessionService {
         preferredLanguages,
         // The request's, else the profile's choice for the item (P1).
         audioLanguage: request.audioLanguage ?? state?.audioLanguage ?? undefined,
+        allowLive: delivery === 'auto' && mode === 'play',
       };
       this.#jobs.set(record.id, job);
       // stop() came while the record was written: it resolves nothing (start()
@@ -814,7 +831,8 @@ export class SessionService {
    * Records access (media requests, reads) for retention. Writes at most every
    * {@link TOUCH_INTERVAL_MS} per session; never throws. `segment` (a video or
    * audio segment through the gateway) also marks the session as playing for
-   * its engine's load (okf:architecture/engine-session-lifecycle); reads and playlists don't.
+   * its engine's load (okf:architecture/engine-session-lifecycle); reads and playlists don't, and neither
+   * do a live session's files, which the engine only proxies.
    */
   async touch(id: string, kind: 'read' | 'segment' = 'read'): Promise<void> {
     await this.#touch(id, kind);
@@ -1178,6 +1196,7 @@ export class SessionService {
       sessionKey: record.id,
       stream,
       mode: record.mode,
+      allowLive: job.allowLive,
       ...(record.requestedQuality === null ? {} : { quality: record.requestedQuality }),
       signal,
       onStatus: (status) => {
@@ -1228,6 +1247,7 @@ export class SessionService {
           tracks,
           audioTrack: audioTrack ?? null,
           bingeGroup: bingeGroupOf(stream) ?? null,
+          live: prepared.live === true,
         },
         now,
       );
