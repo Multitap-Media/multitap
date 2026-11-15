@@ -1,3 +1,6 @@
+## 2026-11-15
+* **Update**: Updated concept `decision/live-hls-sealed-paths.md` (the maintainer confirmed the choices; status `stable`) and its `decision/index.md` entry.
+
 ## 2026-11-11
 * **Creation**: Documented concept `decision/live-hls-sealed-paths.md` (the choices made building live HLS, to be confirmed by the maintainer), with its `decision/index.md` and `project-map.md` entries.
 * **Update**: Live HLS built (phase 4, item 9). Updated `architecture/media-gateway.md` (an "As built" section under Live), `architecture/engine-prepare-stream.md` (when `live` is still a failure; the live row of the matrix), `architecture/engine-endpoints-core-uses.md` (the HLS proxy endpoints), `concept/delivery-modes.md` (`direct` for a live source), `architecture/core-persistence.md` (`live` columns, migration `0013_live_sessions`), `architecture/playback-session.md`, `architecture/engine-module.md`, `process/build-plan.md` and `process/phase-4-core-checklist.md`, with their index entries.
