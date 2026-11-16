@@ -331,6 +331,18 @@ describe('when the engine does not finish', () => {
     expect((await view(r, id)).failureReason).toBe('prepare-too-large');
   });
 
+  it('starts a job queued after a pass that found none', async () => {
+    const r = await rig();
+    // As at startup: a pass with nothing to do, which must not end the scheduler.
+    await r.service.prepareJobs.tick();
+    await r.service.prepareJobs.tick();
+    const id = await full(r);
+    expect(await jobOf(r, id)).toMatchObject({ state: 'running' });
+    expect(
+      r.fake.requests.filter((q) => q.method === 'POST' && q.path.endsWith('/prepare')),
+    ).toHaveLength(1);
+  });
+
   it('says why a due job has not started when the engine cannot be reached', async () => {
     const r = await rig();
     const id = await full(r, 'movie', { readyBy: iso(r.clock() + 5 * HOUR) });

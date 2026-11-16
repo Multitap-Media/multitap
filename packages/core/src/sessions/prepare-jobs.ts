@@ -251,22 +251,24 @@ export class PrepareJobs {
     }
     this.#passSince = this.#o.clock();
     this.#passReported = false;
-    this.#running = (async () => {
-      try {
-        do {
-          for (const job of [...this.#jobs.values()]) {
-            if (this.#stopped) return;
-            try {
-              await this.#step(job);
-            } catch (err) {
-              this.#o.logger.error({ err, sessionId: job.sessionId }, 'preparation step failed');
-            }
+    // Cleared with `finally` on the promise, never inside the function: a pass
+    // with no jobs has nothing to await and ends before the assignment below,
+    // which would then keep a settled promise and stop every later pass.
+    const pass = (async () => {
+      do {
+        for (const job of [...this.#jobs.values()]) {
+          if (this.#stopped) return;
+          try {
+            await this.#step(job);
+          } catch (err) {
+            this.#o.logger.error({ err, sessionId: job.sessionId }, 'preparation step failed');
           }
-        } while (this.#takeAgain());
-      } finally {
-        this.#running = undefined;
-      }
-    })();
+        }
+      } while (this.#takeAgain());
+    })().finally(() => {
+      if (this.#running === pass) this.#running = undefined;
+    });
+    this.#running = pass;
     return this.#running;
   }
 

@@ -85,10 +85,13 @@ repository; their tags are not part of this repository's history.
   through the HLS proxy; if its media playlist lists segments and has no
   `#EXT-X-ENDLIST`, the session is live, without `progress.info`. A recording
   still fails with `probe-failed`.
-- **A preparation that is due and doesn't start now says why.** A start that
-  could not reach the engine was logged at `debug` only; it is a warning now
-  (the first time, then every twentieth try), and a pass that runs over a
-  minute is reported, since every job waits behind it.
+- **Preparations never started after a normal start of Multitap.** A scheduler
+  pass that found no jobs (the first one, at startup, unless a job was stored)
+  left the scheduler marked as running, so no later job was started until a
+  restart with a stored job. Found on the reference engine.
+- A preparation start that could not reach the engine was logged at `debug`
+  only; it is a warning now (the first time, then every twentieth try), and a
+  pass that runs over a minute is reported, since every job waits behind it.
 
 ### Changed
 

@@ -7,7 +7,7 @@ generated: { by: "agent/claude", at: "2026-11-10T12:00:00Z" }
 status: draft
 ---
 
-The work list for phase 4 of [[process/build-plan]], written on 2026-11-10, when items 6, 7 and 8 of the engine tracking issue were done ([[process/upstream-engine-asks]]). The design is [[architecture/engine-prepare-ahead]]; this concept lists what to build and in what order, and it doesn't replace that design. Items 1 to 8 were built on 2026-11-10 against the fake engine, with the choices recorded in [[decision/prepare-on-engine-side]]; item 9 (live HLS) was built on 2026-11-11 ([[decision/live-hls-sealed-paths]]). A first run against the reference engine was made on 2026-11-15 (below); part of it is still open.
+The work list for phase 4 of [[process/build-plan]], written on 2026-11-10, when items 6, 7 and 8 of the engine tracking issue were done ([[process/upstream-engine-asks]]). The design is [[architecture/engine-prepare-ahead]]; this concept lists what to build and in what order, and it doesn't replace that design. Items 1 to 8 were built on 2026-11-10 against the fake engine, with the choices recorded in [[decision/prepare-on-engine-side]]; item 9 (live HLS) was built on 2026-11-11 ([[decision/live-hls-sealed-paths]]). It was run against the reference engine on 2026-11-15 and 16 (below).
 
 **What existed before.** The API already declared the phase 4 shapes: `mode: 'full'`, `readyBy`, the `preparing` status, `progress.preparedPct` and the four `prepare.*` events (`packages/api/src/sessions.ts`, `events.ts`). Core refused them: `POST /v1/sessions` with `mode: 'full'` or a `readyBy`, and `PATCH` with a `readyBy`, answer `501` (`sessions/service.ts`), and the engine module rejects `mode: 'full'` (`engines/engine-module.ts`). The `prepare_jobs` table isn't created ([[architecture/core-persistence]]). Phase 4 is therefore additive on `/v1`: no schema is removed and `api:diff` should show no breaking change.
 
@@ -42,23 +42,39 @@ The maintainer said to go with the assumptions (2026-11-10); they are recorded i
 4. **The warm-up:** none for `full` sessions; unchanged for `play` sessions ([[architecture/engine-prepare-stream]]).
 5. **Order:** prepare jobs first, then live HLS.
 
-## The run against the reference engine (2026-11-15, interim)
+## The run against the reference engine (2026-11-15 and 16)
 
-Rivulet Engine v0.31.0 on Windows with QSV, core at the merge of live HLS, local test sources.
+Rivulet Engine v0.31.0 on Windows with QSV and tone mapping, persistence and session overrides on, a proxy password set; core from source; local test sources (1080p and 4K files, a two-audio file, three live channels: plain, behind `proxyHeaders`, AES-128). Every step of the plan passed after three fixes in core.
 
-- **Prepare, 1080p:** a 45-minute HEVC source was prepared in about 16 minutes; `preparedPct` rose to 100, then `prepare.done`, and the session was `ready` with `progress.phase: 'prepared'` (there is no `prepared` status).
-- **Prepare, a job that didn't start:** in the first core process the job was queued and never started, with nothing logged; after a restart of core it started at once. Not reproduced, cause unknown. The one silent path in the scheduler was a start that didn't reach the engine (logged at `debug`); that is a warning now, and a pass that runs over a minute is reported.
-- **Live, plain channel, engine with a proxy password:** passed. No URL, host or password in any playlist; 75 s played and the playlist advanced.
-- **Live with `proxyHeaders`:** failed with `probe-failed`, fixed on 2026-11-16 ([[architecture/engine-prepare-stream]] step 3).
-- **Live, AES-128:** failed with `probe-failed` because the engine's probe can't read it ([[process/upstream-engine-asks]] ask 14); core now reads the playlist instead ([[architecture/media-gateway]]).
-- **Refusals:** `delivery: 'transcode'` and `mode: 'full'` fail with `live`; a `Range` on a segment answers `206`. `delivery: 'direct'` as an explicit value is `501` (not built), not `live`.
+**Found and fixed in core.**
+
+- **Preparations never started after a normal start.** A scheduler pass over no jobs ended before its promise was stored, so the scheduler stayed marked as running and every later pass returned at once. A start with a stored job hid it. Fixed on 2026-11-16 (`PrepareJobs.tick`), with a warning when a start can't reach the engine and when a pass runs over a minute.
+- **Live with `proxyHeaders`** failed with `probe-failed`; the probe now goes through the engine's HLS proxy ([[architecture/engine-prepare-stream]] step 3).
+- **Live, AES-128** failed with `probe-failed` because the engine's probe can't read it ([[process/upstream-engine-asks]] ask 14); core reads the playlist instead ([[architecture/media-gateway]]). Such a session is ready only after the engine's probe has timed out, about 30 s.
+
+**Measured.**
+
+- 1080p HEVC, 45 min: prepared in about 15 min, 671 segments, 3.43 GB. The whole prepared session was read back in 16 s.
+- 4K HEVC HDR, 27.6 min: 42.9 min of wall time (about 0.64 times real time, with tone mapping), 414 segments, 2.10 GB as 1080p SDR; `preparedPct` rose evenly.
+- Two audio tracks with `MULTITAP_PREPARE_ALL_AUDIO`: every rendition prepared and played.
+- An engine restart mid-job: the engine resumed the job and core saw no loss. A deleted engine session: `prepare.lost` one poll later, and the job started again.
+- `readyBy` with a short lead time: started at `readyBy` minus the lead time; `prepare.late` at `readyBy`.
+- Preparation off on the engine: `full` fails with `prepare-unsupported`, `play` is unaffected.
+- Live: no URL, host, password or header value in any playlist or in core's log; names from one session answer `404` under another's token; `Range` answers `206`; after a release everything answers `410`.
+
+**Seen, not changed.**
+
+- The WebVTT subtitle rendition isn't prepared by the engine: each subtitle segment of the 4K source took about 13 s on demand.
+- A `full` session without `retainUntil` or `readyBy` is released an hour after its last access, so an hour after `prepare.done` if nobody plays it, whatever `MULTITAP_PREPARE_SESSION_TTL_MS` says ([[architecture/engine-retention]]). To be decided by the maintainer.
 - The engine's support for preparation isn't shown in `/v1` or at startup; it is probed on the first `full` session.
+- A session that fails within milliseconds can fail before a client's event stream is open; a client reads the session after subscribing.
+- `delivery: 'direct'` as an explicit value is `501` (not built), not `live`. The status after preparing is `ready` with `progress.phase: 'prepared'`.
 
 ## Still open
 
-- The rest of the run: playback of a prepared session, a real 4K source, an engine restart mid-job, `readyBy` with a short lead time, all-audio, a name under another session's token, release, and the two live fixes above on the real engine.
-- The job that didn't start: reproduce it with the new warnings.
+- How long a prepared session without a `readyBy` is kept (above).
 - Show the engine's preparation support in its capabilities.
+- Ask the engine to prepare the subtitle rendition, and to probe AES-128 playlists ([[process/upstream-engine-asks]]).
 - Auto-select for a `full` session counts `prepared`-only candidates, but its attempt timeout and attempt count are the ones tuned for live playback.
 
 Related: [[architecture/engine-prepare-ahead]], [[process/build-plan]], [[process/engine-upstream-prs]], [[process/abr-ladder-core-checklist]].
