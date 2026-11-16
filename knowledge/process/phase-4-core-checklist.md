@@ -7,7 +7,7 @@ generated: { by: "agent/claude", at: "2026-11-10T12:00:00Z" }
 status: draft
 ---
 
-The work list for phase 4 of [[process/build-plan]], written on 2026-11-10, when items 6, 7 and 8 of the engine tracking issue were done ([[process/upstream-engine-asks]]). The design is [[architecture/engine-prepare-ahead]]; this concept lists what to build and in what order, and it doesn't replace that design. Items 1 to 8 were built on 2026-11-10 against the fake engine, with the choices recorded in [[decision/prepare-on-engine-side]]; item 9 (live HLS) was built on 2026-11-11 ([[decision/live-hls-sealed-paths]]). It was run against the reference engine on 2026-11-15 and 16 (below).
+The work list for phase 4 of [[process/build-plan]], written on 2026-11-10, when items 6, 7 and 8 of the engine tracking issue were done ([[process/upstream-engine-asks]]). The design is [[architecture/engine-prepare-ahead]]; this concept lists what to build and in what order, and it doesn't replace that design. Items 1 to 8 were built on 2026-11-10 against the fake engine, with the choices recorded in [[decision/prepare-on-engine-side]]; item 9 (live HLS) was built on 2026-11-11 ([[decision/live-hls-sealed-paths]]). It was run against the reference engine on 2026-11-15 and 16, and the fixes that came from it were run there again once merged (below).
 
 **What existed before.** The API already declared the phase 4 shapes: `mode: 'full'`, `readyBy`, the `preparing` status, `progress.preparedPct` and the four `prepare.*` events (`packages/api/src/sessions.ts`, `events.ts`). Core refused them: `POST /v1/sessions` with `mode: 'full'` or a `readyBy`, and `PATCH` with a `readyBy`, answer `501` (`sessions/service.ts`), and the engine module rejects `mode: 'full'` (`engines/engine-module.ts`). The `prepare_jobs` table isn't created ([[architecture/core-persistence]]). Phase 4 is therefore additive on `/v1`: no schema is removed and `api:diff` should show no breaking change.
 
@@ -63,6 +63,12 @@ Rivulet Engine v0.31.0 on Windows with QSV and tone mapping, persistence and ses
 - Live: no URL, host, password or header value in any playlist or in core's log; names from one session answer `404` under another's token; `Range` answers `206`; after a release everything answers `410`.
 
 - **A prepared session was released an hour after its preparation** when nobody played it. A `full` session is now kept for `MULTITAP_PREPARE_SESSION_TTL_MS` ([[architecture/engine-retention]]; maintainer, 2026-11-16).
+
+**Run again on the merged fixes (2026-11-16).** Core at the merge of the fixes, the same engine, 3-minute 1080p sources, a 3 s poll, an idle time of 60 s, a prepare TTL of 10 min and a 10 s sweep. Every step passed.
+
+- **The scheduler:** in a core that started with no engine and no stored jobs and was never restarted, the first `full` session's job started 12 ms after it was queued, and a second one, made after the first was done, in 15 ms. No pass was reported as still running.
+- **An engine that is stopped:** the warning that a due job couldn't reach the engine was logged once and then every twentieth try (once a minute at this poll). The job started within one poll of the engine coming back.
+- **Retention:** a prepared session nobody touched was still `ready` 182 s after `prepare.done` and was released 602 s after it; its media then answered `410` and the engine had dropped its data. One with a `readyBy` was released 605 s after the `readyBy`. A `play` session and a `full` session that failed its probe were released after 63 s, the idle time.
 
 **Seen, not changed.**
 
