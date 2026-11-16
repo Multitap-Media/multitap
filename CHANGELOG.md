@@ -72,6 +72,24 @@ repository; their tags are not part of this repository's history.
   against `MULTITAP_ADDON_PRIVATE_ALLOW` before the engine is asked for it.
   Migration `0013_live_sessions`.
 
+### Fixed
+
+- **Live and HLS sources with `proxyHeaders`.** Their probe read the playlist
+  through the engine's `/proxy/stream`, which passes it on unchanged, so the
+  engine could not resolve its relative children and the session failed with
+  `probe-failed`. When that probe fails, Multitap now probes through the
+  engine's HLS proxy: a live channel becomes a live session, and a recording
+  is transcoded through the HLS proxy URL.
+- **Live channels the engine can't probe** (AES-128 ones, on Rivulet Engine
+  v0.31.0). When the probe of what may be a playlist fails, Multitap reads it
+  through the HLS proxy; if its media playlist lists segments and has no
+  `#EXT-X-ENDLIST`, the session is live, without `progress.info`. A recording
+  still fails with `probe-failed`.
+- **A preparation that is due and doesn't start now says why.** A start that
+  could not reach the engine was logged at `debug` only; it is a warning now
+  (the first time, then every twentieth try), and a pass that runs over a
+  minute is reported, since every job waits behind it.
+
 ### Changed
 
 - `mode: 'full'` and `readyBy` no longer answer `501`. A create with `readyBy`

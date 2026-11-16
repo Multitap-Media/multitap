@@ -244,10 +244,9 @@ describe('a live session', () => {
 
 describe('through the gateway', () => {
   it('serves the playlists with sealed names and passes the segments through', async () => {
-    // With `proxyHeaders` the probe reads the engine's own proxy URL: every probe here is live.
-    const { r, session, viewer } = await setup({
-      fake: { proxyPassword: PASSWORD, defaultProbe: 'zero-duration' },
-    });
+    // With `proxyHeaders` the probe reads the engine's own proxy URL: through
+    // `/proxy/stream` it fails on a playlist, through the HLS proxy it finds it live.
+    const { r, session, viewer } = await setup({ fake: { proxyPassword: PASSWORD } });
     await putEngine(r.db, 'home', {
       ...HOME_ENGINE,
       address: 'http://engine.test:11470',
@@ -350,6 +349,57 @@ describe('through the gateway', () => {
     expect(gateway.viewers.list(id)).toMatchObject([{ subject: 'tv', lastFile: 'live/segment' }]);
     // Proxied, not transcoded: no engine load.
     expect(r.service.engineLoad('home')).toEqual({ resolving: 0, playing: 0 });
+  });
+
+  it('plays a channel the engine cannot probe, when its playlist shows it is live', async () => {
+    const { r, session, viewer } = await setup();
+    // An AES-128 channel on an engine whose probe doesn't read encrypted HLS.
+    r.fake.addLive(CHANNEL, { encrypted: true, unprobeable: true });
+    r.fake.setProbe(CHANNEL, 'failing');
+    const id = await session(liveStream);
+    expect(await r.service.get(id)).toMatchObject({ status: 'ready', live: true });
+    const get = await viewer(id);
+    const [, variant] = uris(await (await get('master.m3u8')).text());
+    expect((await get(variant ?? '')).status).toBe(200);
+
+    // Behind `proxyHeaders` too, where neither proxy URL can be probed.
+    const headed = await session({
+      ...liveStream,
+      behaviorHints: { proxyHeaders: { request: { Referer: 'https://site.example/' } } },
+    } as unknown as Stream);
+    expect(await r.service.get(headed)).toMatchObject({ status: 'ready', live: true });
+  });
+
+  it('does not take a recording it cannot probe for a live channel', async () => {
+    const { r, session } = await setup();
+    r.fake.addLive(CHANNEL, { ended: true, unprobeable: true });
+    r.fake.setProbe(CHANNEL, 'failing');
+    const id = await session(liveStream);
+    expect(await r.service.get(id)).toMatchObject({
+      status: 'failed',
+      failureReason: 'probe-failed',
+    });
+  });
+
+  it('transcodes a recording with proxyHeaders through the HLS proxy', async () => {
+    const { r, session } = await setup({ fake: { proxyPassword: PASSWORD } });
+    await putEngine(r.db, 'home', {
+      ...HOME_ENGINE,
+      address: 'http://engine.test:11470',
+      proxyPassword: PASSWORD,
+    });
+    r.fake.addLive(CHANNEL, { ended: true });
+    const id = await session({
+      ...liveStream,
+      behaviorHints: { proxyHeaders: { request: { Referer: 'https://site.example/' } } },
+    } as unknown as Stream);
+    const record = await r.service.get(id);
+    expect(record).toMatchObject({ status: 'ready' });
+    expect(record?.live).toBeUndefined();
+    const [made] = r.fake.masterRequests;
+    expect(made?.mediaURL).toContain('/proxy/hls/manifest.m3u8?d=');
+    expect(made?.mediaURL).toContain('h_Referer=');
+    expect(r.fake.proxyRefusals).toEqual([]);
   });
 
   it('opens a name only under its own session, and nothing made up', async () => {

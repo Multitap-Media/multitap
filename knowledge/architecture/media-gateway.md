@@ -79,7 +79,11 @@ switches the room to live sync.
 **As built (2026-11-11;** [[decision/live-hls-sealed-paths]]**).**
 
 - **When.** A source whose probe finds zero duration on an HLS playlist is
-  live. With `delivery: 'auto'` and `mode: 'play'` it becomes a live session;
+  live. A source the engine can't probe (an AES-128 channel on Rivulet Engine
+  v0.31.0) is live when its playlist, read through the HLS proxy, shows it:
+  the media playlist (the first variant's, for a master) lists segments and
+  has no `#EXT-X-ENDLIST`. Such a session has no `progress.info`
+  (2026-11-16, found on the reference engine). With `delivery: 'auto'` and `mode: 'play'` it becomes a live session;
   with `delivery: 'transcode'` or `mode: 'full'`, or on an engine without the
   HLS proxy, it fails with `live` as before ([[architecture/engine-prepare-stream]]).
 - **The session** is `ready` with `live: true`, `delivery: 'direct'` and

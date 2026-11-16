@@ -1,3 +1,6 @@
+## 2026-11-16
+* **Update**: First run of phase 4 against the reference engine. Updated `process/phase-4-core-checklist.md` (the results and what is still open), `architecture/engine-prepare-stream.md` (step 3: the probe through the HLS proxy for `proxyHeaders` sources, and a live session from the playlist when no probe works), `architecture/media-gateway.md` (a live source the engine can't probe) and `process/upstream-engine-asks.md` (ask 14: the probe of an AES-128 playlist).
+
 ## 2026-11-15
 * **Update**: Updated concept `decision/live-hls-sealed-paths.md` (the maintainer confirmed the choices; status `stable`) and its `decision/index.md` entry.
 

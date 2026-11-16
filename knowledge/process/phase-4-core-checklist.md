@@ -7,7 +7,7 @@ generated: { by: "agent/claude", at: "2026-11-10T12:00:00Z" }
 status: draft
 ---
 
-The work list for phase 4 of [[process/build-plan]], written on 2026-11-10, when items 6, 7 and 8 of the engine tracking issue were done ([[process/upstream-engine-asks]]). The design is [[architecture/engine-prepare-ahead]]; this concept lists what to build and in what order, and it doesn't replace that design. Items 1 to 8 were built on 2026-11-10 against the fake engine, with the choices recorded in [[decision/prepare-on-engine-side]]; item 9 (live HLS) was built on 2026-11-11 ([[decision/live-hls-sealed-paths]]). A run against the reference engine is still open.
+The work list for phase 4 of [[process/build-plan]], written on 2026-11-10, when items 6, 7 and 8 of the engine tracking issue were done ([[process/upstream-engine-asks]]). The design is [[architecture/engine-prepare-ahead]]; this concept lists what to build and in what order, and it doesn't replace that design. Items 1 to 8 were built on 2026-11-10 against the fake engine, with the choices recorded in [[decision/prepare-on-engine-side]]; item 9 (live HLS) was built on 2026-11-11 ([[decision/live-hls-sealed-paths]]). A first run against the reference engine was made on 2026-11-15 (below); part of it is still open.
 
 **What existed before.** The API already declared the phase 4 shapes: `mode: 'full'`, `readyBy`, the `preparing` status, `progress.preparedPct` and the four `prepare.*` events (`packages/api/src/sessions.ts`, `events.ts`). Core refused them: `POST /v1/sessions` with `mode: 'full'` or a `readyBy`, and `PATCH` with a `readyBy`, answer `501` (`sessions/service.ts`), and the engine module rejects `mode: 'full'` (`engines/engine-module.ts`). The `prepare_jobs` table isn't created ([[architecture/core-persistence]]). Phase 4 is therefore additive on `/v1`: no schema is removed and `api:diff` should show no breaking change.
 
@@ -42,10 +42,23 @@ The maintainer said to go with the assumptions (2026-11-10); they are recorded i
 4. **The warm-up:** none for `full` sessions; unchanged for `play` sessions ([[architecture/engine-prepare-stream]]).
 5. **Order:** prepare jobs first, then live HLS.
 
+## The run against the reference engine (2026-11-15, interim)
+
+Rivulet Engine v0.31.0 on Windows with QSV, core at the merge of live HLS, local test sources.
+
+- **Prepare, 1080p:** a 45-minute HEVC source was prepared in about 16 minutes; `preparedPct` rose to 100, then `prepare.done`, and the session was `ready` with `progress.phase: 'prepared'` (there is no `prepared` status).
+- **Prepare, a job that didn't start:** in the first core process the job was queued and never started, with nothing logged; after a restart of core it started at once. Not reproduced, cause unknown. The one silent path in the scheduler was a start that didn't reach the engine (logged at `debug`); that is a warning now, and a pass that runs over a minute is reported.
+- **Live, plain channel, engine with a proxy password:** passed. No URL, host or password in any playlist; 75 s played and the playlist advanced.
+- **Live with `proxyHeaders`:** failed with `probe-failed`, fixed on 2026-11-16 ([[architecture/engine-prepare-stream]] step 3).
+- **Live, AES-128:** failed with `probe-failed` because the engine's probe can't read it ([[process/upstream-engine-asks]] ask 14); core now reads the playlist instead ([[architecture/media-gateway]]).
+- **Refusals:** `delivery: 'transcode'` and `mode: 'full'` fail with `live`; a `Range` on a segment answers `206`. `delivery: 'direct'` as an explicit value is `501` (not built), not `live`.
+- The engine's support for preparation isn't shown in `/v1` or at startup; it is probed on the first `full` session.
+
 ## Still open
 
-- Run it against the reference engine (v0.31.0 or later, set up as above), with a real 4K source and an engine restart mid-job.
-- A real live source through the reference engine (a channel with a master playlist, one with `proxyHeaders`, an engine with a proxy password).
+- The rest of the run: playback of a prepared session, a real 4K source, an engine restart mid-job, `readyBy` with a short lead time, all-audio, a name under another session's token, release, and the two live fixes above on the real engine.
+- The job that didn't start: reproduce it with the new warnings.
+- Show the engine's preparation support in its capabilities.
 - Auto-select for a `full` session counts `prepared`-only candidates, but its attempt timeout and attempt count are the ones tuned for live playback.
 
 Related: [[architecture/engine-prepare-ahead]], [[process/build-plan]], [[process/engine-upstream-prs]], [[process/abr-ladder-core-checklist]].

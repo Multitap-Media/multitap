@@ -30,6 +30,7 @@ Source of truth for preparing a stream for playback  Interface and overview: [[a
    first, also when the stream has a `fileIdx` (to add the torrent and wait for
    its metadata).
 3. **Probe** with `/hlsv2/probe`. Failure, or zero duration for VOD → unplayable.
+   As built (2026-11-16), two more tries follow a failed probe. A `proxyHeaders` source is probed again through the engine's HLS proxy URL (`/proxy/hls/manifest.m3u8`, with the password), because `/proxy/stream` passes a playlist on unchanged and the engine can't resolve its relative children; when that works, the HLS proxy URL is the session's `mediaURL`. And when no probe works for what may be a playlist (an `.m3u8` name, or any `proxyHeaders` source) and a live session is allowed, core reads the playlist through the HLS proxy and makes a live session if its media playlist is unended ([[architecture/media-gateway]]).
    Record height/width/codec/duration in `status.info` (HDR too, if an engine
    ever reports it; server-go's probe doesn't, [[architecture/engine-endpoints-core-uses]]). As built, the probe's
    audio streams and text subtitle streams (the codecs server-go converts to

@@ -487,7 +487,13 @@ export function createServerGoClient(options: ServerGoClientOptions): ServerGoCl
 
     withApiPassword(mediaURL: string, apiPassword: string | undefined): string {
       if (apiPassword === undefined || apiPassword === '') return mediaURL;
-      if (!mediaURL.startsWith(`${selfBase}/proxy/stream?`)) return mediaURL;
+      // Only the engine's own proxy URLs, which Multitap builds itself.
+      if (
+        !mediaURL.startsWith(`${selfBase}/proxy/stream?`) &&
+        !mediaURL.startsWith(`${selfBase}/proxy/hls/manifest.m3u8?`)
+      ) {
+        return mediaURL;
+      }
       return `${mediaURL}&api_password=${encodeURIComponent(apiPassword)}`;
     },
 

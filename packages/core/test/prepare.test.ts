@@ -331,6 +331,22 @@ describe('when the engine does not finish', () => {
     expect((await view(r, id)).failureReason).toBe('prepare-too-large');
   });
 
+  it('says why a due job has not started when the engine cannot be reached', async () => {
+    const r = await rig();
+    const id = await full(r, 'movie', { readyBy: iso(r.clock() + 5 * HOUR) });
+    r.fake.online = false;
+    r.clock.advance(4 * HOUR);
+    const said = () => r.log.text().split('preparation not started').length - 1;
+    await pass(r);
+    await pass(r);
+    expect(await jobOf(r, id)).toMatchObject({ state: 'scheduled' });
+    // Once, not on every pass.
+    expect(said()).toBe(1);
+    r.fake.online = true;
+    await pass(r);
+    expect(await jobOf(r, id)).toMatchObject({ state: 'running' });
+  });
+
   it('waits for an engine that does not answer, and queues a lost job again', async () => {
     const r = await rig({ fake: { prepareSegmentsPerPoll: 10 } });
     const id = await full(r);
