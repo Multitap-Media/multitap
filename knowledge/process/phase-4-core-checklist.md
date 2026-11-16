@@ -44,7 +44,7 @@ The maintainer said to go with the assumptions (2026-11-10); they are recorded i
 
 ## The run against the reference engine (2026-11-15 and 16)
 
-Rivulet Engine v0.31.0 on Windows with QSV and tone mapping, persistence and session overrides on, a proxy password set; core from source; local test sources (1080p and 4K files, a two-audio file, three live channels: plain, behind `proxyHeaders`, AES-128). Every step of the plan passed after three fixes in core.
+Rivulet Engine v0.31.0 on Windows with QSV and tone mapping, persistence and session overrides on, a proxy password set; core from source; local test sources (1080p and 4K files, a two-audio file, three live channels: plain, behind `proxyHeaders`, AES-128). Every step of the plan passed after three fixes in core; a fourth change came from it.
 
 **Found and fixed in core.**
 
@@ -62,17 +62,17 @@ Rivulet Engine v0.31.0 on Windows with QSV and tone mapping, persistence and ses
 - Preparation off on the engine: `full` fails with `prepare-unsupported`, `play` is unaffected.
 - Live: no URL, host, password or header value in any playlist or in core's log; names from one session answer `404` under another's token; `Range` answers `206`; after a release everything answers `410`.
 
+- **A prepared session was released an hour after its preparation** when nobody played it. A `full` session is now kept for `MULTITAP_PREPARE_SESSION_TTL_MS` ([[architecture/engine-retention]]; maintainer, 2026-11-16).
+
 **Seen, not changed.**
 
 - The WebVTT subtitle rendition isn't prepared by the engine: each subtitle segment of the 4K source took about 13 s on demand.
-- A `full` session without `retainUntil` or `readyBy` is released an hour after its last access, so an hour after `prepare.done` if nobody plays it, whatever `MULTITAP_PREPARE_SESSION_TTL_MS` says ([[architecture/engine-retention]]). To be decided by the maintainer.
 - The engine's support for preparation isn't shown in `/v1` or at startup; it is probed on the first `full` session.
 - A session that fails within milliseconds can fail before a client's event stream is open; a client reads the session after subscribing.
 - `delivery: 'direct'` as an explicit value is `501` (not built), not `live`. The status after preparing is `ready` with `progress.phase: 'prepared'`.
 
 ## Still open
 
-- How long a prepared session without a `readyBy` is kept (above).
 - Show the engine's preparation support in its capabilities.
 - Ask the engine to prepare the subtitle rendition, and to probe AES-128 playlists ([[process/upstream-engine-asks]]).
 - Auto-select for a `full` session counts `prepared`-only candidates, but its attempt timeout and attempt count are the ones tuned for live playback.

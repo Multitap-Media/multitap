@@ -315,7 +315,8 @@ Events are `session.status`, `session.ready`, `session.failed`,
 a bounded buffer, and the `X-Events-Replay` header says whether the replay was
 `complete`.
 
-A session is kept until `max(retainUntil, last access + MULTITAP_RETENTION_IDLE_MS)`;
+A session is kept until `max(retainUntil, last access + MULTITAP_RETENTION_IDLE_MS)`
+(a `full` session: last access, or `readyBy`, plus `MULTITAP_PREPARE_SESSION_TTL_MS`);
 `PATCH /v1/sessions/$SID` sets `retainUntil`, and `DELETE /v1/sessions/$SID`
 releases it at once (its media then answers `410`).
 
@@ -540,7 +541,7 @@ Sessions, media and engines:
 | `MULTITAP_PREPARE_LEAD_TIME_UP_TO_1080_MS` / `MULTITAP_PREPARE_LEAD_TIME_ABOVE_1080_MS` | 1 h / 36 h | How long before a `full` session's `readyBy` its preparation starts, by the source's height. Without a `readyBy`, or when that is closer, it starts at once |
 | `MULTITAP_PREPARE_POLL_MS` | 15000 | How often running preparations are read from their engines (progress, and the checks behind `prepare.late` and `prepare.lost`) |
 | `MULTITAP_PREPARE_ALL_AUDIO` | `false` | Prepare every audio rendition of a multi-audio source, not only the default one |
-| `MULTITAP_PREPARE_SESSION_TTL_MS` | 7 d | The engine `ttl` of a prepared session (engines with `sessionOverrides`), 60 s to 30 d: once its job is done the engine's idle TTL applies again, so this must cover the wait until it is watched |
+| `MULTITAP_PREPARE_SESSION_TTL_MS` | 7 d | The engine `ttl` of a prepared session (engines with `sessionOverrides`), 60 s to 30 d: once its job is done the engine's idle TTL applies again, so this must cover the wait until it is watched. Multitap keeps the session as long: this is a `full` session's idle time for retention, when it is longer than `MULTITAP_RETENTION_IDLE_MS` |
 | `MULTITAP_AUTO_SELECT_MAX_ATTEMPTS` / `MULTITAP_AUTO_SELECT_RETRY_AFTER_MS` | 5 / 30000 | Auto-select: failures before giving up; wait before retrying a failed torrent once |
 | `MULTITAP_AUTO_SELECT_ATTEMPT_TIMEOUT_MS` | 45000 | Auto-select: a candidate not ready by then is abandoned (its engine calls aborted) and the next one tried; `0` = no limit, else at least 5000. A picked source keeps the engine timeouts |
 | `MULTITAP_ENGINE_ADMISSION` | `warn` | A new session on an engine whose resolving and playing sessions already reach its `liveConcurrency`: `off`, `warn` (log a warning, go ahead) or `reject` (`503` with `Retry-After`) |

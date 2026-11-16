@@ -50,8 +50,10 @@ repository; their tags are not part of this repository's history.
   `prepare-failed`.
 - A `full` session takes sources up to the engine's `preparedMaxHeight`, isn't
   counted against `liveConcurrency`, is never released while `preparing`, and
-  is kept until `readyBy` plus `MULTITAP_RETENTION_IDLE_MS`. Its engine session
-  gets `MULTITAP_PREPARE_SESSION_TTL_MS` (7 days) as its `ttl`.
+  is kept for `MULTITAP_PREPARE_SESSION_TTL_MS` (7 days) after its last access
+  or its `readyBy`, not for `MULTITAP_RETENTION_IDLE_MS`: a prepared session
+  isn't released an hour after its preparation. Its engine session gets the
+  same time as its `ttl`.
   `MULTITAP_PREPARE_ALL_AUDIO` prepares every audio rendition;
   `MULTITAP_PREPARE_POLL_MS` sets how often engines are read.
 

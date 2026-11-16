@@ -1,4 +1,5 @@
 ## 2026-11-16
+* **Update**: A `full` session is kept for the prepare TTL (maintainer). Updated `architecture/engine-retention.md`, `architecture/engine-prepare-ahead.md` and `process/phase-4-core-checklist.md`.
 * **Update**: The run against the reference engine finished. Updated `process/phase-4-core-checklist.md` (results, measurements, the scheduler fix, what is still open) and `process/upstream-engine-asks.md` (ask 15: prepare the subtitle renditions).
 * **Update**: First run of phase 4 against the reference engine. Updated `process/phase-4-core-checklist.md` (the results and what is still open), `architecture/engine-prepare-stream.md` (step 3: the probe through the HLS proxy for `proxyHeaders` sources, and a live session from the playlist when no probe works), `architecture/media-gateway.md` (a live source the engine can't probe) and `process/upstream-engine-asks.md` (ask 14: the probe of an AES-128 playlist).
 

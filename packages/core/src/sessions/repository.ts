@@ -169,9 +169,10 @@ export interface SessionRepository {
    * Sessions not yet released (failed ones included) due for release at
    * `now`: `max(retainUntil, lastAccess + idleMs, readyBy + idleMs) <= now`
    * (okf:architecture/engine-retention), never one that is `preparing`; `readyBy` doesn't count for a failed one. Their ids,
-   * oldest first: the release reads each row itself.
+   * oldest first: the release reads each row itself. A `full` session that
+   * hasn't failed uses `preparedIdleMs` as its idle time when that is longer.
    */
-  listDueForRelease(now: number, idleMs: number): Promise<string[]>;
+  listDueForRelease(now: number, idleMs: number, preparedIdleMs?: number): Promise<string[]>;
   /** Session counts by status (the `multitap_sessions_status` gauge). */
   countByStatus(): Promise<Map<string, number>>;
   /** Sessions not yet released (for startup and the gateway's in-memory state). */

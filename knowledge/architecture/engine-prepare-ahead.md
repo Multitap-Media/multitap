@@ -129,7 +129,7 @@ Source of truth for preparing ahead  Interface and overview: [[architecture/engi
 - **Audio.** The default audio rendition, or every one with
   `MULTITAP_PREPARE_ALL_AUDIO`.
 - **Lifetime.** [[architecture/engine-retention]]: never released while
-  `preparing`, kept until `readyBy` plus the idle time, and the engine session
+  `preparing`, kept for `MULTITAP_PREPARE_SESSION_TTL_MS` after its last access or its `readyBy` ([[architecture/engine-retention]]), and the engine session
   carries `MULTITAP_PREPARE_SESSION_TTL_MS` as its `ttl`.
 - **Load.** A `full` session isn't checked against `liveConcurrency`
   ([[architecture/engine-session-lifecycle]]); the engine runs the job at low

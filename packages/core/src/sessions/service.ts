@@ -772,8 +772,9 @@ export class SessionService {
 
   /**
    * One retention pass (okf:architecture/engine-retention): releases sessions past
-   * `max(retainUntil, lastAccess + MULTITAP_RETENTION_IDLE_MS, readyBy + MULTITAP_RETENTION_IDLE_MS)`
-   * (never one that is `preparing`), retries engine
+   * `max(retainUntil, lastAccess + idle, readyBy + idle)`, where `idle` is
+   * `MULTITAP_RETENTION_IDLE_MS`, or `MULTITAP_PREPARE_SESSION_TTL_MS` for a
+   * `full` session (never one that is `preparing`), retries engine
    * releases that failed earlier, purges released ones older than
    * `MULTITAP_SESSION_RELEASED_KEEP_MS` and ended token revocations.
    * Releases run {@link SWEEP_RELEASE_CONCURRENCY} at a time; one that fails
@@ -784,7 +785,12 @@ export class SessionService {
       try {
         const { repo, config, clock, logger } = this.#o;
         const now = clock();
-        const due = await repo.listDueForRelease(now, config.sessions.retentionIdleMs);
+        const due = await repo.listDueForRelease(
+          now,
+          config.sessions.retentionIdleMs,
+          // A prepared session is kept as long as its engine session is.
+          config.prepare.sessionTtlMs,
+        );
         let released = 0;
         await forEachLimited(due, SWEEP_RELEASE_CONCURRENCY, async (id) => {
           try {
