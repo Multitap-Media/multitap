@@ -261,7 +261,7 @@ describe('readyBy', () => {
     expect(ofType(r.events, 'prepare.late')).toHaveLength(2);
   });
 
-  it('keeps the session until readyBy plus the idle time, and never sweeps one that is preparing', async () => {
+  it('keeps a prepared session for the prepare TTL, and never sweeps one that is preparing', async () => {
     const r = await rig({ fake: { prepareSegmentsPerPoll: 10 } });
     const readyBy = r.clock() + 30 * MIN;
     const id = await full(r, 'movie', { readyBy: iso(readyBy) });
@@ -276,7 +276,11 @@ describe('readyBy', () => {
     await pass(r);
     expect((await view(r, id)).status).toBe('ready');
     expect((await view(r, other)).status).toBe('preparing');
+    // Not after the idle time of a play session: as long as its engine session is kept.
     r.clock.advance(HOUR + MIN);
+    expect(await r.service.sweep()).toMatchObject({ released: 0 });
+    expect((await view(r, id)).status).toBe('ready');
+    r.clock.advance(r.config.prepare.sessionTtlMs);
     expect(await r.service.sweep()).toMatchObject({ released: 1 });
     expect((await view(r, id)).status).toBe('released');
     expect(await jobOf(r, id)).toBeUndefined();
@@ -287,6 +291,13 @@ describe('readyBy', () => {
     expect(isDueForRelease(kept, HOUR, now + HOUR)).toBe(true);
     expect(isDueForRelease({ ...kept, status: 'failed' }, HOUR, now)).toBe(true);
     expect(isDueForRelease({ ...kept, status: 'preparing' }, HOUR, now + 9 * HOUR)).toBe(false);
+    // A `full` session: the prepare TTL after its last access and after readyBy.
+    const DAY = 24 * HOUR;
+    const prepared = { ...kept, mode: 'full', status: 'ready' };
+    expect(isDueForRelease(prepared, HOUR, now + 7 * DAY - MIN, 7 * DAY)).toBe(false);
+    expect(isDueForRelease(prepared, HOUR, now + 7 * DAY, 7 * DAY)).toBe(true);
+    expect(isDueForRelease({ ...prepared, status: 'failed' }, HOUR, now, 7 * DAY)).toBe(true);
+    expect(isDueForRelease({ ...kept, mode: 'play' }, HOUR, now + HOUR, 7 * DAY)).toBe(true);
   });
 });
 
@@ -329,6 +340,34 @@ describe('when the engine does not finish', () => {
     r.fake.prepareTooLarge = true;
     const id = await full(r);
     expect((await view(r, id)).failureReason).toBe('prepare-too-large');
+  });
+
+  it('starts a job queued after a pass that found none', async () => {
+    const r = await rig();
+    // As at startup: a pass with nothing to do, which must not end the scheduler.
+    await r.service.prepareJobs.tick();
+    await r.service.prepareJobs.tick();
+    const id = await full(r);
+    expect(await jobOf(r, id)).toMatchObject({ state: 'running' });
+    expect(
+      r.fake.requests.filter((q) => q.method === 'POST' && q.path.endsWith('/prepare')),
+    ).toHaveLength(1);
+  });
+
+  it('says why a due job has not started when the engine cannot be reached', async () => {
+    const r = await rig();
+    const id = await full(r, 'movie', { readyBy: iso(r.clock() + 5 * HOUR) });
+    r.fake.online = false;
+    r.clock.advance(4 * HOUR);
+    const said = () => r.log.text().split('preparation not started').length - 1;
+    await pass(r);
+    await pass(r);
+    expect(await jobOf(r, id)).toMatchObject({ state: 'scheduled' });
+    // Once, not on every pass.
+    expect(said()).toBe(1);
+    r.fake.online = true;
+    await pass(r);
+    expect(await jobOf(r, id)).toMatchObject({ state: 'running' });
   });
 
   it('waits for an engine that does not answer, and queues a lost job again', async () => {

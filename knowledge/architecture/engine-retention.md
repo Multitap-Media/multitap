@@ -44,7 +44,12 @@ Source of truth for engine session retention  Interface and overview: [[architec
 **As built in phase 2:**
 - The sweep runs every `MULTITAP_RETENTION_SWEEP_MS` (and at startup). It releases every
   session that isn't `released` and is past
-  `max(retainUntil, lastAccess + MULTITAP_RETENTION_IDLE_MS)`, `failed` ones included,
+  `max(retainUntil, lastAccess + MULTITAP_RETENTION_IDLE_MS)`, `failed` ones included
+  (a `full` session that hasn't failed: `lastAccess`, or `readyBy`, plus
+  `MULTITAP_PREPARE_SESSION_TTL_MS` when that is longer, so a prepared session is
+  kept as long as its engine session; maintainer, 2026-11-16, after one was lost an
+  hour after its preparation on the reference engine. `lastAccess` is set when the
+  preparation finishes, and the time also counts after it was watched),
   and deletes released sessions `MULTITAP_SESSION_RELEASED_KEEP_MS` after release; until
   then their media answers `410`, afterwards `404`. `lastAccess` moves on media
   requests and session reads, written at most every 5 s per session. Releases

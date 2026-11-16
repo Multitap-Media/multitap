@@ -667,130 +667,182 @@ export class ServerGoEngineModule implements EngineModule {
 
     // Step 3: probe.
     report({ phase: 'probing' });
-    let probe: ProbeResult;
+    let probe: ProbeResult | undefined;
+    let probeError: ServerGoError | undefined;
     try {
       probe = await client.probe(outbound(mediaURL), request.signal);
     } catch (err) {
-      if (err instanceof ServerGoError && plan.kind === 'proxy') {
+      if (!(err instanceof ServerGoError)) {
+        return failed(await this.#engineFailure(request.engineId, err, request.signal), err);
+      }
+      probeError = err;
+    }
+    if (probe === undefined && plan.kind === 'proxy') {
+      // `/proxy/stream` passes a playlist's bytes on as they are, so the engine
+      // can't resolve its relative children. Its HLS proxy rewrites them: a
+      // playlist with `proxyHeaders` is read, and then transcoded, through that.
+      const viaHls = client.proxyHlsMediaURL({
+        url: plan.url,
+        requestHeaders: plan.requestHeaders,
+        responseHeaders: plan.responseHeaders,
+      });
+      try {
+        probe = await client.probe(outbound(viaHls), request.signal);
+        mediaURL = viaHls;
+      } catch (err) {
+        if (!(err instanceof ServerGoError)) {
+          return failed(await this.#engineFailure(request.engineId, err, request.signal), err);
+        }
+      }
+    }
+    const linear = plan.kind === 'url' || plan.kind === 'proxy' ? plan : undefined;
+
+    /**
+     * Makes the session a live one, played through the engine's HLS proxy and
+     * never transcoded or prepared (okf:architecture/media-gateway). `probed`
+     * is the probe that found it live. Without one (the engine's probe can't
+     * read every playlist its proxy can, an AES-128 one for instance) the
+     * playlist itself has to show it is live, and undefined means it didn't.
+     */
+    const goLive = async (
+      from: Extract<StreamPlan, { kind: 'url' | 'proxy' }>,
+      probed: ProbeResult | undefined,
+    ): Promise<PrepareResult | undefined> => {
+      const source = client.proxyHlsMediaURL({
+        url: from.url,
+        ...(from.kind === 'proxy'
+          ? { requestHeaders: from.requestHeaders, responseHeaders: from.responseHeaders }
+          : {}),
+      });
+      // The engine fetches it with its proxy password: the same check a `proxy` plan gets.
+      if (from.kind === 'url' && !(await this.#liveAllowed(entry, from.url))) {
+        log.warn(
+          'live stream refused: its url is a private host not in MULTITAP_ADDON_PRIVATE_ALLOW',
+        );
+        return failed(fail('unsupported', false));
+      }
+      let first: Response;
+      try {
+        first = await client.liveFetch({
+          endpoint: LIVE_MANIFEST_PATH,
+          dest: from.url,
+          source,
+          apiPassword: password,
+          signal: request.signal,
+        });
+      } catch (err) {
+        return failed(await this.#engineFailure(request.engineId, err, request.signal), err);
+      }
+      if (first.status !== 200) {
+        const body = await first.text().catch(() => '');
+        if (probed === undefined) return undefined;
+        if (first.status === 404 && isRouteNotFound(body)) {
+          log.info('engine has no HLS proxy; a live source cannot be played on it');
+          return failed(fail('live', false));
+        }
+        return failed({
+          ...fail('probe-failed', false),
+          detail: { engineStatus: first.status },
+        });
+      }
+      const playlist = await readPlaylist(first);
+      const usable =
+        playlist !== undefined &&
+        rewriteLivePlaylist(playlist, (t) => this.#sealer.seal(sid, t)) !== undefined;
+      if (!usable) {
+        if (probed === undefined) return undefined;
+        log.warn("the engine's HLS proxy did not answer with a playlist Multitap can pass on");
+        return failed(fail('probe-failed', false));
+      }
+      // No probe said it is live: the playlist has to (a recording isn't played this way).
+      if (
+        probed === undefined &&
+        !(await this.#unended(entry, source, playlist, password, request.signal))
+      ) {
+        return undefined;
+      }
+      const at = clock();
+      if (row === undefined) {
+        await db
+          .insertInto('engine_sessions')
+          .values({
+            sid,
+            engine_id: request.engineId,
+            session_key: request.sessionKey,
+            stream_hash: hash,
+            quality_key: qKey,
+            applied_quality_json: null,
+            media_url: source,
+            created_at: at,
+            last_used: at,
+            live: 1,
+          })
+          .execute();
+      } else {
+        await db
+          .updateTable('engine_sessions')
+          .set({
+            media_url: source,
+            applied_quality_json: null,
+            last_used: at,
+            prepared: 0,
+            live: 1,
+            release_pending_since: null,
+            release_attempts: 0,
+            release_next_at: null,
+          })
+          .where('engine_id', '=', request.engineId)
+          .where('sid', '=', sid)
+          .execute();
+      }
+      const liveStatus: EngineStatus =
+        probed === undefined ? { phase: 'ready' } : { phase: 'ready', info: mediaInfo(probed) };
+      this.#sessions.get(handleKey(request.engineId, sid))?.warm.abort();
+      this.#sessions.set(handleKey(request.engineId, sid), {
+        engineId: request.engineId,
+        sid,
+        mediaURL: source,
+        applied: undefined,
+        prepared: false,
+        live: true,
+        status: liveStatus,
+        statsAt: 0,
+        statsRefreshing: false,
+        warm: new AbortController(),
+      });
+      report(liveStatus);
+      log.debug({ sid, probed: probed !== undefined }, 'live session created');
+      return {
+        ok: true,
+        handle: { engineId: request.engineId, sid },
+        status: liveStatus,
+        live: true,
+      };
+    };
+
+    if (probe === undefined) {
+      // Only what may be a playlist: by its name, or behind `proxyHeaders`, where the name says little.
+      const maybePlaylist = linear !== undefined && (linear.hls || linear.kind === 'proxy');
+      if (linear !== undefined && maybePlaylist && request.allowLive === true && !full) {
+        const live = await goLive(linear, undefined);
+        if (live !== undefined) return live;
+      }
+      if (plan.kind === 'proxy') {
         log.warn(
           { proxyPasswordSet: entry.proxyPassword !== undefined },
           "probe of a proxyHeaders source failed; if the engine sets a proxy password, check the engine's proxyPassword",
         );
       }
-      if (err instanceof ServerGoError) {
-        // A torrent may just lack peers yet; the engine's negative-probe window is short.
-        return failed(fail('probe-failed', plan.kind === 'torrent'), err);
-      }
-      return failed(await this.#engineFailure(request.engineId, err, request.signal), err);
+      // A torrent may just lack peers yet; the engine's negative-probe window is short.
+      return failed(fail('probe-failed', plan.kind === 'torrent'), probeError);
     }
     if (!(probe.durationSec > 0)) {
-      const hls = (plan.kind === 'url' || plan.kind === 'proxy') && plan.hls;
       const isHlsFormat = probe.formatName?.split(',').includes('hls') === true;
-      if (hls || isHlsFormat) {
-        // Live: proxied, never transcoded or prepared (okf:architecture/media-gateway).
-        if (request.allowLive !== true || full || (plan.kind !== 'url' && plan.kind !== 'proxy')) {
+      if (linear?.hls === true || isHlsFormat) {
+        if (request.allowLive !== true || full || linear === undefined) {
           return failed(fail('live', false));
         }
-        const source = client.proxyHlsMediaURL({
-          url: plan.url,
-          ...(plan.kind === 'proxy'
-            ? { requestHeaders: plan.requestHeaders, responseHeaders: plan.responseHeaders }
-            : {}),
-        });
-        // The engine fetches it with its proxy password: the same check a `proxy` plan gets.
-        if (plan.kind === 'url' && !(await this.#liveAllowed(entry, plan.url))) {
-          log.warn(
-            'live stream refused: its url is a private host not in MULTITAP_ADDON_PRIVATE_ALLOW',
-          );
-          return failed(fail('unsupported', false));
-        }
-        let first: Response;
-        try {
-          first = await client.liveFetch({
-            endpoint: LIVE_MANIFEST_PATH,
-            dest: plan.url,
-            source,
-            apiPassword: password,
-            signal: request.signal,
-          });
-        } catch (err) {
-          return failed(await this.#engineFailure(request.engineId, err, request.signal), err);
-        }
-        if (first.status !== 200) {
-          const body = await first.text().catch(() => '');
-          if (first.status === 404 && isRouteNotFound(body)) {
-            log.info('engine has no HLS proxy; a live source cannot be played on it');
-            return failed(fail('live', false));
-          }
-          return failed({
-            ...fail('probe-failed', false),
-            detail: { engineStatus: first.status },
-          });
-        }
-        const playlist = await readPlaylist(first);
-        const usable =
-          playlist !== undefined &&
-          rewriteLivePlaylist(playlist, (t) => this.#sealer.seal(sid, t)) !== undefined;
-        if (!usable) {
-          log.warn("the engine's HLS proxy did not answer with a playlist Multitap can pass on");
-          return failed(fail('probe-failed', false));
-        }
-        const at = clock();
-        if (row === undefined) {
-          await db
-            .insertInto('engine_sessions')
-            .values({
-              sid,
-              engine_id: request.engineId,
-              session_key: request.sessionKey,
-              stream_hash: hash,
-              quality_key: qKey,
-              applied_quality_json: null,
-              media_url: source,
-              created_at: at,
-              last_used: at,
-              live: 1,
-            })
-            .execute();
-        } else {
-          await db
-            .updateTable('engine_sessions')
-            .set({
-              media_url: source,
-              applied_quality_json: null,
-              last_used: at,
-              prepared: 0,
-              live: 1,
-              release_pending_since: null,
-              release_attempts: 0,
-              release_next_at: null,
-            })
-            .where('engine_id', '=', request.engineId)
-            .where('sid', '=', sid)
-            .execute();
-        }
-        const liveStatus: EngineStatus = { phase: 'ready', info: mediaInfo(probe) };
-        this.#sessions.get(handleKey(request.engineId, sid))?.warm.abort();
-        this.#sessions.set(handleKey(request.engineId, sid), {
-          engineId: request.engineId,
-          sid,
-          mediaURL: source,
-          applied: undefined,
-          prepared: false,
-          live: true,
-          status: liveStatus,
-          statsAt: 0,
-          statsRefreshing: false,
-          warm: new AbortController(),
-        });
-        report(liveStatus);
-        log.debug({ sid }, 'live session created');
-        return {
-          ok: true,
-          handle: { engineId: request.engineId, sid },
-          status: liveStatus,
-          live: true,
-        };
+        return (await goLive(linear, probe)) ?? failed(fail('probe-failed', false));
       }
       return failed(fail('probe-failed', plan.kind === 'torrent'));
     }
@@ -1174,6 +1226,49 @@ export class ServerGoEngineModule implements EngineModule {
       .where('engine_id', '=', handle.engineId)
       .where('sid', '=', handle.sid)
       .execute();
+  }
+
+  /**
+   * Whether a playlist the engine's HLS proxy answered is a live one: its media
+   * playlist (the first variant's, for a master) lists segments and has no
+   * `#EXT-X-ENDLIST`.
+   */
+  async #unended(
+    entry: EngineEntry,
+    source: string,
+    playlist: string,
+    password: string | undefined,
+    signal: AbortSignal | undefined,
+  ): Promise<boolean> {
+    let text = playlist;
+    const lines = text.split('\n').map((line) => line.trim());
+    const variant = lines.findIndex((line) => line.startsWith('#EXT-X-STREAM-INF'));
+    if (variant !== -1) {
+      const uri = lines.slice(variant + 1).find((line) => line !== '' && !line.startsWith('#'));
+      const target = uri === undefined ? undefined : parseEngineProxyUrl(uri);
+      if (target?.ext !== 'm3u8' || !(await this.#liveAllowed(entry, target.dest))) return false;
+      let res: Response;
+      try {
+        res = await entry.client.liveFetch({
+          endpoint: LIVE_MANIFEST_PATH,
+          dest: target.dest,
+          source,
+          apiPassword: password,
+          signal,
+        });
+      } catch (err) {
+        if (isAbort(err, signal)) throw err;
+        return false;
+      }
+      if (res.status !== 200) {
+        await res.body?.cancel().catch(() => undefined);
+        return false;
+      }
+      const child = await readPlaylist(res);
+      if (child === undefined) return false;
+      text = child;
+    }
+    return text.includes('#EXTINF') && !text.includes('#EXT-X-ENDLIST');
   }
 
   async #isLiveRow(handle: EngineHandle): Promise<boolean> {

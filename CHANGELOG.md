@@ -50,8 +50,10 @@ repository; their tags are not part of this repository's history.
   `prepare-failed`.
 - A `full` session takes sources up to the engine's `preparedMaxHeight`, isn't
   counted against `liveConcurrency`, is never released while `preparing`, and
-  is kept until `readyBy` plus `MULTITAP_RETENTION_IDLE_MS`. Its engine session
-  gets `MULTITAP_PREPARE_SESSION_TTL_MS` (7 days) as its `ttl`.
+  is kept for `MULTITAP_PREPARE_SESSION_TTL_MS` (7 days) after its last access
+  or its `readyBy`, not for `MULTITAP_RETENTION_IDLE_MS`: a prepared session
+  isn't released an hour after its preparation. Its engine session gets the
+  same time as its `ttl`.
   `MULTITAP_PREPARE_ALL_AUDIO` prepares every audio rendition;
   `MULTITAP_PREPARE_POLL_MS` sets how often engines are read.
 
@@ -71,6 +73,27 @@ repository; their tags are not part of this repository's history.
   `/proxy/hls/manifest.m3u8`. Every child a live playlist names is checked
   against `MULTITAP_ADDON_PRIVATE_ALLOW` before the engine is asked for it.
   Migration `0013_live_sessions`.
+
+### Fixed
+
+- **Live and HLS sources with `proxyHeaders`.** Their probe read the playlist
+  through the engine's `/proxy/stream`, which passes it on unchanged, so the
+  engine could not resolve its relative children and the session failed with
+  `probe-failed`. When that probe fails, Multitap now probes through the
+  engine's HLS proxy: a live channel becomes a live session, and a recording
+  is transcoded through the HLS proxy URL.
+- **Live channels the engine can't probe** (AES-128 ones, on Rivulet Engine
+  v0.31.0). When the probe of what may be a playlist fails, Multitap reads it
+  through the HLS proxy; if its media playlist lists segments and has no
+  `#EXT-X-ENDLIST`, the session is live, without `progress.info`. A recording
+  still fails with `probe-failed`.
+- **Preparations never started after a normal start of Multitap.** A scheduler
+  pass that found no jobs (the first one, at startup, unless a job was stored)
+  left the scheduler marked as running, so no later job was started until a
+  restart with a stored job. Found on the reference engine.
+- A preparation start that could not reach the engine was logged at `debug`
+  only; it is a warning now (the first time, then every twentieth try), and a
+  pass that runs over a minute is reported, since every job waits behind it.
 
 ### Changed
 

@@ -280,6 +280,13 @@ export interface FakeLive {
   sequence?: number;
   /** A line the origin's media playlists end with (e.g. a URL the engine wouldn't rewrite). */
   extraLine?: string;
+  /** The media playlists end with `#EXT-X-ENDLIST`: a recording, not a live channel. */
+  ended?: boolean;
+  /**
+   * The engine's probe can't read the channel through its HLS proxy either
+   * (an AES-128 channel on an engine whose probe doesn't allow `crypto`).
+   */
+  unprobeable?: boolean;
 }
 
 /** A session's preparation job (upstream #73). */
@@ -551,6 +558,7 @@ export class FakeEngine {
           );
         }
         if (live.extraLine !== undefined) lines.push(live.extraLine);
+        if (live.ended === true) lines.push('#EXT-X-ENDLIST');
         return { playlist: `${lines.join('\r\n')}\r\n` };
       }
       if (/^(high|audio)\/(seg\d+\.ts\?sig=origin-token|key\.bin)$/.test(rest)) {
@@ -586,7 +594,7 @@ export class FakeEngine {
   }
 
   /**
-   * False when `mediaURL` is this engine's own `/proxy/stream` URL and the
+   * False when `mediaURL` is one of this engine's own `/proxy/…` URLs and the
    * engine has a proxy password it doesn't carry (server-go's `api_password`
    * check). Other URLs are always allowed.
    */
@@ -597,7 +605,7 @@ export class FakeEngine {
     } catch {
       return true;
     }
-    if (url.origin !== FAKE_SELF_BASE || url.pathname !== '/proxy/stream') return true;
+    if (url.origin !== FAKE_SELF_BASE || !url.pathname.startsWith('/proxy/')) return true;
     const password = this.options.proxyPassword;
     if (password === undefined || password === '') return true;
     if (url.searchParams.get('api_password') === password) return true;
@@ -605,10 +613,37 @@ export class FakeEngine {
     return false;
   }
 
+  /**
+   * The probe of a live channel read through one of the engine's own proxy
+   * URLs, as the reference engine answers it: `/proxy/stream` passes the
+   * master's bytes on as they are, so ffprobe can't resolve its relative
+   * children and fails; `/proxy/hls/manifest.m3u8` rewrites them, and the
+   * probe finds a stream without a duration.
+   */
+  #liveProbe(mediaURL: string): FakeProbe | undefined {
+    let url: URL;
+    try {
+      url = new URL(mediaURL);
+    } catch {
+      return undefined;
+    }
+    if (url.origin !== FAKE_SELF_BASE) return undefined;
+    const d = url.searchParams.get('d');
+    if (d === null) return undefined;
+    const live = this.live.get(Buffer.from(d, 'base64url').toString('utf8'));
+    if (live === undefined) return undefined;
+    if (url.pathname === '/proxy/stream') return PROBE_FIXTURES.failing;
+    if (url.pathname !== '/proxy/hls/manifest.m3u8') return undefined;
+    if (!this.options.supportsLiveProxy || live.unprobeable === true) return PROBE_FIXTURES.failing;
+    return live.ended === true ? PROBE_FIXTURES['sdr-1080p'] : PROBE_FIXTURES['zero-duration'];
+  }
+
   /** The probe for a `mediaURL`. */
   probeFor(mediaURL: string): FakeProbe {
     const set = this.#probes.get(mediaURL);
     if (set !== undefined) return set;
+    const live = this.#liveProbe(mediaURL);
+    if (live !== undefined) return live;
     const probe = PROBE_FIXTURES[this.options.defaultProbe];
     if (this.options.playableMedia && this.options.playableRepeat > 1) {
       return { ...probe, duration: loadPlayableClip().duration * this.options.playableRepeat };

@@ -29,6 +29,10 @@ export const MAX_JOB_RESTARTS = 1;
 export const MAX_START_FAILURES = 5;
 /** A job must have run this long before its rate can call it late. */
 export const LATE_MIN_ELAPSED_MS = 60_000;
+/** A start the engine can't be reached for is logged the first time and then every this many tries. */
+export const UNREACHABLE_LOG_EVERY = 20;
+/** A pass that has run this long is reported: every job waits behind it. */
+export const SLOW_PASS_MS = 60_000;
 /** A check asked for from outside (a token mint) runs at most this often per session. */
 export const VERIFY_MIN_GAP_MS = 60_000;
 
@@ -83,6 +87,11 @@ export class PrepareJobs {
   readonly #jobs = new Map<string, PrepareJob>();
   /** Start attempts the engine refused in a row, per session. */
   readonly #startFailures = new Map<string, number>();
+  /** Start attempts that didn't reach the engine, in a row, per session. */
+  readonly #unreachable = new Map<string, number>();
+  /** When the running pass began, and whether it was reported as slow. */
+  #passSince = 0;
+  #passReported = false;
   /** When a session was last checked on request. */
   readonly #checked = new Map<string, number>();
   readonly #background = new Set<Promise<unknown>>();
@@ -178,6 +187,7 @@ export class PrepareJobs {
   /** Forgets a session's job (released or failed). The engine's job ends with its session. */
   async cancel(sessionId: string): Promise<void> {
     this.#startFailures.delete(sessionId);
+    this.#unreachable.delete(sessionId);
     this.#checked.delete(sessionId);
     if (!this.#jobs.delete(sessionId)) return;
     await this.#o.repo.deletePrepareJob(sessionId);
@@ -229,24 +239,36 @@ export class PrepareJobs {
   tick(): Promise<void> {
     if (this.#running !== undefined) {
       this.#again = true;
+      const running = this.#o.clock() - this.#passSince;
+      if (running >= SLOW_PASS_MS && !this.#passReported) {
+        this.#passReported = true;
+        this.#o.logger.warn(
+          { runningMs: running, jobs: this.#jobs.size },
+          'preparation pass still running; jobs wait behind it',
+        );
+      }
       return this.#running;
     }
-    this.#running = (async () => {
-      try {
-        do {
-          for (const job of [...this.#jobs.values()]) {
-            if (this.#stopped) return;
-            try {
-              await this.#step(job);
-            } catch (err) {
-              this.#o.logger.error({ err, sessionId: job.sessionId }, 'preparation step failed');
-            }
+    this.#passSince = this.#o.clock();
+    this.#passReported = false;
+    // Cleared with `finally` on the promise, never inside the function: a pass
+    // with no jobs has nothing to await and ends before the assignment below,
+    // which would then keep a settled promise and stop every later pass.
+    const pass = (async () => {
+      do {
+        for (const job of [...this.#jobs.values()]) {
+          if (this.#stopped) return;
+          try {
+            await this.#step(job);
+          } catch (err) {
+            this.#o.logger.error({ err, sessionId: job.sessionId }, 'preparation step failed');
           }
-        } while (this.#takeAgain());
-      } finally {
-        this.#running = undefined;
-      }
-    })();
+        }
+      } while (this.#takeAgain());
+    })().finally(() => {
+      if (this.#running === pass) this.#running = undefined;
+    });
+    this.#running = pass;
     return this.#running;
   }
 
@@ -309,6 +331,7 @@ export class PrepareJobs {
         return;
       case 'status': {
         this.#startFailures.delete(job.sessionId);
+        this.#unreachable.delete(job.sessionId);
         job.state = 'running';
         job.startedAt = clock();
         job.startSegments = result.status.cached;
@@ -329,7 +352,15 @@ export class PrepareJobs {
   async #startRefused(job: PrepareJob, err: unknown): Promise<void> {
     const { logger } = this.#o;
     if (err !== undefined && !(err instanceof ServerGoError)) {
-      logger.debug({ err, sessionId: job.sessionId }, 'preparation start: engine not reachable');
+      // Not silent: a job that is due and doesn't start has to show why.
+      const tries = (this.#unreachable.get(job.sessionId) ?? 0) + 1;
+      this.#unreachable.set(job.sessionId, tries);
+      if (tries % UNREACHABLE_LOG_EVERY === 1) {
+        logger.warn(
+          { err, sessionId: job.sessionId, tries },
+          'preparation not started: the engine could not be reached; trying again',
+        );
+      }
       return;
     }
     const failures = (this.#startFailures.get(job.sessionId) ?? 0) + 1;

@@ -286,17 +286,21 @@ export class SqliteSessionRepository implements SessionRepository {
 
   /**
    * Sessions not yet released whose retention ended: `max(retainUntil,
-   * lastAccess + idleMs) <= now` (okf:architecture/engine-retention). Failed sessions are included, so they
+   * lastAccess + idle) <= now` (okf:architecture/engine-retention). Failed sessions are included, so they
    * too end as `released` and are purged later. Only the ids are read.
+   * `idle` is `preparedIdleMs` for a `full` session that hasn't failed, when
+   * that is longer (`retention.ts` is the same rule).
    */
-  async listDueForRelease(now: number, idleMs: number): Promise<string[]> {
+  async listDueForRelease(now: number, idleMs: number, preparedIdleMs = idleMs): Promise<string[]> {
+    const fullIdle = Math.max(idleMs, preparedIdleMs);
+    const idle = sql<number>`case when mode = 'full' and status != 'failed' then ${fullIdle} else ${idleMs} end`;
     const rows = await this.#db
       .selectFrom('playback_sessions')
       .select('id')
       .where('status', 'not in', ['released', 'preparing'])
       .where(
         // A failed session has nothing to keep for its deadline.
-        sql<number>`max(coalesce(retain_until, 0), last_access + ${idleMs}, case when status = 'failed' then 0 else coalesce(ready_by + ${idleMs}, 0) end)`,
+        sql<number>`max(coalesce(retain_until, 0), last_access + ${idle}, case when status = 'failed' then 0 else coalesce(ready_by + ${idle}, 0) end)`,
         '<=',
         now,
       )
